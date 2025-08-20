@@ -10,6 +10,10 @@ sqlite = "2.4.0"
 voyager = "1.0.1"
 spotless = "7.0.2"
 ktlint-core = "1.5.0"
+appcompat-version = "1.7.1"
+activity-version = "1.10.1"
+kotlin-version = "2.1.10"
+constraintlayout-version = "2.2.1"
 
 [libraries]
 desugar = "com.android.tools:desugar_jdk_libs:2.1.5"
@@ -96,11 +100,15 @@ voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", vers
 
 spotless-gradle = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
 ktlint-core = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint-core" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat-version" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity-version" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout-version" }
 
 [plugins]
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlib_version" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 moko = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "moko" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-version" }
 
 [bundles]
 okhttp = ["okhttp-core", "okhttp-logging", "okhttp-brotli", "okhttp-dnsoverhttps"]

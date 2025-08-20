@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="@dimen/_4dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_background">
+
+    <TextView
+        android:id="@+id/tvTabTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/_16sp"
+        android:textColor="@color/tab_text_selector"
+        android:gravity="center"
+        tools:text="Home"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="@dimen/_8dp" />
+
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+        android:id="@+id/tabUnderline"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_4dp"
+        android:background="@color/white"
+        android:layout_marginTop="@dimen/_4dp"
+        app:round="@dimen/_8dp"
+        app:layout_constraintStart_toStartOf="@id/tvTabTitle"
+        app:layout_constraintEnd_toEndOf="@id/tvTabTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvTabTitle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

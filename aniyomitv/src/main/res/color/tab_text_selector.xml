@@ -3,7 +3,7 @@
     <!-- Selected -->
     <item android:color="@color/white" android:state_selected="true"/>
     <!-- Focused (but not selected) -->
-    <item android:color="@color/semi_transparent_white" android:state_focused="true"/>
+    <item android:color="@color/soft_white" android:state_focused="true"/>
     <!-- Default -->
     <item android:color="@color/grey"/>
 </selector>

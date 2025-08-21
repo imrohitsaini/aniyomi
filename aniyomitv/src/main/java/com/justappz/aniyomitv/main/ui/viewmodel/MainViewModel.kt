@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.justappz.aniyomitv.constants.SimpleDateFormatConstants
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 import com.justappz.aniyomitv.main.domain.usecase.GetMainScreenTabsUseCase
 import kotlinx.coroutines.Job
@@ -39,9 +40,9 @@ class MainViewModel(
         timeJob?.cancel() // cancel any previous job
         timeJob = viewModelScope.launch {
             while (true) {
-                val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val sdf = SimpleDateFormat(SimpleDateFormatConstants.TIME_IN_TWELVE_HOUR_AM_PM, Locale.getDefault())
                 _currentTime.value = sdf.format(Date())
-                delay(60_000) // wait for 1 minute
+                delay(1000) // wait for 1 minute
             }
         }
     }

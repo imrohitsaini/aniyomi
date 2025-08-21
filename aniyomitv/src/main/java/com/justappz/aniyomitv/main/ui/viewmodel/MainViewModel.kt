@@ -15,7 +15,7 @@ import java.util.Date
 import java.util.Locale
 
 class MainViewModel(
-    private val getMainScreenTabsUseCase: GetMainScreenTabsUseCase
+    private val getMainScreenTabsUseCase: GetMainScreenTabsUseCase,
 ) : ViewModel() {
 
     //region tabs
@@ -42,7 +42,7 @@ class MainViewModel(
             while (true) {
                 val sdf = SimpleDateFormat(SimpleDateFormatConstants.TIME_IN_TWELVE_HOUR_AM_PM, Locale.getDefault())
                 _currentTime.value = sdf.format(Date())
-                delay(60_000) // wait for 1 minute
+                delay(1000) // check every second
             }
         }
     }

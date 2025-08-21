@@ -7,11 +7,11 @@
     android:padding="@dimen/_4dp">
 
     <TextView
+        style="@style/AnimeTV_Text_H3"
         android:id="@+id/tvTabTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:duplicateParentState="true"
-        android:fontFamily="@font/nunito_regular"
         android:gravity="center"
         android:padding="@dimen/_8dp"
         android:textColor="@color/tab_text_selector"

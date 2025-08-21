@@ -1,0 +1,57 @@
+<resources>
+
+    <!-- Base text style for app -->
+    <style name="AnimeTV_Text_Base">
+        <item name="android:fontFamily">@font/nunito</item>
+        <item name="android:textColor">@color/anime_tv_onBackground</item>
+        <item name="android:textSize">@dimen/_16sp</item>
+    </style>
+
+    <!-- Headings -->
+    <style name="AnimeTV_Text_H1" parent="AnimeTV_Text_Base">
+        <item name="android:textSize">@dimen/_32sp</item>
+        <item name="android:fontFamily">@font/nunito_extrabold</item>
+        <item name="android:textColor">@color/anime_tv_primary</item>
+    </style>
+
+    <style name="AnimeTV_Text_H2" parent="AnimeTV_Text_Base">
+        <item name="android:textSize">@dimen/_24sp</item>
+        <item name="android:fontFamily">@font/nunito_bold</item>
+        <item name="android:textColor">@color/anime_tv_primary</item>
+    </style>
+
+    <style name="AnimeTV_Text_H3" parent="AnimeTV_Text_Base">
+        <item name="android:textSize">@dimen/_20sp</item>
+        <item name="android:fontFamily">@font/nunito_semibold</item>
+        <item name="android:textColor">@color/anime_tv_onBackground</item>
+    </style>
+
+    <!-- Body text -->
+    <style name="AnimeTV_Text_Body" parent="AnimeTV_Text_Base">
+        <item name="android:textSize">@dimen/_16sp</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/anime_tv_onBackground</item>
+    </style>
+
+    <style name="AnimeTV_Text_Body_Small" parent="AnimeTV_Text_Body">
+        <item name="android:textSize">@dimen/_14sp</item>
+        <item name="android:fontFamily">@font/nunito_light</item>
+        <item name="android:textColor">@color/anime_tv_onSurfaceVariant</item>
+    </style>
+
+    <!-- Buttons -->
+    <style name="AnimeTV_Text_Button" parent="AnimeTV_Text_Base">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">@font/nunito_bold</item>
+        <item name="android:textColor">@color/anime_tv_onPrimary</item>
+        <item name="android:textSize">@dimen/_16sp</item>
+    </style>
+
+    <!-- Subtitle / captions -->
+    <style name="AnimeTV_Text_Caption" parent="AnimeTV_Text_Base">
+        <item name="android:textSize">@dimen/_12sp</item>
+        <item name="android:fontFamily">@font/nunito_medium</item>
+        <item name="android:textColor">@color/anime_tv_onSurfaceVariant</item>
+    </style>
+
+</resources>

@@ -29,6 +29,9 @@ dependencyResolutionManagement {
         create("aniyomilibs") {
             from(files("gradle/aniyomi.versions.toml"))
         }
+        create("aniyomitvlibs") {
+            from(files("gradle/aniyomitv.versions.toml"))
+        }
     }
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

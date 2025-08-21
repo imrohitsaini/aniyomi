@@ -22,7 +22,6 @@ open class BaseActivity : AppCompatActivity() {
 
     //region onCreate
     /**
-     * onCreate is called when the activity is first created.
      * It initializes the activity and sets up any necessary components.
      * Fix rotation to landscape
      * */

@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager
 import com.justappz.aniyomitv.constants.LogKeys
 import com.justappz.aniyomitv.di.AppModule
 import com.justappz.aniyomitv.di.PreferenceModule
+import com.justappz.aniyomitv.main.di.MainModule
 import dev.mihon.injekt.patchInjekt
 import uy.kohesive.injekt.Injekt
 
@@ -20,6 +21,7 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks {
         patchInjekt()
         Injekt.importModule(AppModule(this))
         Injekt.importModule(PreferenceModule(this))
+        Injekt.importModule(MainModule())
     }
 
     //region Activity Lifecycle Callbacks

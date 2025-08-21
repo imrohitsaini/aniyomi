@@ -149,21 +149,14 @@ dependencies {
     // true type parser
     implementation(aniyomilibs.truetypeparser)
 
-    // ExoPlayer core
-    implementation("androidx.media3:media3-exoplayer:1.8.0")
 
-    // UI components (PlayerView, controls, etc.)
-    implementation("androidx.media3:media3-ui:1.8.0")
+    // Aniyomi TV Libraries
 
-    // DASH playback
-    implementation("androidx.media3:media3-exoplayer-dash:1.8.0")
-
-    // (Optional) HLS playback
-    implementation("androidx.media3:media3-exoplayer-hls:1.8.0")
-
-    // (Optional) Common utilities
-    implementation("androidx.media3:media3-common:1.8.0")
+    // Exoplayer for media playback
+    implementation(aniyomitvlibs.androidx.media3.exoplayer)
+    implementation(aniyomitvlibs.androidx.media3.exoplayer.dash)
+    implementation(aniyomitvlibs.androidx.media3.ui)
 
     // Gson for JSON parsing
-    implementation("com.google.code.gson:gson:2.13.1")
+    implementation(aniyomitvlibs.gson)
 }

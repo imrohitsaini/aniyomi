@@ -1,10 +1,10 @@
-package com.justappz.aniyomitv.navigation.adapter
+package com.justappz.aniyomitv.main.ui.adapters
 
 import androidx.core.content.ContextCompat
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseRecyclerViewAdapter
 import com.justappz.aniyomitv.databinding.ItemTabBinding
-import com.justappz.aniyomitv.navigation.model.MainScreenTab
+import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 
 class TabAdapter(
     tabs: List<MainScreenTab>,

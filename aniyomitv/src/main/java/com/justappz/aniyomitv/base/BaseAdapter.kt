@@ -14,15 +14,28 @@ open class BaseRecyclerViewAdapter<T, VB : ViewBinding>(
 
     var onItemClick: ((T, Int) -> Unit)? = null
 
-    @SuppressLint("NotifyDataSetChanged")
     /**
      * This method updates the entire list and notifies the adapter
      * Useful when you want to replace the current list with a new one
      * @param newItems List of new items to be set
      * */
-    fun updateList(newItems: List<T>) {
+    fun updateList(newItems: List<T>, recyclerView: RecyclerView) {
+        // Save current focus position
+        val focusedView = recyclerView.findFocus()
+        val focusedPos = if (focusedView != null) {
+            recyclerView.getChildAdapterPosition(focusedView)
+        } else RecyclerView.NO_POSITION
+
+        // Update list + notify
         items = newItems
-        notifyDataSetChanged()
+        notifyItemRangeChanged(0, newItems.size)
+
+        // Restore focus
+        if (focusedPos != RecyclerView.NO_POSITION && focusedPos < itemCount) {
+            recyclerView.post {
+                recyclerView.findViewHolderForAdapterPosition(focusedPos)?.itemView?.requestFocus()
+            }
+        }
     }
 
     /**
@@ -34,6 +47,22 @@ open class BaseRecyclerViewAdapter<T, VB : ViewBinding>(
         val oldSize = items.size
         items = items + newItems
         notifyItemRangeInserted(oldSize, newItems.size)
+    }
+
+    /**
+     * This method updates a single item at a specific position
+     * Useful when you only want to refresh one element (e.g., selection state)
+     * @param position The index of the item to update
+     * @param newItem The new item to be set at the position
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateItemAt(position: Int, newItem: T) {
+        if (position in items.indices) {
+            items = items.toMutableList().apply {
+                this[position] = newItem
+            }
+            notifyItemChanged(position)
+        }
     }
 
     /**

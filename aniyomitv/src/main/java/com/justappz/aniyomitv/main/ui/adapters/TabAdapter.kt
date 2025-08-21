@@ -7,7 +7,7 @@ import com.justappz.aniyomitv.databinding.ItemTabBinding
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 
 class TabAdapter(
-    tabs: List<MainScreenTab>,
+    val tabs: List<MainScreenTab>,
 ) : BaseRecyclerViewAdapter<MainScreenTab, ItemTabBinding>(
     items = tabs,
     bindingInflater = ItemTabBinding::inflate,

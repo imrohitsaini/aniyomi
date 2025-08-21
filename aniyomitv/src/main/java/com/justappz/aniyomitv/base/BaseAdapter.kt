@@ -15,27 +15,12 @@ open class BaseRecyclerViewAdapter<T, VB : ViewBinding>(
     var onItemClick: ((T, Int) -> Unit)? = null
 
     /**
-     * This method updates the entire list and notifies the adapter
-     * Useful when you want to replace the current list with a new one
+     * Updates the entire list and notifies the adapter from 0 to the end
      * @param newItems List of new items to be set
-     * */
-    fun updateList(newItems: List<T>, recyclerView: RecyclerView) {
-        // Save current focus position
-        val focusedView = recyclerView.findFocus()
-        val focusedPos = if (focusedView != null) {
-            recyclerView.getChildAdapterPosition(focusedView)
-        } else RecyclerView.NO_POSITION
-
-        // Update list + notify
+     */
+    fun updateList(newItems: List<T>) {
         items = newItems
-        notifyItemRangeChanged(0, newItems.size)
-
-        // Restore focus
-        if (focusedPos != RecyclerView.NO_POSITION && focusedPos < itemCount) {
-            recyclerView.post {
-                recyclerView.findViewHolderForAdapterPosition(focusedPos)?.itemView?.requestFocus()
-            }
-        }
+        notifyItemRangeChanged(0, items.size)
     }
 
     /**

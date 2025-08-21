@@ -10,5 +10,6 @@ fun MainScreenTabData.toDomain(): MainScreenTab {
         isSelected = this.isSelected,
         iconRes = this.iconRes,
         fragment = this.fragment,
+        tag = this.fragmentTag
     )
 }

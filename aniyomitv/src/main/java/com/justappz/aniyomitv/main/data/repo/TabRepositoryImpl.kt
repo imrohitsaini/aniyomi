@@ -12,10 +12,31 @@ import com.justappz.aniyomitv.main.ui.fragments.WatchListFragment
 class TabRepositoryImpl : TabRepository {
 
     var tabDataList = listOf(
-        MainScreenTabData(index = 0, title = "Home", isSelected = true, fragment = HomeFragment()),
-        MainScreenTabData(index = 1, title = "Search", fragment = SearchFragment()),
-        MainScreenTabData(index = 2, title = "Extension", fragment = ExtensionFragment()),
-        MainScreenTabData(index = 3, title = "Watchlist", fragment = WatchListFragment()),
+        MainScreenTabData(
+            index = 0,
+            title = "Home",
+            isSelected = true,
+            fragment = HomeFragment(),
+            fragmentTag = "home_fragment"
+        ),
+        MainScreenTabData(
+            index = 1,
+            title = "Search",
+            fragment = SearchFragment(),
+            fragmentTag = "search_fragment",
+        ),
+        MainScreenTabData(
+            index = 2,
+            title = "Extension",
+            fragment = ExtensionFragment(),
+            fragmentTag = "extension_fragment"
+        ),
+        MainScreenTabData(
+            index = 3,
+            title = "Watchlist",
+            fragment = WatchListFragment(),
+            fragmentTag = "watchlist_fragment"
+        ),
     )
 
     override fun getTabs(): List<MainScreenTab> = tabDataList.map { it.toDomain() }.sortedBy { it.index }

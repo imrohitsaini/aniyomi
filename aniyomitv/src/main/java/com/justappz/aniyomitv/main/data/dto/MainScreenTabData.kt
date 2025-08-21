@@ -8,4 +8,5 @@ data class MainScreenTabData(
     var isSelected: Boolean = false,
     val iconRes: Int? = null,
     val fragment: Fragment,
+    val fragmentTag: String
 )

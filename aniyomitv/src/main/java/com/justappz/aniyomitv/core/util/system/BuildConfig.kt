@@ -1,6 +1,6 @@
 @file:Suppress("UNUSED", "KotlinConstantConditions")
 
-package com.justappz.aniyomitv.util.system
+package com.justappz.aniyomitv.core.util.system
 
 import com.justappz.aniyomitv.BuildConfig
 

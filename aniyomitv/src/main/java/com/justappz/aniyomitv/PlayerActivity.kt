@@ -16,7 +16,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.databinding.ActivityPlayerBinding
-import com.justappz.aniyomitv.util.toObject
+import com.justappz.aniyomitv.core.util.toObject
 import eu.kanade.tachiyomi.animesource.model.Video
 import okhttp3.Headers
 

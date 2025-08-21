@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.util
+package com.justappz.aniyomitv.core.util
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray

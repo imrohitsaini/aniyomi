@@ -12,9 +12,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.justappz.aniyomitv.constants.IntentKeys
-import com.justappz.aniyomitv.databinding.ActivityMainBinding
 import com.justappz.aniyomitv.databinding.ActivityTestingBinding
-import com.justappz.aniyomitv.util.toJson
+import com.justappz.aniyomitv.core.util.toJson
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers

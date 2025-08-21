@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="ImpliedTouchscreenHardware,MissingLeanbackSupport">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+     Declare that the app can run on Android TV devices.
+     The "android.software.leanback" feature indicates the app is compatible with TV UI (Leanback library).
+     required="false" means the app **can still be installed on non-TV devices**,
+     but it will run better on TVs.
+    -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
+    <!--
+        Declare that the app **does not require a touchscreen**.
+        This is typical for TV apps since TV remotes are used instead of touch.
+        required="false" ensures non-touch devices like TVs are supported.
+    -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
@@ -11,7 +29,7 @@
     <application
         android:name=".MyApp"
         android:allowBackup="true"
-        android:banner="@drawable/ic_tv_banner"
+        android:banner="@drawable/ic_banner"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -22,6 +40,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>

@@ -1,0 +1,52 @@
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="108dp"
+            android:height="108dp"
+            android:viewportWidth="108"
+            android:viewportHeight="108">
+            <path
+                android:name="path"
+                android:pathData="M 29 54 C 29 47.372 31.636 41.009 36.322 36.322 C 41.009 31.636 47.372 29 54 29 C 60.628 29 66.991 31.636 71.678 36.322 C 76.364 41.009 79 47.372 79 54 C 79 60.628 76.364 66.991 71.678 71.678 C 66.991 76.364 60.628 79 54 79 C 47.372 79 41.009 76.364 36.322 71.678 C 31.636 66.991 29 60.628 29 54"
+                android:fillColor="#c92824"
+                android:strokeWidth="1"/>
+            <path
+                android:name="path_1"
+                android:pathData="M 33.949 54 C 33.949 49.766 35.29 45.639 37.778 42.214 C 40.267 38.789 43.777 36.239 47.804 34.93 C 51.83 33.622 56.17 33.622 60.196 34.93 C 64.223 36.239 67.733 38.789 70.222 42.214 C 72.71 45.639 74.051 49.766 74.051 54 C 74.051 58.234 72.71 62.361 70.222 65.786 C 67.733 69.211 64.223 71.761 60.196 73.07 C 56.17 74.378 51.83 74.378 47.804 73.07 C 43.777 71.761 40.267 69.211 37.778 65.786 C 35.29 62.361 33.949 58.234 33.949 54"
+                android:fillColor="#ffffff"
+                android:strokeWidth="1"/>
+            <group android:name="group">
+                <path
+                    android:name="path_2"
+                    android:pathData="M 63.998 52.877 L 48.865 44.141 C 47.961 43.62 46.833 44.272 46.833 45.314 L 46.833 62.788 C 46.833 63.832 47.963 64.483 48.865 63.961 L 63.997 55.224 C 64.901 54.703 64.901 53.399 63.998 52.877 Z"
+                    android:fillColor="#000"
+                    android:strokeWidth="1"/>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="group">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="translateX"
+                android:duration="1000"
+                android:valueFrom="-10"
+                android:valueTo="0"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"/>
+        </aapt:attr>
+    </target>
+    <target android:name="path_2">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="fillAlpha"
+                android:duration="1000"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"/>
+        </aapt:attr>
+    </target>
+</animated-vector>

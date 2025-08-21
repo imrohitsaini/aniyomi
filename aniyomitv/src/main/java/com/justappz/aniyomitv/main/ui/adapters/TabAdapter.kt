@@ -16,7 +16,7 @@ class TabAdapter(
         root.isSelected = tab.isSelected
 
         if (tab.isSelected) {
-            tabUnderline.setBackgroundColor(ContextCompat.getColor(root.context, R.color.white))
+            tabUnderline.setBackgroundColor(ContextCompat.getColor(root.context, R.color.anime_tv_primary))
         } else {
             tabUnderline.setBackgroundColor(ContextCompat.getColor(root.context, R.color.transparent))
         }

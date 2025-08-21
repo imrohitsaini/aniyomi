@@ -4,16 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.FragmentActivity
 
 /**
  * BaseActivity is a simple base class for all activities in the application.
- * It extends AppCompatActivity to provide basic functionality and can be extended
+ * It extends Activity to provide basic functionality and can be extended
  * by other activities to inherit common behavior.
  * */
-open class BaseActivity : AppCompatActivity() {
+open class BaseActivity : FragmentActivity() {
 
     //region variables
     protected val ctx: Context get() = this

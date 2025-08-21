@@ -2,6 +2,7 @@ package com.justappz.aniyomitv.main.ui.activities
 
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.justappz.aniyomitv.base.BaseActivity
@@ -28,7 +29,6 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         applyPaddingToMainView(binding.main)
-
         init()
     }
     //endregion

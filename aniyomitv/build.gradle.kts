@@ -159,4 +159,7 @@ dependencies {
 
     // Gson for JSON parsing
     implementation(aniyomitvlibs.gson)
+
+    // Leanback support library
+    implementation(aniyomitvlibs.leanback)
 }

@@ -9,10 +9,53 @@
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#7E6E6D6D</color>
 
-    <color name="color_background">#000000</color>
-    <color name="color_primary">#1E88E5</color>
     <color name="color_primary_dark">#1565C0</color>
     <color name="transparent">#00000000</color>
     <color name="soft_white">#CFCFCF</color>
+
+    <color name="anime_tv_primary">#3DA5F5</color>
+    <color name="anime_tv_onPrimary">#FFFFFF</color>
+    <color name="anime_tv_primaryContainer">#1E88E5</color>
+    <color name="anime_tv_onPrimaryContainer">#FFFFFF</color>
+
+    <color name="anime_tv_secondary">#8C50FF</color>
+    <color name="anime_tv_onSecondary">#FFFFFF</color>
+    <color name="anime_tv_secondaryContainer">#6A1B9A</color>
+    <color name="anime_tv_onSecondaryContainer">#FFFFFF</color>
+
+    <color name="anime_tv_tertiary">#00BCD4</color>
+    <color name="anime_tv_onTertiary">#FFFFFF</color>
+    <color name="anime_tv_tertiaryContainer">#0097A7</color>
+    <color name="anime_tv_onTertiaryContainer">#FFFFFF</color>
+
+    <color name="anime_tv_error">#CF6679</color>
+    <color name="anime_tv_onError">#000000</color>
+    <color name="anime_tv_errorContainer">#B00020</color>
+    <color name="anime_tv_onErrorContainer">#FFFFFF</color>
+
+    <color name="anime_tv_background">#121212</color>
+    <color name="anime_tv_onBackground">#E0E0E0</color>
+
+    <color name="anime_tv_surface">#1E1E1E</color>
+    <color name="anime_tv_onSurface">#FFFFFF</color>
+    <color name="anime_tv_surfaceVariant">#2A2A2A</color>
+    <color name="anime_tv_onSurfaceVariant">#B0B0B0</color>
+
+    <color name="anime_tv_outline">#666666</color>
+    <color name="anime_tv_outlineVariant">#444444</color>
+    <color name="anime_tv_scrim">#000000</color>
+
+    <color name="anime_tv_inverseSurface">#FFFFFF</color>
+    <color name="anime_tv_inverseOnSurface">#121212</color>
+    <color name="anime_tv_inversePrimary">#90CAF9</color>
+
+    <!-- Optional fixed and dimmed versions for cards, highlights -->
+    <color name="anime_tv_surfaceDim">#181818</color>
+    <color name="anime_tv_surfaceBright">#252525</color>
+    <color name="anime_tv_surfaceContainerLowest">#1B1B1B</color>
+    <color name="anime_tv_surfaceContainerLow">#212121</color>
+    <color name="anime_tv_surfaceContainer">#272727</color>
+    <color name="anime_tv_surfaceContainerHigh">#2E2E2E</color>
+    <color name="anime_tv_surfaceContainerHighest">#383838</color>
 
 </resources>

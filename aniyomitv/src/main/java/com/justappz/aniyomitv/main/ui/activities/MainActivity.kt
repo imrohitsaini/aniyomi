@@ -74,7 +74,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         //adapter
         tabAdapter = TabAdapter(listOf()).apply {
-            onItemClick = { tab, index -> onTabClicked(tab, index) }
+            onItemClick = { tab, _ -> onTabClicked(tab) }
         }
         tabAdapter.setHasStableIds(true)
 
@@ -115,18 +115,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     //endregion
 
     //region onTabClicked
-    private fun onTabClicked(tab: MainScreenTab, index: Int) {
+    private fun onTabClicked(tab: MainScreenTab) {
         binding.ivSettings.isSelected = false
-        // Only perform action if this tab is not already selected
-        if (!tab.isSelected) {
-            deselectPreviousTab()
-
-
-            tab.isSelected = true
-            tabAdapter.notifyItemChanged(index)
-            // Call your method here, e.g., load the fragment
-            loadFragment(tab.fragment, tab.tag)
-        }
+        loadFragment(tab.fragment, tab.tag)
     }
     //endregion
 
@@ -158,4 +149,5 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             tabAdapter.notifyItemChanged(prevIndex)
         }
     }
+    //endregion
 }

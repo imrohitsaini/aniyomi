@@ -7,7 +7,7 @@ import com.justappz.aniyomitv.databinding.ItemTabBinding
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 
 class TabAdapter(
-    val tabs: List<MainScreenTab>,
+    tabs: List<MainScreenTab>,
 ) : BaseRecyclerViewAdapter<MainScreenTab, ItemTabBinding>(
     items = tabs,
     bindingInflater = ItemTabBinding::inflate,
@@ -21,4 +21,31 @@ class TabAdapter(
             tabUnderline.setBackgroundColor(ContextCompat.getColor(root.context, R.color.transparent))
         }
     },
-)
+) {
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<ItemTabBinding>,
+        position: Int,
+    ) {
+        super.onBindViewHolder(holder, position)
+        holder.binding.root.setOnClickListener {
+            val tabs = getCurrentList()
+            val lastSelectedIndex = tabs.indexOfFirst { it.isSelected }
+
+            // Only update if clicked tab is not already selected
+            if (lastSelectedIndex != position) {
+                // Deselect previous
+                if (lastSelectedIndex != -1) {
+                    tabs[lastSelectedIndex].isSelected = false
+                    notifyItemChanged(lastSelectedIndex)
+                }
+
+                // Select current
+                tabs[position].isSelected = true
+                notifyItemChanged(position)
+
+                // Invoke click listener to load the fragment on main activity
+                onItemClick?.invoke(tabs[position], position)
+            }
+        }
+    }
+}

@@ -57,6 +57,12 @@ open class BaseRecyclerViewAdapter<T, VB : ViewBinding>(
      */
     fun getItem(position: Int): T = items[position]
 
+    /**
+     * This method retrieves the current list of items held by the adapter
+     * @return The current list of items
+     */
+    fun getCurrentList(): List<T> = items
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<VB> {
         val binding = bindingInflater(LayoutInflater.from(parent.context), parent, false)
         return BaseViewHolder(binding)

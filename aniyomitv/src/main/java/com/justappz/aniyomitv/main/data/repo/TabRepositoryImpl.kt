@@ -27,16 +27,16 @@ class TabRepositoryImpl : TabRepository {
         ),
         MainScreenTabData(
             index = 2,
-            title = "Extension",
-            fragment = ExtensionFragment(),
-            fragmentTag = "extension_fragment"
-        ),
-        MainScreenTabData(
-            index = 3,
             title = "Watchlist",
             fragment = WatchListFragment(),
             fragmentTag = "watchlist_fragment"
         ),
+        MainScreenTabData(
+            index = 3,
+            title = "Extension",
+            fragment = ExtensionFragment(),
+            fragmentTag = "extension_fragment"
+        )
     )
 
     override fun getTabs(): List<MainScreenTab> = tabDataList.map { it.toDomain() }.sortedBy { it.index }

@@ -42,7 +42,7 @@ class MainViewModel(
             while (true) {
                 val sdf = SimpleDateFormat(SimpleDateFormatConstants.TIME_IN_TWELVE_HOUR_AM_PM, Locale.getDefault())
                 _currentTime.value = sdf.format(Date())
-                delay(1000) // wait for 1 minute
+                delay(60_000) // wait for 1 minute
             }
         }
     }

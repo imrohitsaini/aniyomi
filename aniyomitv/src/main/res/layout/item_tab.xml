@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/focus_selector"
     android:padding="@dimen/_4dp">
 
     <TextView
@@ -13,6 +12,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="@dimen/_8dp"
+        android:duplicateParentState="true"
         android:textColor="@color/tab_text_selector"
         android:textSize="@dimen/_16sp"
         app:layout_constraintStart_toStartOf="parent"

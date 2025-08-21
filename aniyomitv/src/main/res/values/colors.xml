@@ -13,5 +13,6 @@
     <color name="color_primary">#1E88E5</color>
     <color name="color_primary_dark">#1565C0</color>
     <color name="transparent">#00000000</color>
+    <color name="semi_transparent_white">#34FFFFFF</color>
 
 </resources>

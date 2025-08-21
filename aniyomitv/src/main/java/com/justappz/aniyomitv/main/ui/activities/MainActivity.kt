@@ -3,6 +3,8 @@ package com.justappz.aniyomitv.main.ui.activities
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +53,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         // Load tabs from ViewModel
         mainViewModel.loadTabs()
 
+        val tintList = ContextCompat.getColorStateList(ctx, R.color.icon_tint_selector)
+        ImageViewCompat.setImageTintList(binding.ivSettings, tintList)
         binding.ivSettings.setOnClickListener(this)
     }
     //endregion

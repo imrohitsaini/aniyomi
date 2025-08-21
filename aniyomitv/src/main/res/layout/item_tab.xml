@@ -20,15 +20,15 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Home" />
 
-    <androidx.constraintlayout.utils.widget.ImageFilterView
+    <ImageView
         android:id="@+id/tabUnderline"
         android:layout_width="0dp"
         android:layout_height="@dimen/_4dp"
         android:layout_marginTop="@dimen/_2dp"
-        android:background="@color/white"
+        android:background="@color/anime_tv_primary"
         app:layout_constraintEnd_toEndOf="@id/tvTabTitle"
         app:layout_constraintStart_toStartOf="@id/tvTabTitle"
         app:layout_constraintTop_toBottomOf="@id/tvTabTitle"
-        app:round="@dimen/_8dp" />
+        tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

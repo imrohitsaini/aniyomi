@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.justappz.aniyomitv.main.ui.viewmodel.MainViewModel" />
@@ -16,6 +17,14 @@
         android:background="@color/anime_tv_background"
         tools:context=".TestingActivity">
 
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_2dp"
+            android:layout_marginBottom="@dimen/_5dp"
+            android:background="@color/anime_tv_surfaceDim"
+            app:layout_constraintBottom_toBottomOf="@id/tabs" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/tabs"
             android:layout_width="0dp"
@@ -23,9 +32,9 @@
             android:layout_marginHorizontal="@dimen/_20dp"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toStartOf="@id/tvTime"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/tvTime"
             tools:itemCount="4"
             tools:listitem="@layout/item_tab" />
 
@@ -34,27 +43,26 @@
             style="@style/AnimeTV_Text_H3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/_20dp"
+            android:text="@{viewModel.currentTime}"
+            android:textColor="@color/grey"
             app:layout_constraintBottom_toBottomOf="@id/tabs"
             app:layout_constraintEnd_toStartOf="@id/ivSettings"
-            app:layout_constraintTop_toTopOf="@id/tabs"
-            android:layout_marginEnd="@dimen/_20dp"
-            app:layout_constraintStart_toEndOf="@id/tabs"
-            android:textColor="@color/grey"
             app:layout_constraintHorizontal_chainStyle="packed"
-            android:text="@{viewModel.currentTime}"
+            app:layout_constraintStart_toEndOf="@id/tabs"
+            app:layout_constraintTop_toTopOf="@id/tabs"
             tools:text="16:05" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <ImageView
             android:id="@+id/ivSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@id/tabs"
-            android:src="@drawable/svg_settings"
-            app:layout_constraintStart_toEndOf="@id/tvTime"
             android:layout_marginEnd="@dimen/_20dp"
+            android:src="@drawable/svg_settings"
+            app:layout_constraintBottom_toBottomOf="@id/tabs"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvTime"
             app:layout_constraintTop_toTopOf="@id/tabs"
-            app:tint="@color/icon_tint_selector"
             tools:ignore="ContentDescription" />
 
         <androidx.fragment.app.FragmentContainerView
@@ -62,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tabs" />
+            app:layout_constraintTop_toBottomOf="@id/divider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="_1sp">1.00sp</dimen>
+
+    <dimen name="chips_radius">@dimen/_32dp</dimen>
+
+<!--    region Other Dimensions-->
     <dimen name="_2sp">2.00sp</dimen>
+    <dimen name="_1sp">1.00sp</dimen>
     <dimen name="_3sp">3.00sp</dimen>
     <dimen name="_4sp">4.00sp</dimen>
     <dimen name="_5sp">5.00sp</dimen>
@@ -660,4 +664,5 @@
     <dimen name="_minus58dp">-58.00dp</dimen>
     <dimen name="_minus59dp">-59.00dp</dimen>
     <dimen name="_minus60dp">-60.00dp</dimen>
+<!--    endregion-->
 </resources>

@@ -2,9 +2,14 @@ package com.justappz.aniyomitv
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.drawable.Animatable2
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.justappz.aniyomitv.databinding.SplashActivityBinding
 import com.justappz.aniyomitv.main.ui.activities.MainActivity
 import kotlinx.coroutines.delay
@@ -22,13 +27,53 @@ class SplashActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         binding = SplashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+    }
+    //endregion
 
+    //region onResume
+    override fun onResume() {
+        super.onResume()
+        loadData()
+    }
+    //endregion
+
+    //region loadData
+    private fun loadData() {
+        val drawable = binding.ivLogo.drawable
+        when (drawable) {
+            is AnimatedVectorDrawable -> {
+                drawable.registerAnimationCallback(
+                    object : Animatable2.AnimationCallback() {
+                        override fun onAnimationEnd(drawable: Drawable?) {
+                            startMain()
+                        }
+                    },
+                )
+                drawable.start()
+            }
+
+            is AnimatedVectorDrawableCompat -> {
+                drawable.registerAnimationCallback(
+                    object :
+                        Animatable2Compat.AnimationCallback() {
+                        override fun onAnimationEnd(drawable: Drawable) {
+                            startMain()
+                        }
+                    },
+                )
+                drawable.start()
+            }
+        }
+    }
+    //endregion
+
+    //region startMain
+    private fun startMain() {
         // Delay for 5 seconds, then start MainActivity
         lifecycleScope.launch {
-            delay(5000) // 5 seconds
+            delay(1000) // 5 seconds
             startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             finish()
         }
     }
-    //endregion
 }

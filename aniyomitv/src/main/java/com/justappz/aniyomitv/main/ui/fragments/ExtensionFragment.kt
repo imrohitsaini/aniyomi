@@ -112,15 +112,16 @@ class ExtensionFragment : BaseFragment() {
             title = getString(R.string.add_repo),
             description = getString(R.string.add_repo_description),
             hint = getString(R.string.add_repo_hint),
+            needCancelButton = false,
             onInputSubmitted = { dlg, input ->
                 Log.i(tag, "url $input")
                 Log.i(tag, "url $input")
-                if (ValidationUtils.isValidUrl(input)) {
+                if (ValidationUtils.isValidRepoUrl(input)) {
                     // valid -> dismiss dialog
                     dlg.dismiss()
                 } else {
                     // invalid -> show toast
-                    Toast.makeText(requireContext(), "Invalid URL, please try again", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Invalid Repo URL", Toast.LENGTH_SHORT).show()
                 }
             },
             onDismissListener = {

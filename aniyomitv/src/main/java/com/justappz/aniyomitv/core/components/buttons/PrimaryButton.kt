@@ -1,5 +1,6 @@
 package com.justappz.aniyomitv.core.components.buttons
 
+import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
@@ -22,11 +23,6 @@ class PrimaryButton @JvmOverloads constructor(
             applyType()
         }
 
-    // Zoom scale
-    private val focusedScale = 1.1f
-    private val normalScale = 1.0f
-    private val animationDuration = 150L
-
     init {
         attrs?.let {
             context.withStyledAttributes(it, R.styleable.PrimaryButton) {
@@ -39,22 +35,8 @@ class PrimaryButton @JvmOverloads constructor(
         isFocusable = true
         isFocusableInTouchMode = true
 
-        // Focus listener for zoom
-        setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
-                view.animate()
-                    .scaleX(focusedScale)
-                    .scaleY(focusedScale)
-                    .setDuration(animationDuration)
-                    .start()
-            } else {
-                view.animate()
-                    .scaleX(normalScale)
-                    .scaleY(normalScale)
-                    .setDuration(animationDuration)
-                    .start()
-            }
-        }
+        stateListAnimator = AnimatorInflater.loadStateListAnimator(context, R.animator.focus_animator)
+
         isAllCaps = false
     }
 

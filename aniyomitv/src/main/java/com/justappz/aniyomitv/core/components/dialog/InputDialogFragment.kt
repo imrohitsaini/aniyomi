@@ -8,8 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import com.justappz.aniyomitv.R
+import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.InputDialogBinding
 
 class InputDialogFragment(
@@ -18,6 +20,7 @@ class InputDialogFragment(
     private val hint: String,
     private val onInputSubmitted: (InputDialogFragment, String) -> Unit,
     private val onDismissListener: (() -> Unit)? = null,
+    private val needCancelButton: Boolean = false,
 ) : DialogFragment() {
 
     //region variables
@@ -57,6 +60,17 @@ class InputDialogFragment(
         binding.btnCancel.setOnClickListener {
             dismiss()
         }
+
+        binding.etInput.setOnKeyListener(
+            FocusKeyHandler(
+                onDown = {
+                    binding.btnOk.requestFocus()
+                },
+            ),
+        )
+
+        binding.btnCancel.isVisible = needCancelButton
+
         return binding.root
     }
     //endregion

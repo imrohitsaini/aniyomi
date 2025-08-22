@@ -49,7 +49,7 @@ class ExtensionFragment : BaseFragment() {
 
     //region init()
     private fun init() {
-        binding.addRepoRoot.root.setOnClickListener {
+        binding.addRepoRoot.chipRepo.setOnClickListener {
             showInputDialog()
         }
     }
@@ -70,7 +70,7 @@ class ExtensionFragment : BaseFragment() {
             },
             onDismissListener = {
                 isDialogShowing = false
-            }
+            },
         )
 
         dialog.show(parentFragmentManager, "input_dialog")

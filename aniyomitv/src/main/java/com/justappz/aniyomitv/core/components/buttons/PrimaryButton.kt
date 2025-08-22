@@ -2,7 +2,6 @@ package com.justappz.aniyomitv.core.components.buttons
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.widget.Button
 import androidx.core.content.ContextCompat
@@ -27,10 +26,6 @@ class PrimaryButton @JvmOverloads constructor(
     private val focusedScale = 1.1f
     private val normalScale = 1.0f
     private val animationDuration = 150L
-
-    // Get corner radius from dimens.xml
-    private val cornerRadius: Float
-        get() = context.resources.getDimension(R.dimen.button_corner_radius)
 
     init {
         attrs?.let {

@@ -1,0 +1,27 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Default state -->
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <!-- Fill color -->
+            <solid android:color="@color/anime_tv_primary" />
+
+            <!-- Rounded corners (tweak as you like) -->
+            <corners android:radius="@dimen/chips_radius" />
+        </shape>
+    </item>
+
+    <!-- Default state -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Fill color -->
+            <solid android:color="@color/anime_tv_surface" />
+
+            <!-- Rounded corners (tweak as you like) -->
+            <corners android:radius="@dimen/chips_radius" />
+
+            <!-- Stroke -->
+            <stroke android:width="@dimen/_2dp" android:color="@color/anime_tv_onSurface" />
+        </shape>
+    </item>
+</selector>

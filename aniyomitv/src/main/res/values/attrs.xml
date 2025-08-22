@@ -6,4 +6,14 @@
             <enum name="negative" value="1" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="ChipView">
+        <attr name="chipText" format="string" />
+        <attr name="chipIcon" format="reference" />
+        <attr name="chipSelected" format="boolean" />
+        <attr name="chipType" format="enum">
+            <enum name="chip_button" value="0" />
+            <enum name="filter" value="1" />
+        </attr>
+    </declare-styleable>
 </resources>

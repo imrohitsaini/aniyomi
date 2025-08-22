@@ -2,6 +2,7 @@
 media3Exoplayer = "1.8.0"
 gson-version = "2.13.1"
 leanback-version = "1.2.0"
+paging-runtime-version = "3.3.6"
 
 [libraries]
 # Exoplayer dependencies
@@ -14,3 +15,6 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson-version" }
 
 # Leanback dependency for tv
 leanback = { module = "androidx.leanback:leanback", version.ref = "leanback-version" }
+
+# Paging 3
+paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging-runtime-version" }

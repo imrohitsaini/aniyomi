@@ -163,4 +163,6 @@ dependencies {
 
     // Leanback support library
     implementation(aniyomitvlibs.leanback)
+
+    implementation(aniyomitvlibs.paging.runtime)
 }

@@ -12,17 +12,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
-import com.justappz.aniyomitv.core.util.ValidationUtils
+import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
+import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoChipsAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
@@ -48,6 +50,7 @@ class ExtensionFragment : BaseFragment() {
         }
     }
     private lateinit var repoUrls: List<String>
+    private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
     //endregion
 
     //region onCreateView
@@ -79,9 +82,15 @@ class ExtensionFragment : BaseFragment() {
 
     //region init()
     private fun init() {
-        binding.addRepoRoot.chipRepo.setOnClickListener {
+        binding.repoUrlChipInclude.chipAddRepo.setOnClickListener {
             showInputDialog()
         }
+
+        repoUrlChipsAdapter = RepoChipsAdapter(emptyList())
+        binding.repoUrlChipInclude.rvRepos.layoutManager =
+            LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
+        binding.repoUrlChipInclude.rvRepos.adapter = repoUrlChipsAdapter
+
         observeRepo()
         observeExtensionState()
         extensionViewModel.loadRepoUrls()
@@ -112,11 +121,24 @@ class ExtensionFragment : BaseFragment() {
                             Log.i(tag, "repoUrls fetched ${repoUrls.toJsonArray()}")
 
                             //todo set recycler view of urls and extensions
+                            updateRepoChips(repoUrls)
                         }
                     }
 
                 }
             }
+        }
+    }
+    //endregion
+
+    //regin updateRepoChips
+    private fun updateRepoChips(repoUrls: List<String>) {
+        Log.i(tag, "updateRepoChips()")
+        if (repoUrls.isEmpty()) {
+            binding.repoUrlChipInclude.rvRepos.visibility = View.GONE
+        } else {
+            binding.repoUrlChipInclude.rvRepos.visibility = View.VISIBLE
+            repoUrlChipsAdapter.updateList(repoUrls)
         }
     }
     //endregion
@@ -162,7 +184,9 @@ class ExtensionFragment : BaseFragment() {
             }
         }
     }
+    //endregion
 
+    //region Show Loading
     private fun showLoading(toShow: Boolean) {
         Log.i(tag, "loader $toShow")
         binding.loading.isVisible = toShow
@@ -184,7 +208,7 @@ class ExtensionFragment : BaseFragment() {
                 Log.i(tag, "url $url")
                 Log.i(tag, "url $url")
 
-                if (!ValidationUtils.isValidRepoUrl(url)) {
+                if (!UrlUtils.isValidRepoUrl(url)) {
                     // invalid url -> show toast
                     Toast.makeText(requireContext(), "Invalid Repo URL", Toast.LENGTH_SHORT).show()
                 } else if (repoUrls.contains(url)) {

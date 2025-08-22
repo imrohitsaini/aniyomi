@@ -24,12 +24,11 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <include
-            android:id="@+id/addRepoRoot"
-            layout="@layout/add_repo_chip"
-            android:layout_width="wrap_content"
+            android:id="@+id/repoUrlChipInclude"
+            layout="@layout/repo_url_chips"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/topGuideline" />
 
 

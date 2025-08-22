@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.justappz.aniyomitv.core.components.chips.ChipView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chipFilter"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_8dp"
+    android:duplicateParentState="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    app:chipSelected="false"
+    app:chipText="Filter"
+    app:chipType="filter"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@id/rvRepos"
+    app:layout_constraintTop_toTopOf="parent" />

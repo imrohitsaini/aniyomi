@@ -7,8 +7,8 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:background="@drawable/chips_button_bg"
-    android:paddingHorizontal="@dimen/_20dp"
-    android:paddingVertical="@dimen/_12dp">
+    android:paddingHorizontal="@dimen/_12dp"
+    android:paddingVertical="@dimen/_8dp">
 
     <TextView
         android:id="@+id/tvChipName"

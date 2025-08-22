@@ -104,7 +104,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
 
                         // Avoid reloading same fragment
                         val tab = tabAdapter.currentList()[position]
-                        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                        val currentFragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
                         if (currentFragment?.tag != tab.tag) {
                             Log.i(tag, "loadFragment from tab selection")
                             loadFragment(tab.fragment, tab.tag)
@@ -135,7 +135,9 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
                     tabAdapter.selectLastTab()
                     binding.ivSettings.clearFocus()
                     binding.ivSettings.isSelected = false
-                    lastSelectedPosition = 5
+
+                    // Treat it like next tab
+                    lastSelectedPosition = tabs.size
                 },
             ),
         )

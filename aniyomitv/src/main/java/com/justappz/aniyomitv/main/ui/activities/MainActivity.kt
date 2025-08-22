@@ -50,9 +50,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         // observers
         observeTabs()
 
-        // Load tabs from ViewModel
-        mainViewModel.loadTabs()
-
         val tintList = ContextCompat.getColorStateList(ctx, R.color.icon_tint_selector)
         ImageViewCompat.setImageTintList(binding.ivSettings, tintList)
         binding.ivSettings.setOnClickListener(this)

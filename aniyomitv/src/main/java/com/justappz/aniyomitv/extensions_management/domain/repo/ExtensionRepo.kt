@@ -1,7 +1,7 @@
 package com.justappz.aniyomitv.extensions_management.domain.repo
 
-import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
+import com.justappz.aniyomitv.extensions_management.domain.model.RepoDomain
 
 interface ExtensionRepo {
-    fun getExtensions(url: String): List<ExtensionDomain>
+    fun getExtensions(url: String): RepoDomain
 }

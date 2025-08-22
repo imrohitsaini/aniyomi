@@ -24,6 +24,7 @@ import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUs
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
+import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
 import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
@@ -46,7 +47,7 @@ class ExtensionFragment : BaseFragment() {
             )
         }
     }
-    private lateinit var repoUrls : List<String>
+    private lateinit var repoUrls: List<String>
     //endregion
 
     //region onCreateView
@@ -91,9 +92,29 @@ class ExtensionFragment : BaseFragment() {
     private fun observeRepo() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                extensionViewModel.repoUrls.collect { repos ->
-                    Log.i(tag, "repos ${repos.toJsonArray()}")
-                    repoUrls = repos
+                extensionViewModel.repoUrls.collect { reposState ->
+                    when (reposState) {
+                        is RepoUiState.Error -> {
+                            showLoading(false)
+                        }
+
+                        RepoUiState.Idle -> {
+                            showLoading(false)
+                        }
+
+                        RepoUiState.Loading -> {
+                            showLoading(true)
+                        }
+
+                        is RepoUiState.Success -> {
+                            showLoading(false)
+                            repoUrls = reposState.data
+                            Log.i(tag, "repoUrls fetched ${repoUrls.toJsonArray()}")
+
+                            //todo set recycler view of urls and extensions
+                        }
+                    }
+
                 }
             }
         }
@@ -107,23 +128,30 @@ class ExtensionFragment : BaseFragment() {
                 extensionViewModel.extensionState.collect { state ->
                     when (state) {
                         ExtensionsUiState.Idle -> {
-                            binding.loading.isVisible = false
+                            showLoading(false)
                         }
 
                         is ExtensionsUiState.Loading -> {
-                            binding.loading.isVisible = true
+                            showLoading(true)
                             binding.errorRoot.root.isVisible = false
                         }
 
                         is ExtensionsUiState.Success -> {
-                            binding.loading.isVisible = false
-                            binding.errorRoot.root.isVisible = false
-                            val extensions = state.data
-                            Log.i(tag, "extensions ${extensions.size}")
+                            showLoading(false)
+                            val repoDomain = state.data
+                            Log.i(tag, "extensions successfully fetched ${repoDomain.extensions.size}")
+
+                            // if repoUrls doesnt contain this new url, then add this url
+                            if (!repoUrls.contains(repoDomain.repoUrl)) {
+                                Log.i(tag, "extensions success, save the url & refresh")
+                                extensionViewModel.addRepo(repoDomain.repoUrl)
+                            } else {
+                                // update the extensions list
+                            }
                         }
 
                         is ExtensionsUiState.Error -> {
-                            binding.loading.isVisible = false
+                            showLoading(false)
                             binding.errorRoot.root.isVisible = true
                             val errorText = state.code?.let { "Error $it: ${state.message}" }
                                 ?: state.message
@@ -133,6 +161,11 @@ class ExtensionFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun showLoading(toShow: Boolean) {
+        Log.i(tag, "loader $toShow")
+        binding.loading.isVisible = toShow
     }
     //endregion
 
@@ -147,20 +180,20 @@ class ExtensionFragment : BaseFragment() {
             description = getString(R.string.add_repo_description),
             hint = getString(R.string.add_repo_hint),
             needCancelButton = false,
-            onInputSubmitted = { dlg, input ->
-                Log.i(tag, "url $input")
-                Log.i(tag, "url $input")
+            onInputSubmitted = { dlg, url ->
+                Log.i(tag, "url $url")
+                Log.i(tag, "url $url")
 
-                if (!ValidationUtils.isValidRepoUrl(input)) {
+                if (!ValidationUtils.isValidRepoUrl(url)) {
                     // invalid url -> show toast
                     Toast.makeText(requireContext(), "Invalid Repo URL", Toast.LENGTH_SHORT).show()
-                } else if (repoUrls.contains(input)) {
+                } else if (repoUrls.contains(url)) {
                     // Repo already added -> show toast
                     Toast.makeText(requireContext(), "This repo already exists", Toast.LENGTH_SHORT).show()
                 } else {
                     // valid -> dismiss the dialog
                     dlg.dismiss()
-                    extensionViewModel.addRepo(input)
+                    extensionViewModel.loadExtensions(url)
                 }
             },
             onDismissListener = {

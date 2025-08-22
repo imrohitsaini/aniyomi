@@ -7,6 +7,7 @@ import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUs
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
+import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import eu.kanade.tachiyomi.network.HttpException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,16 +33,17 @@ class ExtensionViewModel(
         viewModelScope.launch {
             _extensionState.value = ExtensionsUiState.Loading
             try {
-                val list = withContext(Dispatchers.IO) {
+                val repoDomain = withContext(Dispatchers.IO) {
                     getExtensionsUseCase(repoUrl)
                 }
-                _extensionState.value = ExtensionsUiState.Success(list)
+                _extensionState.value = ExtensionsUiState.Success(repoDomain)
             } catch (e: HttpException) {
                 _extensionState.value = ExtensionsUiState.Error(
                     code = e.code,
                     message = e.message ?: "Unexpected HTTP error",
                 )
             } catch (e: IOException) {
+                e.printStackTrace()
                 _extensionState.value = ExtensionsUiState.Error(
                     code = null,
                     message = "Network error, check your connection",
@@ -58,10 +60,16 @@ class ExtensionViewModel(
 
     //region repos
     //region loadRepoUrls
-    private val _repoUrls = MutableStateFlow<List<String>>(emptyList())
-    val repoUrls: StateFlow<List<String>> = _repoUrls.asStateFlow()
+    private val _repoUrls = MutableStateFlow<RepoUiState>(RepoUiState.Idle)
+    val repoUrls: StateFlow<RepoUiState> = _repoUrls.asStateFlow()
     fun loadRepoUrls() {
-        _repoUrls.value = getRepoUrlsUseCase()
+        viewModelScope.launch {
+            _repoUrls.value = RepoUiState.Loading
+            val list = withContext(Dispatchers.IO) {
+                getRepoUrlsUseCase()
+            }
+            _repoUrls.value = RepoUiState.Success(list)
+        }
     }
     //endregion
 

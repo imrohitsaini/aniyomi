@@ -2,7 +2,6 @@ package com.justappz.aniyomitv.main.ui.activities
 
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -15,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.core.ViewModelFactory
+import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityMainBinding
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 import com.justappz.aniyomitv.main.ui.adapters.TabAdapter
@@ -23,7 +23,7 @@ import com.justappz.aniyomitv.main.ui.viewmodel.MainViewModel
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-class MainActivity : BaseActivity(), View.OnFocusChangeListener{
+class MainActivity : BaseActivity(), View.OnFocusChangeListener {
 
     //region variables
     private lateinit var binding: ActivityMainBinding
@@ -90,9 +90,9 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener{
                     parent: RecyclerView,
                     child: RecyclerView.ViewHolder?,
                     position: Int,
-                    subposition: Int
+                    subposition: Int,
                 ) {
-                    Log.i(tag, "onChildViewHolderSelected")
+                    Log.i(tag, "onChildViewHolderSelected $position == $lastSelectedPosition")
                     if (position == RecyclerView.NO_POSITION || position == lastSelectedPosition) return
 
                     lastSelectedPosition = position
@@ -111,44 +111,34 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener{
                         }
                     }
                 }
-            }
+            },
         )
 
-        // Assuming ivSettings is your settings icon
-        binding.tabs.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                        // Get the last selected tab's view
-                        val lastSelectedViewHolder =
-                            binding.tabs.findViewHolderForAdapterPosition(lastSelectedPosition)
-                        if (lastSelectedViewHolder != null) {
-                            val lastView = lastSelectedViewHolder.itemView
-                            // Check if the focused tab is the last one
-                            if (binding.tabs.getChildAdapterPosition(lastView) == tabAdapter.getItems().size - 1) {
-                                // Move focus to settings icon
-                                binding.ivSettings.requestFocus()
-                                return@setOnKeyListener true // consume event
-                            }
-                        }
+        // Tabs RecyclerView right clicked
+        binding.tabs.setOnKeyListener(
+            FocusKeyHandler(
+                onRight = {
+                    val lastSelectedViewHolder = binding.tabs.findViewHolderForAdapterPosition(lastSelectedPosition)
+                    if (lastSelectedViewHolder != null &&
+                        binding.tabs.getChildAdapterPosition(lastSelectedViewHolder.itemView) == tabAdapter.getItems().size - 1
+                    ) {
+                        binding.ivSettings.requestFocus()
                     }
-                }
-            }
-            false
-        }
+                },
+            ),
+        )
 
-        binding.ivSettings.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_LEFT -> {
-                        lastSelectedPosition = -1
-                        tabAdapter.selectLastTab()
-                    }
-                }
-            }
-            false
-        }
-
+        // Settings icon left clicked
+        binding.ivSettings.setOnKeyListener(
+            FocusKeyHandler(
+                onLeft = {
+                    tabAdapter.selectLastTab()
+                    binding.ivSettings.clearFocus()
+                    binding.ivSettings.isSelected = false
+                    lastSelectedPosition = 5
+                },
+            ),
+        )
 
 
     }
@@ -192,12 +182,10 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener{
     //region onFocused
     override fun onFocusChange(view: View?, hasFocus: Boolean) {
         view?.let {
-            when(view) {
+            when (view) {
                 binding.ivSettings -> {
                     if (hasFocus) {
                         settingIconFocused()
-                    } else {
-                        binding.ivSettings.isSelected = false
                     }
                 }
             }

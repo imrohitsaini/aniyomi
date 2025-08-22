@@ -18,12 +18,14 @@ class TabAdapter : BaseArrayObjectAdapter<MainScreenTab>(TabPresenter()) {
     fun selectLastTab() {
         Log.i(tag, "selectTab()")
         val items = getItems().toMutableList()
-        val position = items.size - 1
+        val position = items.lastIndex
 
-        // Select new
-        Log.i(tag, "updateItem()")
-        items[position].isSelected = true
-        updateItem(position, items[position])
+        if (position != -1) {
+            Log.i(tag, "updateItem()")
+            items[position].isSelected = true
+            Log.i(tag, "select last tab")
+            updateItem(position, items[position])
+        }
     }
 
     fun selectTab(position: Int) {

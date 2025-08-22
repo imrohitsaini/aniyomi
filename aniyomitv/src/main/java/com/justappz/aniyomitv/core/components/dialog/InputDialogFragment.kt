@@ -16,7 +16,7 @@ class InputDialogFragment(
     private val title: String,
     private val description: String,
     private val hint: String,
-    private val onInputSubmitted: (String) -> Unit,
+    private val onInputSubmitted: (InputDialogFragment, String) -> Unit,
     private val onDismissListener: (() -> Unit)? = null,
 ) : DialogFragment() {
 
@@ -51,8 +51,7 @@ class InputDialogFragment(
 
         binding.btnOk.setOnClickListener {
             val input = binding.etInput.text.toString()
-            onInputSubmitted(input)
-            dismiss()
+            onInputSubmitted(this, input)
         }
 
         binding.btnCancel.setOnClickListener {

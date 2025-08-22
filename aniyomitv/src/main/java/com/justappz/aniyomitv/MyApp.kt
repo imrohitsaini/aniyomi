@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager
 import com.justappz.aniyomitv.constants.LogKeys
 import com.justappz.aniyomitv.di.AppModule
 import com.justappz.aniyomitv.di.PreferenceModule
+import com.justappz.aniyomitv.extensions_management.di.ExtensionModule
 import com.justappz.aniyomitv.main.di.MainModule
 import dev.mihon.injekt.patchInjekt
 import uy.kohesive.injekt.Injekt
@@ -22,9 +23,11 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks {
         Injekt.importModule(AppModule(this))
         Injekt.importModule(PreferenceModule(this))
         Injekt.importModule(MainModule())
+        Injekt.importModule(ExtensionModule())
 
         registerActivityLifecycleCallbacks(this)
     }
+
 
     //region Activity Lifecycle Callbacks
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {

@@ -5,11 +5,24 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseFragment
+import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
+import com.justappz.aniyomitv.core.util.ValidationUtils
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
+import com.justappz.aniyomitv.extensions_management.domain.states.ExtensionsUiState
+import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
+import kotlinx.coroutines.launch
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 class ExtensionFragment : BaseFragment() {
 
@@ -18,6 +31,9 @@ class ExtensionFragment : BaseFragment() {
     private val binding get() = _binding!!
     private val tag = "ExtensionFragment"
     private var isDialogShowing = false
+    private val extensionViewModel: ExtensionViewModel by viewModels {
+        ViewModelFactory { ExtensionViewModel(Injekt.get()) }
+    }
     //endregion
 
     //region onCreateView
@@ -52,6 +68,37 @@ class ExtensionFragment : BaseFragment() {
         binding.addRepoRoot.chipRepo.setOnClickListener {
             showInputDialog()
         }
+//        observeExtensionState()
+    }
+    //endregion
+
+    //region observeExtensionState
+    private fun observeExtensionState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                extensionViewModel.extensionState.collect { state ->
+                    when (state) {
+                        is ExtensionsUiState.Loading -> {
+                            binding.loading.isVisible = true
+                            binding.errorRoot.root.isVisible = false
+                        }
+
+                        is ExtensionsUiState.Success -> {
+                            binding.loading.isVisible = false
+                            binding.errorRoot.root.isVisible = false
+                        }
+
+                        is ExtensionsUiState.Error -> {
+                            binding.loading.isVisible = false
+                            binding.errorRoot.root.isVisible = true
+                            val errorText = state.code?.let { "Error $it: ${state.message}" }
+                                ?: state.message
+                            binding.errorRoot.tvError.text = errorText
+                        }
+                    }
+                }
+            }
+        }
     }
     //endregion
 
@@ -65,8 +112,16 @@ class ExtensionFragment : BaseFragment() {
             title = getString(R.string.add_repo),
             description = getString(R.string.add_repo_description),
             hint = getString(R.string.add_repo_hint),
-            onInputSubmitted = { input ->
+            onInputSubmitted = { dlg, input ->
                 Log.i(tag, "url $input")
+                Log.i(tag, "url $input")
+                if (ValidationUtils.isValidUrl(input)) {
+                    // valid -> dismiss dialog
+                    dlg.dismiss()
+                } else {
+                    // invalid -> show toast
+                    Toast.makeText(requireContext(), "Invalid URL, please try again", Toast.LENGTH_SHORT).show()
+                }
             },
             onDismissListener = {
                 isDialogShowing = false

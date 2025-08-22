@@ -2,7 +2,7 @@ package com.justappz.aniyomitv.extensions_management.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.justappz.aniyomitv.extensions_management.domain.states.ExtensionsUiState
+import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import eu.kanade.tachiyomi.network.HttpException
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,7 @@ class ExtensionViewModel(
     private val getExtensionsUseCase: GetExtensionUseCase,
 ) : ViewModel() {
 
-    private val _extensionState = MutableStateFlow<ExtensionsUiState>(ExtensionsUiState.Loading)
+    private val _extensionState = MutableStateFlow<ExtensionsUiState>(ExtensionsUiState.Idle)
     val extensionState: StateFlow<ExtensionsUiState> = _extensionState.asStateFlow()
 
     fun loadExtensions(repoUrl: String) {

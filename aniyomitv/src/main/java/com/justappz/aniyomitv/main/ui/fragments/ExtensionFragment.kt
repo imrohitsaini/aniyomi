@@ -18,7 +18,7 @@ import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
 import com.justappz.aniyomitv.core.util.ValidationUtils
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
-import com.justappz.aniyomitv.extensions_management.domain.states.ExtensionsUiState
+import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
 import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
@@ -68,7 +68,7 @@ class ExtensionFragment : BaseFragment() {
         binding.addRepoRoot.chipRepo.setOnClickListener {
             showInputDialog()
         }
-//        observeExtensionState()
+        observeExtensionState()
     }
     //endregion
 
@@ -78,6 +78,10 @@ class ExtensionFragment : BaseFragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 extensionViewModel.extensionState.collect { state ->
                     when (state) {
+                        ExtensionsUiState.Idle -> {
+                            binding.loading.isVisible = false
+                        }
+
                         is ExtensionsUiState.Loading -> {
                             binding.loading.isVisible = true
                             binding.errorRoot.root.isVisible = false
@@ -86,6 +90,8 @@ class ExtensionFragment : BaseFragment() {
                         is ExtensionsUiState.Success -> {
                             binding.loading.isVisible = false
                             binding.errorRoot.root.isVisible = false
+                            val extensions = state.data
+                            Log.i(tag, "extensions ${extensions.size}")
                         }
 
                         is ExtensionsUiState.Error -> {
@@ -119,6 +125,7 @@ class ExtensionFragment : BaseFragment() {
                 if (ValidationUtils.isValidRepoUrl(input)) {
                     // valid -> dismiss dialog
                     dlg.dismiss()
+                    extensionViewModel.loadExtensions(input)
                 } else {
                     // invalid -> show toast
                     Toast.makeText(requireContext(), "Invalid Repo URL", Toast.LENGTH_SHORT).show()

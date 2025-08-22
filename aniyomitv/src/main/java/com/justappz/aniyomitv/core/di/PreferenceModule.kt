@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.di
+package com.justappz.aniyomitv.core.di
 
 import android.app.Application
 import com.justappz.aniyomitv.core.util.system.isDebugBuildType

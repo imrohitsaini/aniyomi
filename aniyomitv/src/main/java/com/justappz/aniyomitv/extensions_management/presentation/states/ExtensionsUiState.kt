@@ -1,8 +1,10 @@
-package com.justappz.aniyomitv.extensions_management.domain.states
+package com.justappz.aniyomitv.extensions_management.presentation.states
 
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
 
 sealed class ExtensionsUiState {
+
+    object Idle : ExtensionsUiState()
     object Loading : ExtensionsUiState()
 
     data class Success(val data: List<ExtensionDomain>) : ExtensionsUiState()

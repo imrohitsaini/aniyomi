@@ -8,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.justappz.aniyomitv.constants.LogKeys
-import com.justappz.aniyomitv.di.AppModule
-import com.justappz.aniyomitv.di.PreferenceModule
+import com.justappz.aniyomitv.core.di.AppModule
+import com.justappz.aniyomitv.core.di.PreferenceModule
 import com.justappz.aniyomitv.extensions_management.di.ExtensionModule
 import com.justappz.aniyomitv.main.di.MainModule
 import dev.mihon.injekt.patchInjekt

@@ -7,6 +7,13 @@
         android:layout_height="match_parent"
         android:background="@color/anime_tv_background">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/topGuideline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.04" />
+
         <include
             android:id="@+id/errorRoot"
             layout="@layout/main_error"
@@ -19,9 +26,11 @@
         <include
             android:id="@+id/addRepoRoot"
             layout="@layout/add_repo_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="visible"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/topGuideline" />
 
 
         <ProgressBar

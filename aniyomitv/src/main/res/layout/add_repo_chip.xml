@@ -6,7 +6,8 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:background="@drawable/chips_focus_selector"
-    android:padding="@dimen/_8dp">
+    android:paddingHorizontal="@dimen/_20dp"
+    android:paddingVertical="@dimen/_12dp">
 
     <TextView
         android:id="@+id/tvRepo"
@@ -15,7 +16,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_16dp"
         android:gravity="center"
-        android:padding="@dimen/_8dp"
         android:text="@string/add_repo"
         android:textColor="@color/anime_tv_onSurface"
         android:textSize="@dimen/_16sp"

@@ -3,6 +3,8 @@
 
     <dimen name="chips_radius">@dimen/_32dp</dimen>
     <dimen name="tab_focus_radius">@dimen/_8dp</dimen>
+    <dimen name="edittext_radius">@dimen/_8dp</dimen>
+    <dimen name="dialog_radius">@dimen/_8dp</dimen>
 
 <!--    region Other Dimensions-->
     <dimen name="_2sp">2.00sp</dimen>
@@ -665,5 +667,5 @@
     <dimen name="_minus58dp">-58.00dp</dimen>
     <dimen name="_minus59dp">-59.00dp</dimen>
     <dimen name="_minus60dp">-60.00dp</dimen>
-<!--    endregion-->
+    <!--    endregion-->
 </resources>

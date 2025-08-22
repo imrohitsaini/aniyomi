@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Aniyomi TV</string>
     <string name="add_repo">Add repo</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_repo_description">Add additional repos to Mihon. This should be a URL that ends with \'index.min.json.\'</string>
+    <string name="add_repo_hint">https://repo.url/index.min.json</string>
 </resources>

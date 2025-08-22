@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.main.ui.fragments
+package com.justappz.aniyomitv.extensions_management.presentation.fragments
 
 import android.os.Bundle
 import android.util.Log

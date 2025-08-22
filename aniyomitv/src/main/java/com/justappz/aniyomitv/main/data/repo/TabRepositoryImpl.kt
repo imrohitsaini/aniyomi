@@ -4,7 +4,7 @@ import com.justappz.aniyomitv.main.data.dto.MainScreenTabData
 import com.justappz.aniyomitv.main.data.mapper.toDomain
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 import com.justappz.aniyomitv.main.domain.repo.TabRepository
-import com.justappz.aniyomitv.main.ui.fragments.ExtensionFragment
+import com.justappz.aniyomitv.extensions_management.presentation.fragments.ExtensionFragment
 import com.justappz.aniyomitv.main.ui.fragments.HomeFragment
 import com.justappz.aniyomitv.main.ui.fragments.SearchFragment
 import com.justappz.aniyomitv.main.ui.fragments.WatchListFragment

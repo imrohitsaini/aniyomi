@@ -53,7 +53,7 @@ class InputDialogFragment(
         binding.etInput.hint = hint
 
         binding.btnOk.setOnClickListener {
-            val input = binding.etInput.text.toString()
+            val input = binding.etInput.text.toString().trim()
             onInputSubmitted(this, input)
         }
 

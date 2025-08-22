@@ -17,7 +17,12 @@ import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
 import com.justappz.aniyomitv.core.util.ValidationUtils
+import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
+import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
+import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
+import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
+import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
 import kotlinx.coroutines.launch
@@ -32,8 +37,16 @@ class ExtensionFragment : BaseFragment() {
     private val tag = "ExtensionFragment"
     private var isDialogShowing = false
     private val extensionViewModel: ExtensionViewModel by viewModels {
-        ViewModelFactory { ExtensionViewModel(Injekt.get()) }
+        ViewModelFactory {
+            ExtensionViewModel(
+                Injekt.get<GetExtensionUseCase>(),
+                Injekt.get<GetRepoUrlsUseCase>(),
+                Injekt.get<SaveRepoUrlUseCase>(),
+                Injekt.get<RemoveRepoUrlUseCase>(),
+            )
+        }
     }
+    private lateinit var repoUrls : List<String>
     //endregion
 
     //region onCreateView
@@ -68,7 +81,22 @@ class ExtensionFragment : BaseFragment() {
         binding.addRepoRoot.chipRepo.setOnClickListener {
             showInputDialog()
         }
+        observeRepo()
         observeExtensionState()
+        extensionViewModel.loadRepoUrls()
+    }
+    //endregion
+
+    //region observeRepo
+    private fun observeRepo() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                extensionViewModel.repoUrls.collect { repos ->
+                    Log.i(tag, "repos ${repos.toJsonArray()}")
+                    repoUrls = repos
+                }
+            }
+        }
     }
     //endregion
 
@@ -122,13 +150,17 @@ class ExtensionFragment : BaseFragment() {
             onInputSubmitted = { dlg, input ->
                 Log.i(tag, "url $input")
                 Log.i(tag, "url $input")
-                if (ValidationUtils.isValidRepoUrl(input)) {
-                    // valid -> dismiss dialog
-                    dlg.dismiss()
-                    extensionViewModel.loadExtensions(input)
-                } else {
-                    // invalid -> show toast
+
+                if (!ValidationUtils.isValidRepoUrl(input)) {
+                    // invalid url -> show toast
                     Toast.makeText(requireContext(), "Invalid Repo URL", Toast.LENGTH_SHORT).show()
+                } else if (repoUrls.contains(input)) {
+                    // Repo already added -> show toast
+                    Toast.makeText(requireContext(), "This repo already exists", Toast.LENGTH_SHORT).show()
+                } else {
+                    // valid -> dismiss the dialog
+                    dlg.dismiss()
+                    extensionViewModel.addRepo(input)
                 }
             },
             onDismissListener = {

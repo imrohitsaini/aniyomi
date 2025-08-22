@@ -1,13 +1,17 @@
 package com.justappz.aniyomitv.main.ui.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.leanback.widget.ItemBridgeAdapter
+import androidx.leanback.widget.OnChildViewHolderSelectedListener
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.core.ViewModelFactory
@@ -25,6 +29,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var tabAdapter: TabAdapter
     private lateinit var tabs: List<MainScreenTab>
+    private val tag = "MainActivity"
+    private var lastSelectedPosition: Int = RecyclerView.NO_POSITION
     private val mainViewModel: MainViewModel by viewModels {
         ViewModelFactory { MainViewModel(Injekt.get()) }
     }
@@ -61,25 +67,53 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         super.onResume()
         // start fetching time
         mainViewModel.startUpdatingTime()
+        mainViewModel.loadTabs()
     }
     //endregion
 
     //region setTabsProperties
     private fun setTabsProperties() {
-        //tabs
-        binding.tabs.layoutManager = object : LinearLayoutManager(ctx, HORIZONTAL, false) {
-            override fun canScrollHorizontally(): Boolean = false
-        }
-        binding.tabs.isNestedScrollingEnabled = false
-        binding.tabs.itemAnimator = null
-
         //adapter
-        tabAdapter = TabAdapter(listOf()).apply {
-            onItemClick = { tab, _ -> onTabClicked(tab) }
-        }
-        tabAdapter.setHasStableIds(true)
+        // 1. Create adapter
+        tabAdapter = TabAdapter()
 
-        binding.tabs.adapter = tabAdapter
+        // 2. Wrap in ItemBridgeAdapter for Leanback
+        val itemBridgeAdapter = ItemBridgeAdapter(tabAdapter)
+        binding.tabs.adapter = itemBridgeAdapter
+
+
+        //tabs
+        // Handle tab click
+        binding.tabs.setOnChildViewHolderSelectedListener(
+            object : OnChildViewHolderSelectedListener() {
+                override fun onChildViewHolderSelected(
+                    parent: RecyclerView,
+                    child: RecyclerView.ViewHolder?,
+                    position: Int,
+                    subposition: Int
+                ) {
+                    Log.i(tag, "onChildViewHolderSelected")
+                    if (position == RecyclerView.NO_POSITION || position == lastSelectedPosition) return
+
+                    lastSelectedPosition = position
+
+
+                    binding.tabs.post {
+                        // Update tab UI
+                        tabAdapter.selectTab(position)
+
+                        // Avoid reloading same fragment
+                        val tab = tabAdapter.currentList()[position]
+                        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                        if (currentFragment?.tag != tab.tag) {
+                            loadFragment(tab.fragment, tab.tag)
+                        }
+                    }
+                }
+            }
+        )
+
+
     }
     //endregion
 
@@ -88,10 +122,12 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         // Observe tabs from ViewModel
         mainViewModel.tabs.observe(this) { tabs ->
             this.tabs = tabs
-            tabAdapter.updateList(tabs)
+            Log.i(tag, "setTabs")
+            tabAdapter.setTabs(tabs)
 
             // Load the initially selected tab fragment
             tabs.firstOrNull { it.isSelected }?.let { tab ->
+                Log.i(tag, "First fragment load")
                 loadFragment(tab.fragment, tab.tag)
             }
         }
@@ -100,6 +136,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     //region loadFragment
     private fun loadFragment(fragment: Fragment, tag: String) {
+        Log.i(tag, "loadFragment()")
         if (supportFragmentManager.findFragmentByTag(tag) == null) {
             supportFragmentManager.beginTransaction()
                 .replace(binding.fragmentContainer.id, fragment, tag)
@@ -134,21 +171,11 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     //region settingIconClicked
     private fun settingIconClicked() {
+        Log.i(tag, "settingIconClicked")
         if (!binding.ivSettings.isSelected) {
-            deselectPreviousTab()
             binding.ivSettings.isSelected = true
-            loadFragment(SettingsFragment(), "settings_fragmentx")
+            loadFragment(SettingsFragment(), "settings_fragments")
         }
     }
     //ending
-
-    //region deselectPreviousTab
-    private fun deselectPreviousTab() {
-        val prevIndex = tabs.indexOfFirst { it.isSelected }
-        if (prevIndex != -1) {
-            tabs[prevIndex].isSelected = false
-            tabAdapter.notifyItemChanged(prevIndex)
-        }
-    }
-    //endregion
 }

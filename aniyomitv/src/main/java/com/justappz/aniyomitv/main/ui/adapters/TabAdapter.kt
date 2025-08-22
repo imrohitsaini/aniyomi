@@ -1,59 +1,34 @@
 package com.justappz.aniyomitv.main.ui.adapters
 
-import androidx.core.content.ContextCompat
-import com.justappz.aniyomitv.R
-import com.justappz.aniyomitv.base.BaseRecyclerViewAdapter
-import com.justappz.aniyomitv.databinding.ItemTabBinding
+import com.justappz.aniyomitv.base.BaseArrayObjectAdapter
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
-import android.view.View
+import com.justappz.aniyomitv.main.ui.presenter.TabPresenter
 
-class TabAdapter(
-    tabs: List<MainScreenTab>,
-) : BaseRecyclerViewAdapter<MainScreenTab, ItemTabBinding>(
-    items = tabs,
-    bindingInflater = ItemTabBinding::inflate,
-    bind = { tab, binding ->
-        tvTabTitle.text = tab.title
-        root.isSelected = tab.isSelected
+class TabAdapter : BaseArrayObjectAdapter<MainScreenTab>(TabPresenter()) {
 
-        if (tab.isSelected) {
-            tabUnderline.setBackgroundColor(ContextCompat.getColor(root.context, R.color.anime_tv_primary))
-        } else {
-            tabUnderline.setBackgroundColor(ContextCompat.getColor(root.context, R.color.transparent))
-        }
-    },
-) {
-    override fun onBindViewHolder(
-        holder: BaseViewHolder<ItemTabBinding>,
-        position: Int,
-    ) {
-        super.onBindViewHolder(holder, position)
-
-        holder.binding.root.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                // focused
-                val tabs = getCurrentList()
-                val lastSelectedIndex = tabs.indexOfFirst { it.isSelected }
-
-                // Only update if clicked tab is not already selected
-                if (lastSelectedIndex != position) {
-                    // Deselect previous
-                    if (lastSelectedIndex != -1) {
-                        tabs[lastSelectedIndex].isSelected = false
-                        notifyItemChanged(lastSelectedIndex)
-                    }
-
-                    // Select current
-                    tabs[position].isSelected = true
-                    notifyItemChanged(position)
-
-                    // Invoke click listener to load the fragment on main activity
-                    onItemClick?.invoke(tabs[position], position)
-                }
-            } else {
-                // not focused
-            }
-        }
-
+    fun setTabs(tabs: List<MainScreenTab>) {
+        setItems(tabs)
     }
+
+    fun selectTab(position: Int) {
+        val items = getItems().toMutableList()
+
+        // Find currently selected tab
+        val oldSelectedIndex = items.indexOfFirst { it.isSelected }
+
+        // Only update if selection actually changes
+        if (oldSelectedIndex == position) return
+
+        // Deselect old
+        if (oldSelectedIndex != -1) {
+            items[oldSelectedIndex].isSelected = false
+            updateItem(oldSelectedIndex, items[oldSelectedIndex])
+        }
+
+        // Select new
+        items[position].isSelected = true
+        updateItem(position, items[position])
+    }
+
+    fun currentList(): List<MainScreenTab> = getItems()
 }

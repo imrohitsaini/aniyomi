@@ -8,7 +8,7 @@
     <ImageView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/ic_banner"
+        android:src="@mipmap/ic_launcher"
         app:layout_constraintDimensionRatio="9:16"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -13,6 +13,8 @@
     <color name="transparent">#00000000</color>
     <color name="soft_white">#CFCFCF</color>
 
+    <color name="semi_white">#33FFFFFF</color>
+
     <color name="anime_tv_primary">#3DA5F5</color>
     <color name="anime_tv_onPrimary">#FFFFFF</color>
     <color name="anime_tv_primaryContainer">#1E88E5</color>

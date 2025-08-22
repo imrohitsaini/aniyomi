@@ -2,6 +2,7 @@ package com.justappz.aniyomitv.main.ui.activities
 
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -10,7 +11,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.leanback.widget.ItemBridgeAdapter
 import androidx.leanback.widget.OnChildViewHolderSelectedListener
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
@@ -23,7 +23,7 @@ import com.justappz.aniyomitv.main.ui.viewmodel.MainViewModel
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-class MainActivity : BaseActivity(), View.OnClickListener {
+class MainActivity : BaseActivity(), View.OnFocusChangeListener{
 
     //region variables
     private lateinit var binding: ActivityMainBinding
@@ -58,7 +58,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         val tintList = ContextCompat.getColorStateList(ctx, R.color.icon_tint_selector)
         ImageViewCompat.setImageTintList(binding.ivSettings, tintList)
-        binding.ivSettings.setOnClickListener(this)
+        binding.ivSettings.onFocusChangeListener = this
     }
     //endregion
 
@@ -106,12 +106,49 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         val tab = tabAdapter.currentList()[position]
                         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
                         if (currentFragment?.tag != tab.tag) {
+                            Log.i(tag, "loadFragment from tab selection")
                             loadFragment(tab.fragment, tab.tag)
                         }
                     }
                 }
             }
         )
+
+        // Assuming ivSettings is your settings icon
+        binding.tabs.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                        // Get the last selected tab's view
+                        val lastSelectedViewHolder =
+                            binding.tabs.findViewHolderForAdapterPosition(lastSelectedPosition)
+                        if (lastSelectedViewHolder != null) {
+                            val lastView = lastSelectedViewHolder.itemView
+                            // Check if the focused tab is the last one
+                            if (binding.tabs.getChildAdapterPosition(lastView) == tabAdapter.getItems().size - 1) {
+                                // Move focus to settings icon
+                                binding.ivSettings.requestFocus()
+                                return@setOnKeyListener true // consume event
+                            }
+                        }
+                    }
+                }
+            }
+            false
+        }
+
+        binding.ivSettings.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_LEFT -> {
+                        lastSelectedPosition = -1
+                        tabAdapter.selectLastTab()
+                    }
+                }
+            }
+            false
+        }
+
 
 
     }
@@ -152,28 +189,28 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     }
     //endregion
 
-    //region onTabClicked
-    private fun onTabClicked(tab: MainScreenTab) {
-        binding.ivSettings.isSelected = false
-        loadFragment(tab.fragment, tab.tag)
-    }
-    //endregion
-
-    //region onClick
-    override fun onClick(view: View?) {
+    //region onFocused
+    override fun onFocusChange(view: View?, hasFocus: Boolean) {
         view?.let {
-            when (it) {
-                binding.ivSettings -> settingIconClicked()
+            when(view) {
+                binding.ivSettings -> {
+                    if (hasFocus) {
+                        settingIconFocused()
+                    } else {
+                        binding.ivSettings.isSelected = false
+                    }
+                }
             }
         }
     }
     //endregion
 
     //region settingIconClicked
-    private fun settingIconClicked() {
+    private fun settingIconFocused() {
         Log.i(tag, "settingIconClicked")
         if (!binding.ivSettings.isSelected) {
             binding.ivSettings.isSelected = true
+            tabAdapter.deselectLastTab()
             loadFragment(SettingsFragment(), "settings_fragments")
         }
     }

@@ -2,6 +2,7 @@
 <resources>
 
     <dimen name="chips_radius">@dimen/_32dp</dimen>
+    <dimen name="tab_focus_radius">@dimen/_8dp</dimen>
 
 <!--    region Other Dimensions-->
     <dimen name="_2sp">2.00sp</dimen>

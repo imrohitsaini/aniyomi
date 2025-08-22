@@ -1,34 +1,56 @@
 package com.justappz.aniyomitv.main.ui.adapters
 
+import android.util.Log
 import com.justappz.aniyomitv.base.BaseArrayObjectAdapter
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 import com.justappz.aniyomitv.main.ui.presenter.TabPresenter
 
 class TabAdapter : BaseArrayObjectAdapter<MainScreenTab>(TabPresenter()) {
 
+    private val tag = "TabAdapter"
+
+    fun currentList(): List<MainScreenTab> = getItems()
+
     fun setTabs(tabs: List<MainScreenTab>) {
         setItems(tabs)
     }
 
+    fun selectLastTab() {
+        Log.i(tag, "selectTab()")
+        val items = getItems().toMutableList()
+        val position = items.size - 1
+
+        // Select new
+        Log.i(tag, "updateItem()")
+        items[position].isSelected = true
+        updateItem(position, items[position])
+    }
+
     fun selectTab(position: Int) {
+        Log.i(tag, "selectTab()")
+        val items = getItems().toMutableList()
+
+        // deselectLastTab
+        deselectLastTab()
+
+        // Select new
+        Log.i(tag, "updateItem()")
+        items[position].isSelected = true
+        updateItem(position, items[position])
+    }
+
+    fun deselectLastTab() {
+        Log.i(tag, "deselectTab()")
         val items = getItems().toMutableList()
 
         // Find currently selected tab
         val oldSelectedIndex = items.indexOfFirst { it.isSelected }
-
-        // Only update if selection actually changes
-        if (oldSelectedIndex == position) return
 
         // Deselect old
         if (oldSelectedIndex != -1) {
             items[oldSelectedIndex].isSelected = false
             updateItem(oldSelectedIndex, items[oldSelectedIndex])
         }
-
-        // Select new
-        items[position].isSelected = true
-        updateItem(position, items[position])
     }
 
-    fun currentList(): List<MainScreenTab> = getItems()
 }

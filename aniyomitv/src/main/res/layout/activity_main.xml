@@ -61,6 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/_20dp"
             android:focusable="true"
+            android:background="@drawable/icon_focus_selector"
             android:focusableInTouchMode="true"
             android:src="@drawable/svg_settings"
             app:layout_constraintBottom_toBottomOf="@id/tabs"

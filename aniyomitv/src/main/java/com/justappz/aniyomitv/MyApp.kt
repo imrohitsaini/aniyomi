@@ -22,6 +22,8 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks {
         Injekt.importModule(AppModule(this))
         Injekt.importModule(PreferenceModule(this))
         Injekt.importModule(MainModule())
+
+        registerActivityLifecycleCallbacks(this)
     }
 
     //region Activity Lifecycle Callbacks

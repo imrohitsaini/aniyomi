@@ -1,5 +1,6 @@
 package com.justappz.aniyomitv.main.ui.presenter
 
+import android.graphics.Typeface
 import com.justappz.aniyomitv.base.BasePresenter
 import com.justappz.aniyomitv.databinding.ItemTabBinding
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab

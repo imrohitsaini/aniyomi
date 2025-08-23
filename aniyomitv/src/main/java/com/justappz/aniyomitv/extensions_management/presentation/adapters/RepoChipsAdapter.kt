@@ -1,15 +1,18 @@
 package com.justappz.aniyomitv.extensions_management.presentation.adapters
 
+import android.util.Log
 import com.justappz.aniyomitv.base.BaseRecyclerViewAdapter
-import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.databinding.ItemRepoChipBinding
+import com.justappz.aniyomitv.extensions_management.domain.model.Chip
 
 class RepoChipsAdapter(
-    items: List<String> = listOf(),
-) : BaseRecyclerViewAdapter<String, ItemRepoChipBinding>(
+    items: List<Chip> = listOf(),
+) : BaseRecyclerViewAdapter<Chip, ItemRepoChipBinding>(
     items,
     ItemRepoChipBinding::inflate,
-    { repoUrl, _ ->
-        chipFilter.setText(UrlUtils.getCleanUrl(repoUrl))
+    { chip, _ ->
+        chipFilter.setText(chip.chipName)
+        chipFilter.setChipIcon(chip.chipIcon)
+        chipFilter.setSelectedState(chip.isSelected)
     },
 )

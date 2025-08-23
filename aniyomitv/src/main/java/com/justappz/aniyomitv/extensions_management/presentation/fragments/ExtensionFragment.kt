@@ -20,6 +20,7 @@ import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
+import com.justappz.aniyomitv.extensions_management.domain.model.Chip
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
@@ -28,7 +29,6 @@ import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoCh
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -50,9 +50,14 @@ class ExtensionFragment : BaseFragment() {
             )
         }
     }
+
+    // Need this to not add duplicate repo url
     private lateinit var repoUrls: List<String>
+    private var chips: MutableList<Chip> = arrayListOf()
+    private var selectedChip: Chip? = null
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
     private var dialog: InputDialogFragment? = null
+    private var isNewRepo: Boolean = false
     //endregion
 
     //region onCreateView
@@ -84,14 +89,12 @@ class ExtensionFragment : BaseFragment() {
 
     //region init()
     private fun init() {
-        binding.repoUrlChipInclude.chipAddRepo.setOnClickListener {
-            showInputDialog()
+        repoUrlChipsAdapter = RepoChipsAdapter(emptyList()).apply {
+            onItemClick = { chip, position -> onChipClicked(chip, position) }
         }
-
-        repoUrlChipsAdapter = RepoChipsAdapter(emptyList())
-        binding.repoUrlChipInclude.rvRepos.layoutManager =
+        binding.rvRepos.layoutManager =
             LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
-        binding.repoUrlChipInclude.rvRepos.adapter = repoUrlChipsAdapter
+        binding.rvRepos.adapter = repoUrlChipsAdapter
 
         observeRepo()
         observeExtensionState()
@@ -122,7 +125,6 @@ class ExtensionFragment : BaseFragment() {
                             repoUrls = reposState.data
                             Log.i(tag, "repoUrls fetched ${repoUrls.toJsonArray()}")
 
-                            //todo set recycler view of urls and extensions
                             updateRepoChips(repoUrls)
                         }
                     }
@@ -133,15 +135,47 @@ class ExtensionFragment : BaseFragment() {
     }
     //endregion
 
-    //regin updateRepoChips
+    //region updateRepoChips
     private fun updateRepoChips(repoUrls: List<String>) {
         Log.i(tag, "updateRepoChips()")
-        if (repoUrls.isEmpty()) {
-            binding.repoUrlChipInclude.rvRepos.visibility = View.GONE
-        } else {
-            binding.repoUrlChipInclude.rvRepos.visibility = View.VISIBLE
-            repoUrlChipsAdapter.updateList(repoUrls)
+
+        chips.clear()
+        Log.i(tag, "chips.clear()")
+
+        repoUrls.forEach {
+            chips.add(
+                Chip(
+                    url = it,
+                    chipName = UrlUtils.getCleanUrl(it),
+                ),
+            )
         }
+
+        // Add the repo chip at last of this
+        chips.add(
+            Chip(
+                url = "",
+                chipName = "Add Repo",
+                isAddRepoChip = true,
+                chipIcon = R.drawable.svg_add,
+            ),
+        )
+
+
+        // If new repo, select the last url and dont load the extension, as extenison is first loaded for new repo
+        Log.i(tag, "isNewRepo $isNewRepo")
+        if (isNewRepo) {
+            selectedChip = chips[chips.lastIndex - 1].apply { isSelected = true }
+        } else if (chips.size > 1) {   // It has urls
+            // select the first selected chip
+            selectedChip = chips.firstOrNull { it.isSelected } ?: chips[0].apply { isSelected = true }
+
+            Log.i(tag, "load extensions after selecting chip")
+            selectedChip?.let { extensionViewModel.loadExtensions(it.url) }
+        }
+        isNewRepo = false
+        Log.i(tag, "updateList()")
+        repoUrlChipsAdapter.updateList(chips)
     }
     //endregion
 
@@ -165,12 +199,14 @@ class ExtensionFragment : BaseFragment() {
                             val repoDomain = state.data
                             Log.i(tag, "extensions successfully fetched ${repoDomain.extensions.size}")
 
-                            // if repoUrls doesnt contain this new url, then add this url
-                            if (!repoUrls.contains(repoDomain.repoUrl)) {
-                                Log.i(tag, "extensions success, save the url & refresh")
+                            // if new repo
+                            if (isNewRepo) {
                                 extensionViewModel.addRepo(repoDomain.repoUrl)
-                            } else {
-                                // update the extensions list
+
+                                // after adding loadRepoUrl is called again
+
+                                // Set the extension list
+                                Log.i(tag, "update extension list")
                             }
                         }
 
@@ -206,7 +242,7 @@ class ExtensionFragment : BaseFragment() {
     //endregion
 
     //region showInputDialog
-    private fun showInputDialog() {
+    private fun addChipDialog() {
         Log.i(tag, "showInputDialog")
         if (isDialogShowing) return
         isDialogShowing = true
@@ -227,6 +263,8 @@ class ExtensionFragment : BaseFragment() {
                     Toast.makeText(requireContext(), "This repo already exists", Toast.LENGTH_SHORT).show()
                 } else {
                     // valid -> load the extension -> extension will call the dialog loader -> hide the loader -> dismiss the dialog
+                    isNewRepo = true
+                    Log.i(tag, "load extensions for new repo")
                     extensionViewModel.loadExtensions(url)
                 }
             },
@@ -237,6 +275,17 @@ class ExtensionFragment : BaseFragment() {
         )
 
         dialog?.show(parentFragmentManager, "input_dialog")
+    }
+    //endregion
+
+    //region onChipClicked
+    private fun onChipClicked(chip: Chip, position: Int) {
+        if (chip.isAddRepoChip) {
+            addChipDialog()
+        } else {
+            Log.i(tag, "load extensions on chip clicked")
+            extensionViewModel.loadExtensions(chip.url)
+        }
     }
     //endregion
 }

@@ -198,6 +198,7 @@ class ExtensionFragment : BaseFragment() {
         Log.i(tag, "showInputDialog")
         if (isDialogShowing) return
         isDialogShowing = true
+        var validUrl = ""
 
         val dialog = InputDialogFragment(
             title = getString(R.string.add_repo),
@@ -206,7 +207,7 @@ class ExtensionFragment : BaseFragment() {
             needCancelButton = false,
             onInputSubmitted = { dlg, url ->
                 Log.i(tag, "url $url")
-                Log.i(tag, "url $url")
+                validUrl = url
 
                 if (!UrlUtils.isValidRepoUrl(url)) {
                     // invalid url -> show toast
@@ -216,8 +217,8 @@ class ExtensionFragment : BaseFragment() {
                     Toast.makeText(requireContext(), "This repo already exists", Toast.LENGTH_SHORT).show()
                 } else {
                     // valid -> dismiss the dialog
+                    extensionViewModel.loadExtensions(validUrl)
                     dlg.dismiss()
-                    extensionViewModel.loadExtensions(url)
                 }
             },
             onDismissListener = {

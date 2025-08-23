@@ -19,11 +19,15 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks {
 
     override fun onCreate() {
         super.onCreate()
+        val start = System.currentTimeMillis()
+
         patchInjekt()
         Injekt.importModule(AppModule(this))
         Injekt.importModule(PreferenceModule(this))
         Injekt.importModule(MainModule())
         Injekt.importModule(ExtensionModule())
+
+        Log.d("MyApp", "Injekt modules initialized in ${System.currentTimeMillis() - start} ms")
 
         registerActivityLifecycleCallbacks(this)
     }

@@ -6,6 +6,7 @@ import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
@@ -25,8 +26,10 @@ class SplashActivity : FragmentActivity() {
     //region onCreate
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val startTime = System.currentTimeMillis() // 👈 use descriptive
         binding = SplashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Log.d("Splash", "setContentView done in ${System.currentTimeMillis() - startTime} ms")
     }
     //endregion
 
@@ -39,12 +42,14 @@ class SplashActivity : FragmentActivity() {
 
     //region loadData
     private fun loadData() {
+        Log.d("Splash", "loadData started at ${System.currentTimeMillis()}")
         val drawable = binding.ivLogo.drawable
         when (drawable) {
             is AnimatedVectorDrawable -> {
                 drawable.registerAnimationCallback(
                     object : Animatable2.AnimationCallback() {
                         override fun onAnimationEnd(drawable: Drawable?) {
+                            Log.d("Splash", "Animation ended at ${System.currentTimeMillis()}")
                             startMain()
                         }
                     },
@@ -57,6 +62,7 @@ class SplashActivity : FragmentActivity() {
                     object :
                         Animatable2Compat.AnimationCallback() {
                         override fun onAnimationEnd(drawable: Drawable) {
+                            Log.d("Splash", "Animation ended at ${System.currentTimeMillis()}")
                             startMain()
                         }
                     },

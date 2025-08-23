@@ -1,8 +1,3 @@
-import mihon.buildlogic.Config
-import mihon.buildlogic.getBuildTime
-import mihon.buildlogic.getCommitCount
-import mihon.buildlogic.getGitSha
-
 plugins {
     id("mihon.android.application")
     id("mihon.android.application.compose")
@@ -72,10 +67,7 @@ dependencies {
 
     // AndroidX libraries
     implementation(androidx.annotation)
-    implementation(androidx.appcompat)
-    implementation(androidx.biometricktx)
     implementation(androidx.constraintlayout)
-    implementation(aniyomilibs.compose.constraintlayout)
     implementation(androidx.corektx)
     implementation(androidx.splashscreen)
     implementation(androidx.recyclerview)
@@ -120,15 +112,8 @@ dependencies {
     }
     implementation(libs.image.decoder)
 
-    // UI libraries
-    implementation(libs.material)
-    implementation(libs.reorderable)
-
     // Logging
     implementation(libs.logcat)
-
-    // Shizuku
-    implementation(libs.bundles.shizuku)
 
     // Tests
     testImplementation(libs.bundles.test)
@@ -139,16 +124,6 @@ dependencies {
     implementation(libs.leakcanary.plumber)
 
     testImplementation(kotlinx.coroutines.test)
-
-    // mpv-android
-    implementation(aniyomilibs.aniyomi.mpv)
-    // FFmpeg-kit
-    implementation(aniyomilibs.ffmpeg.kit)
-    implementation(aniyomilibs.arthenica.smartexceptions)
-    // seeker seek bar
-    implementation(aniyomilibs.seeker)
-    // true type parser
-    implementation(aniyomilibs.truetypeparser)
 
 
     // Aniyomi TV Libraries
@@ -164,5 +139,6 @@ dependencies {
     // Leanback support library
     implementation(aniyomitvlibs.leanback)
 
+    // Paging3
     implementation(aniyomitvlibs.paging.runtime)
 }

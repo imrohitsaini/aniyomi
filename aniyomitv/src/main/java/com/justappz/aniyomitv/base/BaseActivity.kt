@@ -3,9 +3,6 @@ package com.justappz.aniyomitv.base
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.view.View
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
 
 /**

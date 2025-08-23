@@ -19,7 +19,6 @@ import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
-import com.justappz.aniyomitv.core.util.DisplayUtils
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
@@ -62,8 +61,6 @@ class ExtensionFragment : BaseFragment() {
     private var selectedChip: Chip? = null
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
     private var dialog: InputDialogFragment? = null
-    private var isNewRepo: Boolean = false
-
     private var extensionAdapter = ExtensionPagingAdapter()
 
     //endregion
@@ -119,7 +116,6 @@ class ExtensionFragment : BaseFragment() {
     //region extensionAdapterProperties
     private fun extensionAdapterProperties() {
         // Extension RecyclerView setup
-        val spanCount = DisplayUtils.calculateSpanCount(ctx, 150, 5)// Number of columns for TV
         binding.rvExtensions.layoutManager = GridLayoutManager(ctx, 5)
         binding.rvExtensions.adapter = extensionAdapter
 
@@ -273,6 +269,7 @@ class ExtensionFragment : BaseFragment() {
                     it.dismiss()
                 }
             }
+            isDialogShowing = false
         }
     }
     //endregion

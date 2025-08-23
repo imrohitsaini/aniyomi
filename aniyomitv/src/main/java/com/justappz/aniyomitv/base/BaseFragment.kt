@@ -2,7 +2,6 @@ package com.justappz.aniyomitv.base
 
 import android.app.Activity
 import android.content.Context
-import android.os.Bundle
 import androidx.fragment.app.Fragment
 
 /**
@@ -16,10 +15,4 @@ open class BaseFragment : Fragment() {
     protected val act: Activity get() = requireActivity()
     //endregion
 
-    //region lifecycle
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Common setup for all fragments can go here
-    }
-    //endregion
 }

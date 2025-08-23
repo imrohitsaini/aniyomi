@@ -1,6 +1,5 @@
 package com.justappz.aniyomitv.extensions_management.domain.usecase
 
-import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
 import com.justappz.aniyomitv.extensions_management.domain.model.RepoDomain
 import com.justappz.aniyomitv.extensions_management.domain.repo.ExtensionRepo
 

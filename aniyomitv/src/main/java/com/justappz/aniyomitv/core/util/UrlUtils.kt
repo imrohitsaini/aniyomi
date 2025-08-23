@@ -36,6 +36,7 @@ object UrlUtils {
                 }
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             url // fallback to original
         }
     }

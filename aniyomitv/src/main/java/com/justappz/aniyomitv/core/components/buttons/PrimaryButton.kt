@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.core.content.withStyledAttributes
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.core.enums.ButtonType
@@ -47,8 +46,7 @@ class PrimaryButton @JvmOverloads constructor(
         isFocusable = true
         isFocusableInTouchMode = true
 
-        stateListAnimator =
-            AnimatorInflater.loadStateListAnimator(context, R.animator.focus_animator)
+        stateListAnimator = AnimatorInflater.loadStateListAnimator(context, R.animator.focus_animator)
 
         showLoader(false)
     }

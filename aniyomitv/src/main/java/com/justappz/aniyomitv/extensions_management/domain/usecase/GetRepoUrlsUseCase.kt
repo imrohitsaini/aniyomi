@@ -1,9 +1,10 @@
 package com.justappz.aniyomitv.extensions_management.domain.usecase
 
-import com.justappz.aniyomitv.extensions_management.domain.repo.RepoUrlRepo
+import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositoriesDetailsDomain
+import com.justappz.aniyomitv.extensions_management.domain.repo.AnimeRepositoriesDetailsRepo
 
 class GetRepoUrlsUseCase(
-    private val repoUrlRepo: RepoUrlRepo
+    private val animeRepositoriesDetailsRepo: AnimeRepositoriesDetailsRepo
 ) {
-    operator fun invoke(): List<String> = repoUrlRepo.getRepos()
+    operator fun invoke(): List<AnimeRepositoriesDetailsDomain> = animeRepositoriesDetailsRepo.getRepos()
 }

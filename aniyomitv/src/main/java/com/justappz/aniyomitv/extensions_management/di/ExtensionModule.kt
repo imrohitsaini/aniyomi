@@ -1,9 +1,9 @@
 package com.justappz.aniyomitv.extensions_management.di
 
 import com.justappz.aniyomitv.extensions_management.data.repo.ExtensionRepoImpl
-import com.justappz.aniyomitv.extensions_management.data.repo.RepoUrlRepoImpl
+import com.justappz.aniyomitv.extensions_management.data.repo.AnimeRepositoriesDetailsImpl
 import com.justappz.aniyomitv.extensions_management.domain.repo.ExtensionRepo
-import com.justappz.aniyomitv.extensions_management.domain.repo.RepoUrlRepo
+import com.justappz.aniyomitv.extensions_management.domain.repo.AnimeRepositoriesDetailsRepo
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
@@ -22,7 +22,7 @@ class ExtensionModule : InjektModule {
         addSingletonFactory<ExtensionRepo> { ExtensionRepoImpl(get()) }
 
         // fetching repo url from shared prefs
-        addSingletonFactory<RepoUrlRepo> { RepoUrlRepoImpl(get()) }
+        addSingletonFactory<AnimeRepositoriesDetailsRepo> { AnimeRepositoriesDetailsImpl(get()) }
 
         // Use case binding
         addSingletonFactory { GetExtensionUseCase(get()) }

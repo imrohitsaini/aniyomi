@@ -1,7 +1,11 @@
 package com.justappz.aniyomitv.extensions_management.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.justappz.aniyomitv.core.util.UrlUtils
+import com.justappz.aniyomitv.core.util.toJson
+import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositoriesDetailsDomain
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
@@ -24,6 +28,7 @@ class ExtensionViewModel(
     private val removeRepoUrlUseCase: RemoveRepoUrlUseCase,
 ) : ViewModel() {
 
+    private val tag = "ExtensionViewModel"
 
     //region extensions
     private val _extensionState = MutableStateFlow<ExtensionsUiState>(ExtensionsUiState.Idle)
@@ -33,22 +38,26 @@ class ExtensionViewModel(
         viewModelScope.launch {
             _extensionState.value = ExtensionsUiState.Loading
             try {
+                Log.d(tag, "loadExtensions $repoUrl")
                 val repoDomain = withContext(Dispatchers.IO) {
                     getExtensionsUseCase(repoUrl)
                 }
                 _extensionState.value = ExtensionsUiState.Success(repoDomain)
             } catch (e: HttpException) {
+                Log.d(tag, "loadExtensions ${e.toJson()}")
                 _extensionState.value = ExtensionsUiState.Error(
                     code = e.code,
                     message = e.message ?: "Unexpected HTTP error",
                 )
             } catch (e: IOException) {
+                Log.d(tag, "loadExtensions ${e.toJson()}")
                 e.printStackTrace()
                 _extensionState.value = ExtensionsUiState.Error(
                     code = null,
                     message = "Network error, check your connection",
                 )
             } catch (e: Exception) {
+                Log.d(tag, "loadExtensions ${e.toJson()}")
                 _extensionState.value = ExtensionsUiState.Error(
                     code = null,
                     message = e.localizedMessage ?: "Unknown error",
@@ -74,12 +83,13 @@ class ExtensionViewModel(
     //endregion
 
     fun addRepo(url: String) {
-        saveRepoUrlUseCase(url)
-        loadRepoUrls()
-    }
+        val animeRepositoriesDetailsDomain = AnimeRepositoriesDetailsDomain(
+            repoUrl = url,
+            cleanName = UrlUtils.getCleanUrl(url),
+            dateAdded = System.currentTimeMillis(),
+        )
 
-    fun removeRepo(url: String) {
-        removeRepoUrlUseCase(url)
+        saveRepoUrlUseCase(animeRepositoriesDetailsDomain)
         loadRepoUrls()
     }
 

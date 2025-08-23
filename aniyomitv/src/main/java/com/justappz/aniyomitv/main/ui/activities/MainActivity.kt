@@ -106,7 +106,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
                         val currentFragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
                         if (currentFragment?.tag != tab.tag) {
                             Log.i(tag, "loadFragment from tab selection")
-                            loadFragment(tab.fragment, tab.tag)
+                            loadFragment({ tab.fragment }, tab.tag)
                         }
                     }
                 }
@@ -156,20 +156,19 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
             // Load the initially selected tab fragment
             tabs.firstOrNull { it.isSelected }?.let { tab ->
                 Log.i(tag, "First fragment load")
-                loadFragment(tab.fragment, tab.tag)
+                loadFragment({ tab.fragment }, tab.tag)
             }
         }
     }
     //endregion
 
     //region loadFragment
-    private fun loadFragment(fragment: Fragment, tag: String) {
+    private fun loadFragment(fragmentProvider: () -> Fragment, tag: String) {
         Log.i(tag, "loadFragment()")
-        if (supportFragmentManager.findFragmentByTag(tag) == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(binding.fragmentContainer.id, fragment, tag)
-                .commit()
-        }
+        val fragment = fragmentProvider() // create a new fragment each time
+        supportFragmentManager.beginTransaction()
+            .replace(binding.fragmentContainer.id, fragment, tag)
+            .commit()
     }
     //endregion
 
@@ -200,7 +199,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
         if (!binding.ivSettings.isSelected) {
             binding.ivSettings.isSelected = true
             tabAdapter.deselectLastTab()
-            loadFragment(SettingsFragment(), "settings_fragments")
+            loadFragment({ SettingsFragment() }, "settings_fragments")
         }
     }
     //ending

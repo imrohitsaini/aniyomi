@@ -20,6 +20,7 @@ import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
+import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositoriesDetailsDomain
 import com.justappz.aniyomitv.extensions_management.domain.model.Chip
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
@@ -52,7 +53,7 @@ class ExtensionFragment : BaseFragment() {
     }
 
     // Need this to not add duplicate repo url
-    private lateinit var repoUrls: List<String>
+    private lateinit var animeRepos: List<AnimeRepositoriesDetailsDomain>
     private var chips: MutableList<Chip> = arrayListOf()
     private var selectedChip: Chip? = null
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
@@ -122,10 +123,10 @@ class ExtensionFragment : BaseFragment() {
 
                         is RepoUiState.Success -> {
                             showLoading(false)
-                            repoUrls = reposState.data
-                            Log.i(tag, "repoUrls fetched ${repoUrls.toJsonArray()}")
+                            animeRepos = reposState.data
+                            Log.i(tag, "repoUrls fetched ${animeRepos.toJsonArray()}")
 
-                            updateRepoChips(repoUrls)
+                            updateRepoChips(animeRepos)
                         }
                     }
 
@@ -136,17 +137,17 @@ class ExtensionFragment : BaseFragment() {
     //endregion
 
     //region updateRepoChips
-    private fun updateRepoChips(repoUrls: List<String>) {
+    private fun updateRepoChips(repositoriesDetailsDomains: List<AnimeRepositoriesDetailsDomain>) {
         Log.i(tag, "updateRepoChips()")
 
         chips.clear()
         Log.i(tag, "chips.clear()")
 
-        repoUrls.forEach {
+        repositoriesDetailsDomains.forEach {
             chips.add(
                 Chip(
-                    url = it,
-                    chipName = UrlUtils.getCleanUrl(it),
+                    url = it.repoUrl,
+                    chipName = it.cleanName,
                 ),
             )
         }
@@ -161,21 +162,18 @@ class ExtensionFragment : BaseFragment() {
             ),
         )
 
-
-        // If new repo, select the last url and dont load the extension, as extenison is first loaded for new repo
-        Log.i(tag, "isNewRepo $isNewRepo")
-        if (isNewRepo) {
-            selectedChip = chips[chips.lastIndex - 1].apply { isSelected = true }
-        } else if (chips.size > 1) {   // It has urls
-            // select the first selected chip
-            selectedChip = chips.firstOrNull { it.isSelected } ?: chips[0].apply { isSelected = true }
-
-            Log.i(tag, "load extensions after selecting chip")
-            selectedChip?.let { extensionViewModel.loadExtensions(it.url) }
+        if (chips.size > 1) {   // It has urls
+            // select the first chip
+            selectedChip = chips[0].apply { isSelected = true }
         }
-        isNewRepo = false
+
         Log.i(tag, "updateList()")
         repoUrlChipsAdapter.updateList(chips)
+
+
+        selectedChip?.let {
+            extensionViewModel.loadExtensions(it.url)
+        }
     }
     //endregion
 
@@ -197,7 +195,7 @@ class ExtensionFragment : BaseFragment() {
                         is ExtensionsUiState.Success -> {
                             showLoading(false)
                             val repoDomain = state.data
-                            Log.i(tag, "extensions successfully fetched ${repoDomain.extensions.size}")
+                            Log.i(tag, "extensions successfully fetched ${repoDomain.extensions.size} for url ${repoDomain.repoUrl}")
 
                             // if new repo
                             if (isNewRepo) {
@@ -258,14 +256,13 @@ class ExtensionFragment : BaseFragment() {
                 if (!UrlUtils.isValidRepoUrl(url)) {
                     // invalid url -> show toast
                     Toast.makeText(requireContext(), "Invalid Repo URL", Toast.LENGTH_SHORT).show()
-                } else if (repoUrls.contains(url)) {
+                } else if (animeRepos.any { it.repoUrl == url }) {
                     // Repo already added -> show toast
                     Toast.makeText(requireContext(), "This repo already exists", Toast.LENGTH_SHORT).show()
                 } else {
-                    // valid -> load the extension -> extension will call the dialog loader -> hide the loader -> dismiss the dialog
-                    isNewRepo = true
-                    Log.i(tag, "load extensions for new repo")
-                    extensionViewModel.loadExtensions(url)
+                    // valid -> save the rep
+                    Log.i(tag, "add new repo")
+                    extensionViewModel.addRepo(url)
                 }
             },
             onDismissListener = {
@@ -280,10 +277,14 @@ class ExtensionFragment : BaseFragment() {
 
     //region onChipClicked
     private fun onChipClicked(chip: Chip, position: Int) {
+
+        if (chip.isSelected) return
+
         if (chip.isAddRepoChip) {
             addChipDialog()
         } else {
             Log.i(tag, "load extensions on chip clicked")
+            repoUrlChipsAdapter.selectChip(chip, position)
             extensionViewModel.loadExtensions(chip.url)
         }
     }

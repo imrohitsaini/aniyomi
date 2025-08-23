@@ -54,16 +54,16 @@
         android:layout_marginVertical="@dimen/_8dp"
         android:layout_marginStart="@dimen/_16dp"
         android:layout_marginEnd="@dimen/_8dp"
+        android:padding="0dp"
         android:text="@string/add"
         app:buttonType="positive"
-        app:layout_goneMarginEnd="@dimen/_16dp"
-        style="@style/AnimeTV_Text_Base"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnCancel"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etInput"
-        app:layout_constraintVertical_bias="0" />
+        app:layout_constraintVertical_bias="0"
+        app:layout_goneMarginEnd="@dimen/_16dp" />
 
     <com.justappz.aniyomitv.core.components.buttons.PrimaryButton
         android:id="@+id/btnCancel"
@@ -71,8 +71,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8dp"
         android:layout_marginEnd="@dimen/_16dp"
+        android:padding="0dp"
         android:text="@string/cancel"
-        style="@style/AnimeTV_Text_Base"
         android:visibility="visible"
         app:buttonType="negative"
         app:layout_constraintBottom_toBottomOf="@id/btnOk"

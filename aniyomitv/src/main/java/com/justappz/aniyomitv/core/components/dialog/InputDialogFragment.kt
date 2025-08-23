@@ -90,4 +90,10 @@ class InputDialogFragment(
         onDismissListener?.invoke() // call the listener
     }
     //endregion
+
+    //region showLoaderOnButton
+    fun showLoaderOnButton(show: Boolean) {
+        binding.btnOk.showLoader(show)
+    }
+    //endregion
 }

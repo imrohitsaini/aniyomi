@@ -28,6 +28,7 @@ import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoCh
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -51,6 +52,7 @@ class ExtensionFragment : BaseFragment() {
     }
     private lateinit var repoUrls: List<String>
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
+    private var dialog: InputDialogFragment? = null
     //endregion
 
     //region onCreateView
@@ -190,6 +192,16 @@ class ExtensionFragment : BaseFragment() {
     private fun showLoading(toShow: Boolean) {
         Log.i(tag, "loader $toShow")
         binding.loading.isVisible = toShow
+
+        if (isDialogShowing) {
+            dialog?.let {
+                Log.i(tag, "isDialogShowing $isDialogShowing -> loader $toShow")
+                it.showLoaderOnButton(toShow)
+                if (!toShow) {
+                    it.dismiss()
+                }
+            }
+        }
     }
     //endregion
 
@@ -198,16 +210,14 @@ class ExtensionFragment : BaseFragment() {
         Log.i(tag, "showInputDialog")
         if (isDialogShowing) return
         isDialogShowing = true
-        var validUrl = ""
 
-        val dialog = InputDialogFragment(
+        dialog = InputDialogFragment(
             title = getString(R.string.add_repo),
             description = getString(R.string.add_repo_description),
             hint = getString(R.string.add_repo_hint),
             needCancelButton = false,
             onInputSubmitted = { dlg, url ->
                 Log.i(tag, "url $url")
-                validUrl = url
 
                 if (!UrlUtils.isValidRepoUrl(url)) {
                     // invalid url -> show toast
@@ -216,17 +226,17 @@ class ExtensionFragment : BaseFragment() {
                     // Repo already added -> show toast
                     Toast.makeText(requireContext(), "This repo already exists", Toast.LENGTH_SHORT).show()
                 } else {
-                    // valid -> dismiss the dialog
-                    extensionViewModel.loadExtensions(validUrl)
-                    dlg.dismiss()
+                    // valid -> load the extension -> extension will call the dialog loader -> hide the loader -> dismiss the dialog
+                    extensionViewModel.loadExtensions(url)
                 }
             },
             onDismissListener = {
                 isDialogShowing = false
+                dialog = null
             },
         )
 
-        dialog.show(parentFragmentManager, "input_dialog")
+        dialog?.show(parentFragmentManager, "input_dialog")
     }
     //endregion
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Button
+        android:id="@+id/primaryButtonText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="center"
+        style="@style/AnimeTV_Text_Button"
+        android:background="@color/transparent"
+        android:textAllCaps="false"
+        android:singleLine="true" />
+
+    <ProgressBar
+        android:id="@+id/primaryButtonLoader"
+        android:indeterminateTint="@color/anime_tv_onPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="visible" />
+</merge>

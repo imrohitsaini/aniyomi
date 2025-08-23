@@ -1,7 +1,9 @@
 package com.justappz.aniyomitv.extensions_management.presentation.adapters
 
 import androidx.recyclerview.widget.RecyclerView
+import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseRecyclerViewAdapter
+import com.justappz.aniyomitv.core.util.setMarginStartRes
 import com.justappz.aniyomitv.databinding.ItemRepoChipBinding
 import com.justappz.aniyomitv.extensions_management.domain.model.Chip
 
@@ -29,5 +31,17 @@ class RepoChipsAdapter(
         // Select the clicked chip
         chip.isSelected = true
         updateItemAt(position, chip)
+    }
+
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<ItemRepoChipBinding>,
+        position: Int,
+    ) {
+        super.onBindViewHolder(holder, position)
+
+        if (position == 0) {
+            holder.binding.chipFilter.setMarginStartRes(R.dimen._20dp)
+        }
+
     }
 }

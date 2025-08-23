@@ -13,7 +13,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.04" />
+            app:layout_constraintGuide_percent="0.01" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/leftGuideline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/_20dp"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/rightGuideline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
 
         <include
             android:id="@+id/errorRoot"
@@ -24,9 +38,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tvRepoTitle"
+            style="@style/AnimeTV_Text_H3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/repositories"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintTop_toBottomOf="@id/topGuideline" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRepos"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:focusable="false"
@@ -35,23 +58,25 @@
             android:padding="0dp"
             android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRepoTitle"
             tools:itemCount="3"
             tools:listitem="@layout/item_repo_chip" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvExtensions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_gravity="center_vertical"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:orientation="horizontal"
-            android:padding="0dp"
             android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
             app:layout_constraintTop_toBottomOf="@id/rvRepos"
             tools:itemCount="3"
             tools:listitem="@layout/item_extension" />

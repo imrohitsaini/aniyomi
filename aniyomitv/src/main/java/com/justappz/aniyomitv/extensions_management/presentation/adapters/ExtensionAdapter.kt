@@ -3,8 +3,6 @@ package com.justappz.aniyomitv.extensions_management.presentation.adapters
 import android.annotation.SuppressLint
 import coil3.load
 import coil3.request.crossfade
-import coil3.request.placeholder
-import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BasePagingAdapter
 import com.justappz.aniyomitv.databinding.ItemExtensionBinding
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain

@@ -2,7 +2,7 @@ package com.justappz.aniyomitv.extensions_management.domain.model
 
 data class RepoDomain(
     val repoUrl: String,
-    val extensions: List<ExtensionDomain>
+    val extensions: List<ExtensionDomain>,
 )
 
 data class ExtensionDomain(
@@ -14,7 +14,18 @@ data class ExtensionDomain(
     val pkg: String,
     val sources: List<Source>,
     val version: String,
-)
+    var repoBase: String? = null
+)  {
+    private fun normalizeBase(): String? {
+        return repoBase?.trimEnd('/') // remove trailing slash if present
+    }
+
+    val iconUrl: String?
+        get() = normalizeBase()?.let { "$it/icon/$pkg.png" }
+
+    val fileUrl: String?
+        get() = normalizeBase()?.let { "$it/apk/$apk" }
+}
 
 data class Source(
     val baseUrl: String,

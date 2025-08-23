@@ -4,7 +4,6 @@ import android.util.Log
 import com.justappz.aniyomitv.core.util.toObject
 import com.justappz.aniyomitv.extensions_management.data.dto.ExtensionDTO
 import com.justappz.aniyomitv.extensions_management.data.mapper.toDomain
-import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
 import com.justappz.aniyomitv.extensions_management.domain.model.RepoDomain
 import com.justappz.aniyomitv.extensions_management.domain.repo.ExtensionRepo
 import eu.kanade.tachiyomi.network.NetworkHelper
@@ -42,7 +41,7 @@ class ExtensionRepoImpl(
 
                 return RepoDomain(
                     repoUrl = url,
-                    extensions =   dtoList.map { it.toDomain() }
+                    extensions =   dtoList.map { it.toDomain(url) }
                 )
             }
         } catch (e: Exception) {

@@ -44,7 +44,6 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
         binding.viewModel = mainViewModel
         binding.lifecycleOwner = this
 
-        applyPaddingToMainView(binding.main)
         init()
     }
     //endregion

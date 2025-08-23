@@ -30,18 +30,4 @@ open class BaseActivity : FragmentActivity() {
         requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     }
     //endregion
-
-    //region applyPaddingToMainView
-    /**
-     * applyPaddingToMainView is a utility function to apply padding to the main view
-     * based on the system window insets. This is useful for ensuring that the content
-     * is not obscured by system UI elements like the status bar or navigation bar.
-     */
-    protected fun applyPaddingToMainView(view: View) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-    }
 }

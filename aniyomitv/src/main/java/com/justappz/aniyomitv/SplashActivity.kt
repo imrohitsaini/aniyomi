@@ -7,17 +7,17 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.databinding.SplashActivityBinding
 import com.justappz.aniyomitv.main.ui.activities.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
-class SplashActivity : FragmentActivity() {
+class SplashActivity : BaseActivity() {
 
     //region variables
     private lateinit var binding: SplashActivityBinding
@@ -26,7 +26,7 @@ class SplashActivity : FragmentActivity() {
     //region onCreate
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val startTime = System.currentTimeMillis() // 👈 use descriptive
+        val startTime = System.currentTimeMillis()
         binding = SplashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Log.d("Splash", "setContentView done in ${System.currentTimeMillis() - startTime} ms")

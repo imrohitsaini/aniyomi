@@ -106,7 +106,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
                         val currentFragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
                         if (currentFragment?.tag != tab.tag) {
                             Log.i(tag, "loadFragment from tab selection")
-                            loadFragment({ tab.fragment }, tab.tag)
+                            loadFragment(tab.fragmentProvider, tab.tag)
                         }
                     }
                 }
@@ -156,7 +156,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
             // Load the initially selected tab fragment
             tabs.firstOrNull { it.isSelected }?.let { tab ->
                 Log.i(tag, "First fragment load")
-                loadFragment({ tab.fragment }, tab.tag)
+                loadFragment(tab.fragmentProvider, tab.tag)
             }
         }
     }
@@ -199,7 +199,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
         if (!binding.ivSettings.isSelected) {
             binding.ivSettings.isSelected = true
             tabAdapter.deselectLastTab()
-            loadFragment({ SettingsFragment() }, "settings_fragments")
+            loadFragment({ SettingsFragment() }, "settings_fragment")
         }
     }
     //ending

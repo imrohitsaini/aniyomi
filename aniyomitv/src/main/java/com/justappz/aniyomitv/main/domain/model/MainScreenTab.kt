@@ -7,6 +7,6 @@ data class MainScreenTab(
     val title: String,
     var isSelected: Boolean = false,
     val iconRes: Int? = null,
-    val fragment: Fragment,
+    val fragmentProvider: () -> Fragment,
     val tag: String
 )

@@ -16,25 +16,25 @@ class TabRepositoryImpl : TabRepository {
             index = 0,
             title = "Home",
             isSelected = true,
-            fragment = HomeFragment(),
+            fragmentProvider = { HomeFragment() },
             fragmentTag = "home_fragment"
         ),
         MainScreenTabData(
             index = 1,
             title = "Search",
-            fragment = SearchFragment(),
+            fragmentProvider = { SearchFragment() },
             fragmentTag = "search_fragment",
         ),
         MainScreenTabData(
             index = 2,
             title = "Watchlist",
-            fragment = WatchListFragment(),
+            fragmentProvider = { WatchListFragment() },
             fragmentTag = "watchlist_fragment"
         ),
         MainScreenTabData(
             index = 3,
             title = "Extension",
-            fragment = ExtensionFragment(),
+            fragmentProvider = { ExtensionFragment() },
             fragmentTag = "extension_fragment"
         )
     )

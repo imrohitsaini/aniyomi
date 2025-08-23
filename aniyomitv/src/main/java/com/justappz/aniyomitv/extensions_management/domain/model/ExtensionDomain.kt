@@ -14,8 +14,8 @@ data class ExtensionDomain(
     val pkg: String,
     val sources: List<Source>,
     val version: String,
-    var repoBase: String? = null
-)  {
+    var repoBase: String? = null,
+) {
     private fun normalizeBase(): String? {
         return repoBase?.trimEnd('/') // remove trailing slash if present
     }
@@ -25,6 +25,16 @@ data class ExtensionDomain(
 
     val fileUrl: String?
         get() = normalizeBase()?.let { "$it/apk/$apk" }
+
+    companion object {
+        val DIFF_CALLBACK = object : androidx.recyclerview.widget.DiffUtil.ItemCallback<ExtensionDomain>() {
+            override fun areItemsTheSame(oldItem: ExtensionDomain, newItem: ExtensionDomain) =
+                oldItem.pkg == newItem.pkg
+
+            override fun areContentsTheSame(oldItem: ExtensionDomain, newItem: ExtensionDomain) =
+                oldItem == newItem
+        }
+    }
 }
 
 data class Source(

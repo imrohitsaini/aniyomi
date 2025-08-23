@@ -12,11 +12,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
+import com.justappz.aniyomitv.core.util.DisplayUtils
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
@@ -26,6 +29,7 @@ import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionU
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
+import com.justappz.aniyomitv.extensions_management.presentation.adapters.ExtensionPagingAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoChipsAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
@@ -59,6 +63,9 @@ class ExtensionFragment : BaseFragment() {
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
     private var dialog: InputDialogFragment? = null
     private var isNewRepo: Boolean = false
+
+    private var extensionAdapter = ExtensionPagingAdapter()
+
     //endregion
 
     //region onCreateView
@@ -90,16 +97,48 @@ class ExtensionFragment : BaseFragment() {
 
     //region init()
     private fun init() {
+
+        reposAdapterProperties()
+        extensionAdapterProperties()
+        observeRepo()
+        observeExtensionState()
+        extensionViewModel.loadRepoUrls()
+    }
+    //endregion
+
+    //region reposAdapterProperties()
+    private fun reposAdapterProperties() {
         repoUrlChipsAdapter = RepoChipsAdapter(emptyList()).apply {
             onItemClick = { chip, position -> onChipClicked(chip, position) }
         }
         binding.rvRepos.layoutManager =
             LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
         binding.rvRepos.adapter = repoUrlChipsAdapter
+    }
 
-        observeRepo()
-        observeExtensionState()
-        extensionViewModel.loadRepoUrls()
+    //region extensionAdapterProperties
+    private fun extensionAdapterProperties() {
+        // Extension RecyclerView setup
+        val spanCount = DisplayUtils.calculateSpanCount(ctx, 150, 5)// Number of columns for TV
+        binding.rvExtensions.layoutManager = GridLayoutManager(ctx, spanCount)
+        binding.rvExtensions.adapter = extensionAdapter
+
+        // Optional: Focus animation for TV
+        binding.rvExtensions.addOnChildAttachStateChangeListener(
+            object : RecyclerView.OnChildAttachStateChangeListener {
+                override fun onChildViewAttachedToWindow(view: View) {
+                    view.setOnFocusChangeListener { v, hasFocus ->
+                        v.animate()
+                            .scaleX(if (hasFocus) 1.1f else 1f)
+                            .scaleY(if (hasFocus) 1.1f else 1f)
+                            .setDuration(150)
+                            .start()
+                    }
+                }
+
+                override fun onChildViewDetachedFromWindow(view: View) {}
+            },
+        )
     }
     //endregion
 
@@ -195,16 +234,15 @@ class ExtensionFragment : BaseFragment() {
                         is ExtensionsUiState.Success -> {
                             showLoading(false)
                             val repoDomain = state.data
-                            Log.i(tag, "extensions successfully fetched ${repoDomain.extensions.size} for url ${repoDomain.repoUrl}")
-
-                            // if new repo
-                            if (isNewRepo) {
-                                extensionViewModel.addRepo(repoDomain.repoUrl)
-
-                                // after adding loadRepoUrl is called again
-
-                                // Set the extension list
-                                Log.i(tag, "update extension list")
+                            Log.i(
+                                tag,
+                                "extensions successfully fetched ${repoDomain.extensions.size} for url ${repoDomain.repoUrl}",
+                            )
+                            // Submit list to Paging adapter
+                            lifecycleScope.launch {
+                                extensionAdapter.submitData(
+                                    pagingData = androidx.paging.PagingData.from(repoDomain.extensions),
+                                )
                             }
                         }
 
@@ -285,6 +323,12 @@ class ExtensionFragment : BaseFragment() {
         } else {
             Log.i(tag, "load extensions on chip clicked")
             repoUrlChipsAdapter.selectChip(chip, position)
+
+            // Clear previous extensions
+            lifecycleScope.launch {
+                extensionAdapter.submitData(androidx.paging.PagingData.empty())
+            }
+
             extensionViewModel.loadExtensions(chip.url)
         }
     }

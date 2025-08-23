@@ -7,6 +7,11 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.request.allowRgb565
+import coil3.request.crossfade
 import com.justappz.aniyomitv.constants.LogKeys
 import com.justappz.aniyomitv.core.di.AppModule
 import com.justappz.aniyomitv.core.di.PreferenceModule
@@ -15,7 +20,7 @@ import com.justappz.aniyomitv.main.di.MainModule
 import dev.mihon.injekt.patchInjekt
 import uy.kohesive.injekt.Injekt
 
-class MyApp : Application(), Application.ActivityLifecycleCallbacks {
+class MyApp : Application(), Application.ActivityLifecycleCallbacks, SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
@@ -104,6 +109,15 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks {
                 true,
             )
         }
+    }
+    //endregion
+
+    //region newImageLoader
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        return ImageLoader.Builder(context)
+            .crossfade(true)
+            .allowRgb565(true) // optional memory optimization
+            .build()
     }
     //endregion
 }

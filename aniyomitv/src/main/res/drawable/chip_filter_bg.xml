@@ -1,27 +1,20 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Default state -->
+    <!-- Selected State (highest priority) -->
     <item android:state_selected="true">
         <shape android:shape="rectangle">
-            <!-- Fill color -->
             <solid android:color="@color/anime_tv_primary" />
-
-            <!-- Rounded corners (tweak as you like) -->
             <corners android:radius="@dimen/chips_radius" />
         </shape>
     </item>
 
-    <!-- Default state -->
+
+    <!-- Default / Not Selected State -->
     <item>
         <shape android:shape="rectangle">
-            <!-- Fill color -->
-            <solid android:color="@color/anime_tv_surface" />
-
-            <!-- Rounded corners (tweak as you like) -->
+            <stroke android:width="@dimen/_2dp" android:color="@color/white" />
             <corners android:radius="@dimen/chips_radius" />
-
-            <!-- Stroke -->
-            <stroke android:width="@dimen/_2dp" android:color="@color/anime_tv_onSurface" />
+            <padding android:bottom="@dimen/_2dp" android:left="@dimen/_2dp" android:right="@dimen/_2dp" android:top="@dimen/_2dp" />
         </shape>
     </item>
 </selector>

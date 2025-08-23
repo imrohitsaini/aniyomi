@@ -1,40 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:background="@drawable/chips_button_bg"
+    android:background="@drawable/chip_filter_bg"
     android:paddingHorizontal="@dimen/_12dp"
     android:paddingVertical="@dimen/_8dp">
 
-    <TextView
-        android:id="@+id/tvChipName"
-        style="@style/AnimeTV_Text_Base"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        tools:text="@string/add_repo"
-        android:textColor="@color/anime_tv_onSurface"
-        android:textSize="@dimen/_16sp"
-        app:layout_constraintBottom_toBottomOf="@id/ivChipEnd"
-        app:layout_constraintEnd_toStartOf="@id/ivChipEnd"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/ivChipEnd" />
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-    <ImageView
-        android:id="@+id/ivChipEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/svg_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tvChipName"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
+        <TextView
+            android:id="@+id/tvChipName"
+            style="@style/AnimeTV_Text_Base"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/anime_tv_onSurface"
+            android:textSize="@dimen/_16sp"
+            app:layout_constraintBottom_toBottomOf="@id/ivChipEnd"
+            app:layout_constraintEnd_toStartOf="@id/ivChipEnd"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ivChipEnd"
+            tools:text="@string/add_repo" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/ivChipEnd"
+            android:layout_width="@dimen/_16dp"
+            android:layout_height="@dimen/_16dp"
+            android:layout_marginStart="@dimen/_4dp"
+            android:src="@drawable/svg_add"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvChipName"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

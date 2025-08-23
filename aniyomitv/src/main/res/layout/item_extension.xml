@@ -2,20 +2,22 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="160dp"
-    android:layout_height="200dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_12dp"
+    android:background="@drawable/extension_bg"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:padding="8dp">
+    android:padding="@dimen/_8dp">
 
     <!-- App Icon -->
     <ImageView
         android:id="@+id/ivAppIcon"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toTopOf="@id/tvAppName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:background="@drawable/extension_bg"
+        android:scaleType="fitXY"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,12 +28,14 @@
     <!-- App Name -->
     <TextView
         android:id="@+id/tvAppName"
+        style="@style/AnimeTV_Text_Body_Small"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4dp"
         android:ellipsize="end"
-        android:maxLines="1"
+        android:gravity="start"
+        android:maxLines="2"
         android:textColor="@android:color/white"
-        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivAppIcon"
@@ -40,14 +44,13 @@
     <!-- Version -->
     <TextView
         android:id="@+id/tvVersion"
+        style="@style/AnimeTV_Text_Caption"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@android:color/darker_gray"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/tvAppName"
         app:layout_constraintTop_toBottomOf="@id/tvAppName"
         tools:text="v1.0.0" />
 

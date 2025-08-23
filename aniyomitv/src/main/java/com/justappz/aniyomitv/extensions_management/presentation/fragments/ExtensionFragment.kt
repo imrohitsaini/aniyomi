@@ -120,7 +120,7 @@ class ExtensionFragment : BaseFragment() {
     private fun extensionAdapterProperties() {
         // Extension RecyclerView setup
         val spanCount = DisplayUtils.calculateSpanCount(ctx, 150, 5)// Number of columns for TV
-        binding.rvExtensions.layoutManager = GridLayoutManager(ctx, spanCount)
+        binding.rvExtensions.layoutManager = GridLayoutManager(ctx, 5)
         binding.rvExtensions.adapter = extensionAdapter
 
         // Optional: Focus animation for TV

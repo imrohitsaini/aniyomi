@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.isVisible
 import com.justappz.aniyomitv.R
@@ -21,7 +20,7 @@ class ChipView @JvmOverloads constructor(
     private val binding: ComponentChipBinding =
         ComponentChipBinding.inflate(LayoutInflater.from(context), this, true)
 
-    var type: ChipType = ChipType.CHIP_BUTTON
+    var type: ChipType = ChipType.FILTER
         set(value) {
             field = value
 //            background = ContextCompat.getDrawable(context, value.backgroundRes)
@@ -47,7 +46,7 @@ class ChipView @JvmOverloads constructor(
                 val typeValue = getInt(R.styleable.ChipView_chipType, 0)
                 val chipSelected = getBoolean(R.styleable.ChipView_chipSelected, false)
 
-                type = if (typeValue == 0) ChipType.CHIP_BUTTON else ChipType.FILTER
+                type = if (typeValue == 0) ChipType.FILTER else ChipType.FILTER
                 setText(text)
                 setChipIcon(if (iconResId != 0) iconResId else null)
                 setSelectedState(chipSelected)

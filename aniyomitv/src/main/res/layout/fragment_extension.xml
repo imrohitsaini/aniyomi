@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="@dimen/_20dp"/>
+            app:layout_constraintGuide_begin="@dimen/_20dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/rightGuideline"
@@ -71,14 +71,12 @@
             android:layout_gravity="center_vertical"
             android:focusable="false"
             android:focusableInTouchMode="false"
-            android:orientation="horizontal"
             android:visibility="visible"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/rightGuideline"
             app:layout_constraintStart_toStartOf="@id/leftGuideline"
             app:layout_constraintTop_toBottomOf="@id/rvRepos"
-            tools:itemCount="3"
+            tools:itemCount="5"
             tools:listitem="@layout/item_extension" />
 
 

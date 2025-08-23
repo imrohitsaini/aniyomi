@@ -14,7 +14,7 @@ class ExtensionPagingAdapter : BasePagingAdapter<ExtensionDomain, ItemExtensionB
     },
     bind = { item, _ ->
         tvAppName.text = item.name.replace("Aniyomi: ", "")
-        tvVersion.text = "${item.version} ${item.code}"
+        tvVersion.text = "${item.version}-${item.code}"
 
         try {
             ivAppIcon.load(item.iconUrl) {

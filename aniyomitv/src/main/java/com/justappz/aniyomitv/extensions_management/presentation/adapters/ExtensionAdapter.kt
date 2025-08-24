@@ -1,9 +1,13 @@
 package com.justappz.aniyomitv.extensions_management.presentation.adapters
 
 import android.annotation.SuppressLint
+import android.view.View
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import coil3.request.crossfade
 import com.justappz.aniyomitv.base.BasePagingAdapter
+import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ItemExtensionBinding
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
 
@@ -25,4 +29,60 @@ class ExtensionPagingAdapter : BasePagingAdapter<ExtensionDomain, ItemExtensionB
         }
     },
     diffCallback = ExtensionDomain.DIFF_CALLBACK,
-)
+) {
+    private var recyclerView: RecyclerView? = null
+
+    fun attachRecyclerView(rv: RecyclerView) {
+        recyclerView = rv
+    }
+
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<ItemExtensionBinding>,
+        position: Int,
+    ) {
+        super.onBindViewHolder(holder, position)
+
+        val layoutManager = recyclerView?.layoutManager as GridLayoutManager
+        val spanCount = layoutManager.spanCount
+        val itemCount = itemCount
+
+        holder.itemView.setOnKeyListener(
+            FocusKeyHandler(
+                onLeft = {
+                    if (position % spanCount == 0) {
+                        // first item in row → block
+                    } else {
+                        holder.itemView.focusSearch(View.FOCUS_LEFT)?.requestFocus()
+                    }
+                    return@FocusKeyHandler true
+                },
+                onRight = {
+                    if ((position + 1) % spanCount == 0 || position == itemCount - 1) {
+                        // last item in row or overall → block
+                    } else {
+                        holder.itemView.focusSearch(View.FOCUS_RIGHT)?.requestFocus()
+                    }
+                    return@FocusKeyHandler true
+                },
+                onUp = {
+                    if (position < spanCount) {
+                        // first row → let system handle (don’t consume)
+                        return@FocusKeyHandler false
+                    } else {
+                        holder.itemView.focusSearch(View.FOCUS_UP)?.requestFocus()
+                        return@FocusKeyHandler true
+                    }
+                },
+                onDown = {
+                    if (position + spanCount >= itemCount) {
+                        // last row → block
+                    } else {
+                        holder.itemView.focusSearch(View.FOCUS_DOWN)?.requestFocus()
+                    }
+                    return@FocusKeyHandler true
+                },
+            ),
+        )
+
+    }
+}

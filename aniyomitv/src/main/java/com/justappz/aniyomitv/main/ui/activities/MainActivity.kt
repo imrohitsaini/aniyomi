@@ -123,6 +123,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
                     ) {
                         binding.ivSettings.requestFocus()
                     }
+                    return@FocusKeyHandler true
                 },
             ),
         )
@@ -137,6 +138,7 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
 
                     // Treat it like next tab
                     lastSelectedPosition = tabs.size
+                    return@FocusKeyHandler true
                 },
             ),
         )

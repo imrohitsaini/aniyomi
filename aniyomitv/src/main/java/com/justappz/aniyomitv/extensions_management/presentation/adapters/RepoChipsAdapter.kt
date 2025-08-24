@@ -41,6 +41,8 @@ class RepoChipsAdapter(
 
         if (position == 0) {
             holder.binding.chipFilter.setMarginStartRes(R.dimen._20dp)
+        } else {
+            holder.binding.chipFilter.setMarginStartRes(R.dimen._8dp)
         }
 
     }

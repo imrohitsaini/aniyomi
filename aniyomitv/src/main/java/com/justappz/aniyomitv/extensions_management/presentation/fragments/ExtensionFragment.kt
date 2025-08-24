@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
@@ -118,23 +117,7 @@ class ExtensionFragment : BaseFragment() {
         // Extension RecyclerView setup
         binding.rvExtensions.layoutManager = GridLayoutManager(ctx, 5)
         binding.rvExtensions.adapter = extensionAdapter
-
-        // Optional: Focus animation for TV
-        binding.rvExtensions.addOnChildAttachStateChangeListener(
-            object : RecyclerView.OnChildAttachStateChangeListener {
-                override fun onChildViewAttachedToWindow(view: View) {
-                    view.setOnFocusChangeListener { v, hasFocus ->
-                        v.animate()
-                            .scaleX(if (hasFocus) 1.1f else 1f)
-                            .scaleY(if (hasFocus) 1.1f else 1f)
-                            .setDuration(150)
-                            .start()
-                    }
-                }
-
-                override fun onChildViewDetachedFromWindow(view: View) {}
-            },
-        )
+        extensionAdapter.attachRecyclerView(binding.rvExtensions)
     }
     //endregion
 

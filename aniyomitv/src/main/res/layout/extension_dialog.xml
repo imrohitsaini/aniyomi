@@ -27,7 +27,7 @@
 
 
     <TextView
-        android:id="@+id/dialogTitle"
+        android:id="@+id/tvAppName"
         style="@style/AnimeTV_Text_Body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
         tools:text="AllAnime" />
 
     <TextView
-        android:id="@+id/dialogDescription"
+        android:id="@+id/tvAppVersion"
         style="@style/AnimeTV_Text_Caption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,8 +45,34 @@
         android:gravity="start"
         android:maxLines="1"
         android:minLines="1"
-        app:layout_constraintStart_toStartOf="@id/dialogTitle"
-        app:layout_constraintTop_toBottomOf="@id/dialogTitle"
+        app:layout_constraintStart_toStartOf="@id/tvAppName"
+        app:layout_constraintTop_toBottomOf="@id/tvAppName"
+        tools:text="1.0.0 - 12" />
+
+    <TextView
+        android:id="@+id/tvInstalledVersion"
+        style="@style/AnimeTV_Text_Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_8dp"
+        android:gravity="start"
+        android:maxLines="1"
+        android:minLines="1"
+        app:layout_constraintStart_toEndOf="@id/tvAppVersion"
+        app:layout_constraintTop_toTopOf="@id/tvAppVersion"
+        tools:text="(Installed 1.0.0 - 12)" />
+
+    <TextView
+        android:id="@+id/dialogUpdateDescription"
+        style="@style/AnimeTV_Text_Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4dp"
+        android:gravity="start"
+        android:maxLines="1"
+        android:minLines="1"
+        app:layout_constraintStart_toStartOf="@id/tvAppName"
+        app:layout_constraintTop_toBottomOf="@id/tvAppName"
         tools:text="1.0.0 - 12" />
 
     <com.justappz.aniyomitv.core.components.buttons.PrimaryButton
@@ -63,7 +89,7 @@
         app:layout_constraintEnd_toStartOf="@id/btnUninstall"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dialogDescription"
+        app:layout_constraintTop_toBottomOf="@id/tvAppVersion"
         app:layout_constraintVertical_bias="0"
         app:layout_goneMarginEnd="@dimen/_16dp" />
 

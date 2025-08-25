@@ -54,8 +54,8 @@ class ExtensionDialogFragment(
         Log.i(tag, "onCreateView")
         _binding = ExtensionDialogBinding.inflate(inflater, container, false)
 
-        binding.dialogTitle.text = extension.name.replace("Aniyomi: ", "")
-        binding.dialogDescription.text = "${extension.version}-${extension.code}"
+        binding.tvAppName.text = extension.name.replace("Aniyomi: ", "")
+        binding.tvAppVersion.text = "${extension.version}-${extension.code}"
 
         // If installed btn ok text to -> re install
         // If update available btn ok text to -> update
@@ -103,6 +103,8 @@ class ExtensionDialogFragment(
             } else {
                 binding.btnInstall.setText(requireContext().getString(R.string.reinstall))
             }
+            binding.tvInstalledVersion.text =
+                "(Installed ${extension.installedExtensionInfo.installedVersionName} - ${extension.installedExtensionInfo.installedVersionCode})"
         }
 
         return binding.root

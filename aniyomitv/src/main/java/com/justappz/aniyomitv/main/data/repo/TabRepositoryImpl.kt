@@ -6,7 +6,7 @@ import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 import com.justappz.aniyomitv.main.domain.repo.TabRepository
 import com.justappz.aniyomitv.extensions_management.presentation.fragments.ExtensionFragment
 import com.justappz.aniyomitv.main.ui.fragments.HomeFragment
-import com.justappz.aniyomitv.main.ui.fragments.SearchFragment
+import com.justappz.aniyomitv.anime_search.presentation.fragments.SearchFragment
 import com.justappz.aniyomitv.main.ui.fragments.WatchListFragment
 
 class TabRepositoryImpl : TabRepository {

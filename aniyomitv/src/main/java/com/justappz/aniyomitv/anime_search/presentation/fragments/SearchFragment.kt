@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.main.ui.fragments
+package com.justappz.aniyomitv.anime_search.presentation.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater

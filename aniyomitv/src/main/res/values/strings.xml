@@ -9,4 +9,5 @@
     <string name="install">Install</string>
     <string name="uninstall">Uninstall</string>
     <string name="reinstall">Reinstall</string>
+    <string name="update">Update</string>
 </resources>

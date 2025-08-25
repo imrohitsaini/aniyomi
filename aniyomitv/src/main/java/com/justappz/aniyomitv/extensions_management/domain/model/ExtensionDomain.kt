@@ -14,8 +14,8 @@ data class ExtensionDomain(
     val pkg: String,
     val sources: List<Source>,
     val version: String,
-    var repoBase: String? = null,
-    var isInstalled: Boolean = false,
+    val repoBase: String? = null,
+    val installedExtensionInfo: InstalledExtensionInfo? = null
 ) {
     private fun normalizeBase(): String? {
         return repoBase?.trimEnd('/') // remove trailing slash if present
@@ -36,7 +36,24 @@ data class ExtensionDomain(
                 oldItem == newItem
         }
     }
+
+    /**
+     * Check if an update is required for this extension.
+     * @return true if installed and repo versionCode is greater than installed versionCode
+     */
+    fun isUpdateRequired(): Boolean {
+        val installedInfo = installedExtensionInfo
+        return installedInfo?.installed == true &&
+            (installedInfo.installedVersionCode ?: 0) < code
+    }
+
 }
+
+data class InstalledExtensionInfo(
+    var installed: Boolean? = false,
+    var installedVersionCode: Int? = 0,
+    var installedVersionName: String? = "",
+)
 
 data class Source(
     val baseUrl: String,

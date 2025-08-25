@@ -3,25 +3,39 @@ package com.justappz.aniyomitv.extensions_management.utils
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import com.justappz.aniyomitv.extensions_management.domain.model.InstalledExtensionInfo
 import java.io.File
 
 object ExtensionUtils {
 
     /**
-     * Checks whether the given package is installed on the device.
+     * Checks whether the given package is installed on the device and returns details.
      *
      * @param context Context to access PackageManager
      * @param packageName The package name to check
-     * @return true if installed, false otherwise
+     * @return InstalledExtension with installed flag and version details
      */
-    fun isExtensionInstalled(context: Context, packageName: String): Boolean {
+    @Suppress("DEPRECATION")
+    fun getInstalledExtension(context: Context, packageName: String): InstalledExtensionInfo {
         return try {
-            context.packageManager.getPackageInfo(packageName, 0)
-            true
+            val pkgInfo = context.packageManager.getPackageInfo(packageName, 0)
+
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                pkgInfo.longVersionCode // API 28+
+            } else {
+                pkgInfo.versionCode.toLong() // Deprecated but works on <28
+            }
+
+            InstalledExtensionInfo(
+                installed = true,
+                installedVersionCode = versionCode.toInt(),
+                installedVersionName = pkgInfo.versionName ?: "",
+            )
         } catch (e: PackageManager.NameNotFoundException) {
-            false
+            InstalledExtensionInfo(installed = false)
         }
     }
 

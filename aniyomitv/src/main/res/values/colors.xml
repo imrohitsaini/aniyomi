@@ -40,6 +40,11 @@
     <color name="anime_tv_errorContainer">#B00020</color>
     <color name="anime_tv_onErrorContainer">#FFFFFF</color>
 
+    <color name="anime_tv_warning">#FFC107</color> <!-- Amber 500 (primary warning) -->
+    <color name="anime_tv_onWarning">#000000</color> <!-- Text/icon on warning (black for contrast) -->
+    <color name="anime_tv_warningContainer">#FFA000</color> <!-- Amber 700 (darker container) -->
+    <color name="anime_tv_onWarningContainer">#000000</color> <!-- Text/icon on container -->
+
     <color name="anime_tv_background">#121212</color>
     <color name="anime_tv_onBackground">#E0E0E0</color>
 

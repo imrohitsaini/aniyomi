@@ -226,20 +226,23 @@ class ExtensionFragment : BaseFragment() {
                             // Submit list to Paging adapter
                             lifecycleScope.launch {
                                 val updatedList = repoDomain.extensions.map { extension ->
+                                    val installedInfo = ExtensionUtils.getInstalledExtension(
+                                        context = requireContext(),
+                                        packageName = extension.pkg
+                                    )
+
                                     extension.copy(
-                                        isInstalled = ExtensionUtils.isExtensionInstalled(
-                                            context = requireContext(),
-                                            packageName = extension.pkg,
-                                        ),
+                                        installedExtensionInfo = installedInfo
                                     )
                                 }
 
                                 // Sort: installed first, then not installed
-                                val sortedList = updatedList.sortedByDescending { it.isInstalled }
+                                val sortedList = updatedList.sortedByDescending { it.installedExtensionInfo?.installed == true }
 
                                 // Clear previous extensions
                                 extensionAdapter.submitData(androidx.paging.PagingData.empty())
 
+                                // Submit updated + sorted list
                                 extensionAdapter.submitData(
                                     pagingData = androidx.paging.PagingData.from(sortedList),
                                 )

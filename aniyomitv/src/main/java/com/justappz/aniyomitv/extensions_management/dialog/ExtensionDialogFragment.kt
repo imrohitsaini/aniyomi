@@ -95,10 +95,14 @@ class ExtensionDialogFragment(
         }
 
         // If installed btn uninstall is visible
-        binding.btnUninstall.isVisible = extension.isInstalled
+        binding.btnUninstall.isVisible = extension.installedExtensionInfo?.installed == true
 
-        if (extension.isInstalled) {
-            binding.btnInstall.setText(requireContext().getString(R.string.reinstall))
+        if (extension.installedExtensionInfo?.installed == true) {
+            if (extension.isUpdateRequired()) {
+                binding.btnInstall.setText(getString(R.string.update))
+            } else {
+                binding.btnInstall.setText(requireContext().getString(R.string.reinstall))
+            }
         }
 
         return binding.root

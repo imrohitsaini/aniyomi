@@ -30,8 +30,14 @@ class ExtensionPagingAdapter : BasePagingAdapter<ExtensionDomain, ItemExtensionB
             e.printStackTrace()
         }
 
-        if (item.isInstalled) {
-            ivAppIconBadge.setImageResource(R.drawable.svg_tick)
+        if (item.installedExtensionInfo?.installed == true) {
+
+            // If isUpdateRequired
+            if (item.isUpdateRequired()) {
+                ivAppIconBadge.setImageResource(R.drawable.svg_warning)
+            } else {
+                ivAppIconBadge.setImageResource(R.drawable.svg_tick)
+            }
             ivAppIconBadge.isVisible = true
         } else {
             ivAppIconBadge.isVisible = false

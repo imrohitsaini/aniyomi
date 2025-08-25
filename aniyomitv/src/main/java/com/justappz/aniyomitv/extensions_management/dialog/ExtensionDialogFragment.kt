@@ -12,11 +12,12 @@ import android.view.ViewGroup
 import android.view.Window
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.justappz.aniyomitv.R
-import com.justappz.aniyomitv.core.util.setMarginStartRes
-import com.justappz.aniyomitv.core.util.updateMarginRes
+import com.justappz.aniyomitv.core.util.FileUtils
 import com.justappz.aniyomitv.databinding.ExtensionDialogBinding
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
+import kotlinx.coroutines.launch
 
 class ExtensionDialogFragment(
     private val extension: ExtensionDomain,
@@ -59,7 +60,26 @@ class ExtensionDialogFragment(
         binding.btnOk.setOnClickListener {
 
             // Download and install the extension here
+            lifecycleScope.launch {
+                extension.fileUrl?.let {
+                    showLoaderOnButton(true)
+                    val file = FileUtils.downloadFile(
+                        context = requireContext(),
+                        fileUrl = it,
+                    )
 
+                    if (file != null) {
+                        showLoaderOnButton(false)
+                        Log.d(tag, "File - ${file.path}")
+                        // File downloaded, now install / process it
+                        // e.g., start installation intent or update UI
+                        // send to update the list
+                    } else {
+                        // Failed to download
+                        // Toast the error
+                    }
+                }
+            }
 
             // Send the function to update the extensions view
 
@@ -86,9 +106,8 @@ class ExtensionDialogFragment(
         dialog?.window?.apply {
             setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT // or MATCH_PARENT if fullscreen
+                ViewGroup.LayoutParams.WRAP_CONTENT, // or MATCH_PARENT if fullscreen
             )
-
 
             // Then adjust params to give margins
             val params = attributes

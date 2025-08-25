@@ -93,5 +93,10 @@ class ExtensionViewModel(
         loadRepoUrls()
     }
 
+    fun resetRepoState() {
+        _repoUrls.value = RepoUiState.Idle
+    }
+
+
     //endregion
 }

@@ -74,6 +74,7 @@ class ExtensionFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        Log.d(tag, "onCreateView")
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_extension, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
@@ -82,6 +83,7 @@ class ExtensionFragment : BaseFragment() {
 
     //region onDestroyView
     override fun onDestroyView() {
+        Log.d(tag, "onDestroyView")
         super.onDestroyView()
         _binding = null
     }
@@ -90,6 +92,7 @@ class ExtensionFragment : BaseFragment() {
     //region onViewCreated
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(tag, "onViewCreated")
 
         init()
     }
@@ -97,7 +100,7 @@ class ExtensionFragment : BaseFragment() {
 
     //region init()
     private fun init() {
-
+        Log.d(tag, "init")
         reposAdapterProperties()
         extensionAdapterProperties()
         observeRepo()
@@ -108,6 +111,7 @@ class ExtensionFragment : BaseFragment() {
 
     //region reposAdapterProperties()
     private fun reposAdapterProperties() {
+        Log.d(tag, "reposAdapterProperties")
         repoUrlChipsAdapter = RepoChipsAdapter(emptyList()).apply {
             onItemClick = { chip, position -> onChipClicked(chip, position) }
         }
@@ -119,6 +123,7 @@ class ExtensionFragment : BaseFragment() {
 
     //region extensionAdapterProperties
     private fun extensionAdapterProperties() {
+        Log.d(tag, "extensionAdapterProperties")
         // Extension RecyclerView setup
         extensionAdapter.onItemClick = { item, _ -> showExtensionDialog(item) }
         binding.rvExtensions.layoutManager = GridLayoutManager(ctx, 5)
@@ -129,28 +134,34 @@ class ExtensionFragment : BaseFragment() {
 
     //region observeRepo
     private fun observeRepo() {
+        Log.d(tag, "observeRepo")
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 extensionViewModel.repoUrls.collect { reposState ->
                     when (reposState) {
                         is RepoUiState.Error -> {
+                            Log.d(tag, "RepoUiState.Error")
                             showLoading(false)
                         }
 
                         RepoUiState.Idle -> {
+                            Log.d(tag, "RepoUiState.Idle")
                             showLoading(false)
                         }
 
                         RepoUiState.Loading -> {
+                            Log.d(tag, "RepoUiState.Loading")
                             showLoading(true)
                         }
 
                         is RepoUiState.Success -> {
+                            Log.d(tag, "RepoUiState.Success")
                             showLoading(false)
                             animeRepos = reposState.data
                             Log.i(tag, "repoUrls fetched ${animeRepos.toJsonArray()}")
 
                             updateRepoChips(animeRepos)
+                            extensionViewModel.resetRepoState()
                         }
                     }
 
@@ -203,20 +214,24 @@ class ExtensionFragment : BaseFragment() {
 
     //region observeExtensionState
     private fun observeExtensionState() {
+        Log.d(tag, "observeExtensionState")
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 extensionViewModel.extensionState.collect { state ->
                     when (state) {
                         ExtensionsUiState.Idle -> {
+                            Log.d(tag, "ExtensionsUiState.Idle")
                             showLoading(false)
                         }
 
                         is ExtensionsUiState.Loading -> {
+                            Log.d(tag, "ExtensionsUiState.Loading ")
                             showLoading(true)
                             binding.errorRoot.root.isVisible = false
                         }
 
                         is ExtensionsUiState.Success -> {
+                            Log.d(tag, "ExtensionsUiState.Success")
                             showLoading(false)
                             val repoDomain = state.data
                             Log.i(
@@ -250,6 +265,7 @@ class ExtensionFragment : BaseFragment() {
                         }
 
                         is ExtensionsUiState.Error -> {
+                            Log.d(tag, "ExtensionsUiState.Error ")
                             showLoading(false)
                             binding.errorRoot.root.isVisible = true
                             val errorText = state.code?.let { "Error $it: ${state.message}" }
@@ -265,12 +281,11 @@ class ExtensionFragment : BaseFragment() {
 
     //region Show Loading
     private fun showLoading(toShow: Boolean) {
-        Log.i(tag, "loader $toShow")
         binding.loading.isVisible = toShow
 
         if (isDialogShowing) {
             addRepoDialog?.let {
-                Log.i(tag, "isDialogShowing $isDialogShowing -> loader $toShow")
+                Log.i(tag, "isDialogShowing ${true} -> loader $toShow")
                 it.showLoaderOnButton(toShow)
                 if (!toShow) {
                     it.dismiss()
@@ -283,7 +298,7 @@ class ExtensionFragment : BaseFragment() {
 
     //region addChipDialog
     private fun addChipDialog() {
-        Log.i(tag, "showInputDialog")
+        Log.i(tag, "addChipDialog")
         if (isDialogShowing) return
         isDialogShowing = true
 
@@ -319,6 +334,7 @@ class ExtensionFragment : BaseFragment() {
 
     //region onChipClicked
     private fun onChipClicked(chip: Chip, position: Int) {
+        Log.d(tag, "onChipClicked")
 
         if (chip.isSelected) return
 
@@ -335,12 +351,12 @@ class ExtensionFragment : BaseFragment() {
 
     //region extensionDialog
     private fun showExtensionDialog(extensionDomain: ExtensionDomain) {
-        Log.i(tag, "showInputDialog")
+        Log.i(tag, "showExtensionDialog")
 
         extensionDialog = ExtensionDialogFragment(
             extension = extensionDomain,
             onRefreshed = { repoUrl ->
-                extensionViewModel.loadExtensions(repoUrl)
+                Log.d(tag, "onRefreshed $repoUrl")
             },
             onDismissListener = {
 

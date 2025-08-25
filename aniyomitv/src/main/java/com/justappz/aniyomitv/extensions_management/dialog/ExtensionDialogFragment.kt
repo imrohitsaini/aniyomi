@@ -158,7 +158,7 @@ class ExtensionDialogFragment(
     override fun onResume() {
         super.onResume()
         if (refreshTheList) {
-            onRefreshed("${extension.repoBase}/index.min.json")
+            onRefreshed("${extension.repoBase}index.min.json")
             dismiss()
         }
     }

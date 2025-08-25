@@ -2,10 +2,12 @@ package com.justappz.aniyomitv.extensions_management.presentation.adapters
 
 import android.annotation.SuppressLint
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import coil3.request.crossfade
+import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BasePagingAdapter
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ItemExtensionBinding
@@ -27,6 +29,14 @@ class ExtensionPagingAdapter : BasePagingAdapter<ExtensionDomain, ItemExtensionB
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
+        if (item.isInstalled) {
+            ivAppIconBadge.setImageResource(R.drawable.svg_tick)
+            ivAppIconBadge.isVisible = true
+        } else {
+            ivAppIconBadge.isVisible = false
+        }
+
     },
     diffCallback = ExtensionDomain.DIFF_CALLBACK,
 ) {

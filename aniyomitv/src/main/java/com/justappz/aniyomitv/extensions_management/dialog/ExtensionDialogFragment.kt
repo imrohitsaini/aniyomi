@@ -17,10 +17,12 @@ import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.core.util.FileUtils
 import com.justappz.aniyomitv.databinding.ExtensionDialogBinding
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
+import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils
 import kotlinx.coroutines.launch
 
 class ExtensionDialogFragment(
     private val extension: ExtensionDomain,
+    private val onRefreshed: (String) -> Unit,
     private val onDismissListener: (() -> Unit)? = null,
 ) : DialogFragment() {
 
@@ -28,6 +30,7 @@ class ExtensionDialogFragment(
     private var _binding: ExtensionDialogBinding? = null
     private val binding get() = _binding!!
     private val tag = "ExtensionDialogFragment"
+    private var refreshTheList = false
     //endregion
 
     //region onCreateDialog
@@ -57,7 +60,7 @@ class ExtensionDialogFragment(
         // If installed btn ok text to -> re install
         // If update available btn ok text to -> update
 
-        binding.btnOk.setOnClickListener {
+        binding.btnInstall.setOnClickListener {
 
             // Download and install the extension here
             lifecycleScope.launch {
@@ -69,10 +72,13 @@ class ExtensionDialogFragment(
                     )
 
                     if (file != null) {
+                        refreshTheList = true
                         showLoaderOnButton(false)
                         Log.d(tag, "File - ${file.path}")
+                        showLoaderOnButton(false)
                         // File downloaded, now install / process it
                         // e.g., start installation intent or update UI
+                        ExtensionUtils.installExtension(requireContext(), file)
                         // send to update the list
                     } else {
                         // Failed to download
@@ -80,19 +86,20 @@ class ExtensionDialogFragment(
                     }
                 }
             }
-
-            // Send the function to update the extensions view
-
         }
 
         binding.btnUninstall.setOnClickListener {
             // uninstall the extension here
-
-            dismiss()
+            refreshTheList = true
+            ExtensionUtils.uninstallExtension(requireContext(), extension.pkg)
         }
 
         // If installed btn uninstall is visible
         binding.btnUninstall.isVisible = extension.isInstalled
+
+        if (extension.isInstalled) {
+            binding.btnInstall.setText(requireContext().getString(R.string.reinstall))
+        }
 
         return binding.root
     }
@@ -137,7 +144,17 @@ class ExtensionDialogFragment(
 
     //region showLoaderOnButton
     fun showLoaderOnButton(show: Boolean) {
-        binding.btnOk.showLoader(show)
+        binding.btnInstall.showLoader(show)
+    }
+    //endregion
+
+    //region onResume
+    override fun onResume() {
+        super.onResume()
+        if (refreshTheList) {
+            onRefreshed("${extension.repoBase}/index.min.json")
+            dismiss()
+        }
     }
     //endregion
 }

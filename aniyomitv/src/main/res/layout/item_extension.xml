@@ -25,6 +25,22 @@
         tools:ignore="ContentDescription"
         tools:src="@mipmap/ic_launcher" />
 
+    <!-- App Icon Badge -->
+    <ImageView
+        android:id="@+id/ivAppIconBadge"
+        android:layout_width="@dimen/_12dp"
+        android:layout_height="@dimen/_12dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/extension_bg"
+        android:scaleType="fitXY"
+        android:visibility="gone"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="@id/ivAppIcon"
+        app:layout_constraintTop_toTopOf="@id/ivAppIcon"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/svg_tick" />
+
+
     <!-- App Name -->
     <TextView
         android:id="@+id/tvAppName"

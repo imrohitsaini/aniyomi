@@ -30,6 +30,11 @@
     <color name="anime_tv_tertiaryContainer">#0097A7</color>
     <color name="anime_tv_onTertiaryContainer">#FFFFFF</color>
 
+    <color name="anime_tv_success">#4CAF50</color> <!-- Primary success (green 500) -->
+    <color name="anime_tv_onSuccess">#FFFFFF</color> <!-- Text/icon color on success -->
+    <color name="anime_tv_successContainer">#388E3C</color> <!-- Darker green for container -->
+    <color name="anime_tv_onSuccessContainer">#FFFFFF</color> <!-- Text/icon color on container -->
+
     <color name="anime_tv_error">#CF6679</color>
     <color name="anime_tv_onError">#000000</color>
     <color name="anime_tv_errorContainer">#B00020</color>

@@ -50,7 +50,7 @@
         tools:text="1.0.0 - 12" />
 
     <com.justappz.aniyomitv.core.components.buttons.PrimaryButton
-        android:id="@+id/btnOk"
+        android:id="@+id/btnInstall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/_8dp"
@@ -77,11 +77,11 @@
         android:text="@string/uninstall"
         android:visibility="gone"
         app:buttonType="destructive"
-        app:layout_constraintBottom_toBottomOf="@id/btnOk"
+        app:layout_constraintBottom_toBottomOf="@id/btnInstall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@id/btnOk"
-        app:layout_constraintTop_toTopOf="@id/btnOk"
+        app:layout_constraintStart_toEndOf="@id/btnInstall"
+        app:layout_constraintTop_toTopOf="@id/btnInstall"
         app:layout_constraintVertical_bias="0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

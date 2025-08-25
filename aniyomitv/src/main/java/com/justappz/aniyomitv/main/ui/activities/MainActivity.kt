@@ -58,6 +58,8 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
         val tintList = ContextCompat.getColorStateList(ctx, R.color.icon_tint_selector)
         ImageViewCompat.setImageTintList(binding.ivSettings, tintList)
         binding.ivSettings.onFocusChangeListener = this
+
+        mainViewModel.loadTabs()
     }
     //endregion
 
@@ -66,7 +68,6 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
         super.onResume()
         // start fetching time
         mainViewModel.startUpdatingTime()
-        mainViewModel.loadTabs()
     }
     //endregion
 

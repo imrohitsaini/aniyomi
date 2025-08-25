@@ -34,6 +34,7 @@ import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoCh
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
+import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils
 import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -114,6 +115,7 @@ class ExtensionFragment : BaseFragment() {
             LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
         binding.rvRepos.adapter = repoUrlChipsAdapter
     }
+    //endregion
 
     //region extensionAdapterProperties
     private fun extensionAdapterProperties() {
@@ -223,8 +225,23 @@ class ExtensionFragment : BaseFragment() {
                             )
                             // Submit list to Paging adapter
                             lifecycleScope.launch {
+                                val updatedList = repoDomain.extensions.map { extension ->
+                                    extension.copy(
+                                        isInstalled = ExtensionUtils.isExtensionInstalled(
+                                            context = requireContext(),
+                                            packageName = extension.pkg,
+                                        ),
+                                    )
+                                }
+
+                                // Sort: installed first, then not installed
+                                val sortedList = updatedList.sortedByDescending { it.isInstalled }
+
+                                // Clear previous extensions
+                                extensionAdapter.submitData(androidx.paging.PagingData.empty())
+
                                 extensionAdapter.submitData(
-                                    pagingData = androidx.paging.PagingData.from(repoDomain.extensions),
+                                    pagingData = androidx.paging.PagingData.from(sortedList),
                                 )
                             }
                         }
@@ -308,11 +325,6 @@ class ExtensionFragment : BaseFragment() {
             Log.i(tag, "load extensions on chip clicked")
             repoUrlChipsAdapter.selectChip(chip, position)
 
-            // Clear previous extensions
-            lifecycleScope.launch {
-                extensionAdapter.submitData(androidx.paging.PagingData.empty())
-            }
-
             extensionViewModel.loadExtensions(chip.url)
         }
     }
@@ -324,6 +336,9 @@ class ExtensionFragment : BaseFragment() {
 
         extensionDialog = ExtensionDialogFragment(
             extension = extensionDomain,
+            onRefreshed = { repoUrl ->
+                extensionViewModel.loadExtensions(repoUrl)
+            },
             onDismissListener = {
 
             },

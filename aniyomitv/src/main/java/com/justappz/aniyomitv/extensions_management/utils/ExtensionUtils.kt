@@ -19,7 +19,7 @@ object ExtensionUtils {
      * @return InstalledExtension with installed flag and version details
      */
     @Suppress("DEPRECATION")
-    fun getInstalledExtension(context: Context, packageName: String): InstalledExtensionInfo {
+    fun getInstalledExtensionByPackageName(context: Context, packageName: String): InstalledExtensionInfo {
         return try {
             val pkgInfo = context.packageManager.getPackageInfo(packageName, 0)
 

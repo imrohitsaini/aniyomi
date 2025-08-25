@@ -241,7 +241,7 @@ class ExtensionFragment : BaseFragment() {
                             // Submit list to Paging adapter
                             lifecycleScope.launch {
                                 val updatedList = repoDomain.extensions.map { extension ->
-                                    val installedInfo = ExtensionUtils.getInstalledExtension(
+                                    val installedInfo = ExtensionUtils.getInstalledExtensionByPackageName(
                                         context = requireContext(),
                                         packageName = extension.pkg
                                     )

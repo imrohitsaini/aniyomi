@@ -33,7 +33,12 @@ class PrimaryButton @JvmOverloads constructor(
         attrs?.let {
             context.withStyledAttributes(it, R.styleable.PrimaryButton) {
                 val typeValue = getInt(R.styleable.PrimaryButton_buttonType, 0)
-                type = if (typeValue == 0) ButtonType.POSITIVE else ButtonType.NEGATIVE
+                type = when (typeValue) {
+                    0 -> ButtonType.POSITIVE
+                    1 -> ButtonType.NEGATIVE
+                    2 -> ButtonType.DESTRUCTIVE
+                    else -> ButtonType.NEGATIVE
+                }
 
                 context.withStyledAttributes(it, intArrayOf(android.R.attr.text)) {
                     val text = getString(0)

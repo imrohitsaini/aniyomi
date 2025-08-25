@@ -54,4 +54,15 @@
         <item name="android:textColor">@color/anime_tv_onSurfaceVariant</item>
     </style>
 
+    <style name="AppDialog.Fullscreen" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+
+        <!-- remove the system's horizontal margin -->
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+    </style>
+
 </resources>

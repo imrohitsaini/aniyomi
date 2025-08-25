@@ -15,6 +15,7 @@ data class ExtensionDomain(
     val sources: List<Source>,
     val version: String,
     var repoBase: String? = null,
+    var isInstalled: Boolean = false,
 ) {
     private fun normalizeBase(): String? {
         return repoBase?.trimEnd('/') // remove trailing slash if present

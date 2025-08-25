@@ -21,8 +21,10 @@ import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
+import com.justappz.aniyomitv.extensions_management.dialog.ExtensionDialogFragment
 import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositoriesDetailsDomain
 import com.justappz.aniyomitv.extensions_management.domain.model.Chip
+import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
@@ -59,7 +61,8 @@ class ExtensionFragment : BaseFragment() {
     private var chips: MutableList<Chip> = arrayListOf()
     private var selectedChip: Chip? = null
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
-    private var dialog: InputDialogFragment? = null
+    private var addRepoDialog: InputDialogFragment? = null
+    private var extensionDialog: ExtensionDialogFragment? = null
     private var extensionAdapter = ExtensionPagingAdapter()
 
     //endregion
@@ -115,6 +118,7 @@ class ExtensionFragment : BaseFragment() {
     //region extensionAdapterProperties
     private fun extensionAdapterProperties() {
         // Extension RecyclerView setup
+        extensionAdapter.onItemClick = { item, _ -> showExtensionDialog(item) }
         binding.rvExtensions.layoutManager = GridLayoutManager(ctx, 5)
         binding.rvExtensions.adapter = extensionAdapter
         extensionAdapter.attachRecyclerView(binding.rvExtensions)
@@ -245,7 +249,7 @@ class ExtensionFragment : BaseFragment() {
         binding.loading.isVisible = toShow
 
         if (isDialogShowing) {
-            dialog?.let {
+            addRepoDialog?.let {
                 Log.i(tag, "isDialogShowing $isDialogShowing -> loader $toShow")
                 it.showLoaderOnButton(toShow)
                 if (!toShow) {
@@ -257,13 +261,13 @@ class ExtensionFragment : BaseFragment() {
     }
     //endregion
 
-    //region showInputDialog
+    //region addChipDialog
     private fun addChipDialog() {
         Log.i(tag, "showInputDialog")
         if (isDialogShowing) return
         isDialogShowing = true
 
-        dialog = InputDialogFragment(
+        addRepoDialog = InputDialogFragment(
             title = getString(R.string.add_repo),
             description = getString(R.string.add_repo_description),
             hint = getString(R.string.add_repo_hint),
@@ -285,11 +289,11 @@ class ExtensionFragment : BaseFragment() {
             },
             onDismissListener = {
                 isDialogShowing = false
-                dialog = null
+                addRepoDialog = null
             },
         )
 
-        dialog?.show(parentFragmentManager, "input_dialog")
+        addRepoDialog?.show(parentFragmentManager, "input_dialog")
     }
     //endregion
 
@@ -311,6 +315,21 @@ class ExtensionFragment : BaseFragment() {
 
             extensionViewModel.loadExtensions(chip.url)
         }
+    }
+    //endregion
+
+    //region extensionDialog
+    private fun showExtensionDialog(extensionDomain: ExtensionDomain) {
+        Log.i(tag, "showInputDialog")
+
+        extensionDialog = ExtensionDialogFragment(
+            extension = extensionDomain,
+            onDismissListener = {
+
+            },
+        )
+
+        extensionDialog?.show(parentFragmentManager, "extension_dialog")
     }
     //endregion
 }

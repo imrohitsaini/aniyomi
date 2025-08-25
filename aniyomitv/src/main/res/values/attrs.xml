@@ -4,6 +4,7 @@
         <attr name="buttonType" format="enum">
             <enum name="positive" value="0" />
             <enum name="negative" value="1" />
+            <enum name="destructive" value="2" />
         </attr>
     </declare-styleable>
 

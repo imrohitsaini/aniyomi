@@ -6,4 +6,6 @@
     <string name="add_repo_description">Add additional repos to Mihon. This should be a URL that ends with \'index.min.json.\'</string>
     <string name="add_repo_hint">https://repo.url/index.min.json</string>
     <string name="repositories">Repositories</string>
+    <string name="install">Install</string>
+    <string name="uninstall">Uninstall</string>
 </resources>

@@ -97,7 +97,6 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
         observeInstalledExtensions()
         viewModel.getExtensions(ctx)
-        showLoading(true)
 
         availableChips.add(0, binding.chipPopular)
         availableChips.add(1, binding.chipLatest)
@@ -120,7 +119,6 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                         }
 
                         GetInstalledExtensionsState.Idle -> {
-                            showLoading(false)
                         }
 
                         GetInstalledExtensionsState.Loading -> {
@@ -219,7 +217,10 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
     //region Show Loading
     private fun showLoading(toShow: Boolean) {
-        binding.loading.isVisible = toShow
+        lifecycleScope.launch(Dispatchers.Main) {
+            binding.loading.isVisible = toShow
+            Log.d(tag, "loader $toShow")
+        }
     }
     //endregion
 

@@ -64,7 +64,7 @@ class ExtensionFragment : BaseFragment() {
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
     private var addRepoDialog: InputDialogFragment? = null
     private var extensionDialog: ExtensionDialogFragment? = null
-    private var extensionAdapter = ExtensionPagingAdapter()
+    private val extensionAdapter = ExtensionPagingAdapter()
 
     //endregion
 

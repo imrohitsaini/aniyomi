@@ -12,13 +12,17 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
+import com.justappz.aniyomitv.anime_search.presentation.adapters.AnimePagingAdapter
 import com.justappz.aniyomitv.anime_search.presentation.states.GetInstalledExtensionsState
 import com.justappz.aniyomitv.anime_search.presentation.viewmodel.SearchViewModel
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.util.toJson
 import com.justappz.aniyomitv.databinding.FragmentSearchBinding
+import com.justappz.aniyomitv.databinding.ItemAnimeBinding
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +40,12 @@ class SearchFragment : BaseFragment() {
         ViewModelFactory {
             SearchViewModel(
                 Injekt.get<GetInstalledExtensionsUseCase>(),
+                Injekt.get<GetPopularAnimePagingUseCase>(),
             )
         }
     }
+    private val animeAdapter = AnimePagingAdapter()
+
     //endregion
 
     //region onCreateView
@@ -73,6 +80,11 @@ class SearchFragment : BaseFragment() {
     //region init
     private fun init() {
         Log.d(tag, "init")
+
+        // setup adapter
+        binding.rvAnime.layoutManager = GridLayoutManager(ctx, 5)
+        binding.rvAnime.adapter = animeAdapter
+
         observeInstalledExtensions()
         viewModel.getExtensions(ctx)
         showLoading(true)
@@ -109,6 +121,17 @@ class SearchFragment : BaseFragment() {
                             } else {
                                 // set the ui
                                 binding.errorRoot.root.isVisible = false
+
+                                // take first available extension that has instance
+                                val source = extensions.firstOrNull()?.instance
+                                if (source != null) {
+                                    // collect paging data
+                                    lifecycleScope.launch {
+                                        viewModel.getPopularAnime(source).collect { pagingData ->
+                                            animeAdapter.submitData(pagingData)
+                                        }
+                                    }
+                                }
                             }
                             viewModel.resetExtensionState()
                         }

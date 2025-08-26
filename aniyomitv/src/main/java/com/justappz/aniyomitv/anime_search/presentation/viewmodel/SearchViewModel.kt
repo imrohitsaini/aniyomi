@@ -3,9 +3,14 @@ package com.justappz.aniyomitv.anime_search.presentation.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.presentation.states.GetInstalledExtensionsState
-import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
+import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +18,7 @@ import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val getInstalledExtensionsUseCase: GetInstalledExtensionsUseCase,
+    private val getPopularAnimePagingUseCase: GetPopularAnimePagingUseCase,
 ) : ViewModel() {
 
     //region extensions
@@ -28,7 +34,7 @@ class SearchViewModel(
             } catch (e: Exception) {
                 _extensionState.value = GetInstalledExtensionsState.Error(
                     code = null, // you can map exceptions to codes if needed
-                    message = e.message ?: "Unexpected error"
+                    message = e.message ?: "Unexpected error",
                 )
             }
         }
@@ -37,7 +43,12 @@ class SearchViewModel(
     fun resetExtensionState() {
         _extensionState.value = GetInstalledExtensionsState.Idle
     }
+    //endregion
 
+    //region anime
+    fun getPopularAnime(source: AnimeHttpSource): Flow<PagingData<SAnime>> {
+        return getPopularAnimePagingUseCase(source).flow.cachedIn(viewModelScope)
+    }
     //endregion
 
 }

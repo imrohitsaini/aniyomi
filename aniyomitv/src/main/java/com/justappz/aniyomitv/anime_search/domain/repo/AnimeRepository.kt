@@ -1,0 +1,9 @@
+package com.justappz.aniyomitv.anime_search.domain.repo
+
+import androidx.paging.Pager
+import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
+import eu.kanade.tachiyomi.animesource.model.SAnime
+
+interface AnimeRepository {
+    fun getPopularAnimePaging(source: AnimeCatalogueSource): Pager<Long, SAnime>
+}

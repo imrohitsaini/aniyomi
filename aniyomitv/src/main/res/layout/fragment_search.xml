@@ -6,19 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/anime_tv_background">
 
-    <ProgressBar
-        android:id="@+id/loading"
-        android:layout_width="@dimen/_48dp"
-        android:layout_height="@dimen/_48dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:indeterminateTint="@color/anime_tv_primary"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <include
         android:id="@+id/errorRoot"
         layout="@layout/main_error"
@@ -84,10 +71,24 @@
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/_8dp"
         android:paddingHorizontal="@dimen/_20dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chipPopular"
         tools:listitem="@layout/item_anime" />
+
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="@dimen/_48dp"
+        android:layout_height="@dimen/_48dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:indeterminateTint="@color/anime_tv_primary"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

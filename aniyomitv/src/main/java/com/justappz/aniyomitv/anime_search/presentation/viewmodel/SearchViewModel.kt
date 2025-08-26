@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.anime_search.domain.usecase.GetLatestAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.presentation.states.GetInstalledExtensionsState
 import eu.kanade.tachiyomi.animesource.model.SAnime
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 class SearchViewModel(
     private val getInstalledExtensionsUseCase: GetInstalledExtensionsUseCase,
     private val getPopularAnimePagingUseCase: GetPopularAnimePagingUseCase,
+    private val getLatestAnimePagingUseCase: GetLatestAnimePagingUseCase,
 ) : ViewModel() {
 
     //region extensions
@@ -48,6 +50,10 @@ class SearchViewModel(
     //region anime
     fun getPopularAnime(source: AnimeHttpSource): Flow<PagingData<SAnime>> {
         return getPopularAnimePagingUseCase(source).flow.cachedIn(viewModelScope)
+    }
+
+    fun getLatestAnime(source: AnimeHttpSource): Flow<PagingData<SAnime>> {
+        return getLatestAnimePagingUseCase(source).flow.cachedIn(viewModelScope)
     }
     //endregion
 

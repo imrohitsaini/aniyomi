@@ -98,4 +98,12 @@ class ChipView @JvmOverloads constructor(
         this.isSelected = isSelected // applied on FrameLayout root
         binding.root.refreshDrawableState() // ensure selector updates
     }
+
+    fun getSelectedState(): Boolean {
+        return this.isSelected
+    }
+
+    fun getText(): String {
+        return  binding.tvChipName.text.toString()
+    }
 }

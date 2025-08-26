@@ -5,6 +5,7 @@ import com.justappz.aniyomitv.anime_search.data.repo.InstalledExtensionsRepoImpl
 import com.justappz.aniyomitv.anime_search.domain.repo.AnimeRepository
 import com.justappz.aniyomitv.anime_search.domain.repo.InstalledExtensionsRepo
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.anime_search.domain.usecase.GetLatestAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
 import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
@@ -24,6 +25,7 @@ class SearchModule : InjektModule {
         // Use case binding
         addSingletonFactory { GetInstalledExtensionsUseCase(get()) }
         addSingletonFactory { GetPopularAnimePagingUseCase(get()) }
+        addSingletonFactory { GetLatestAnimePagingUseCase(get()) }
 
 
     }

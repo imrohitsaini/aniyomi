@@ -5,9 +5,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import coil3.request.crossfade
-import coil3.request.transformations
-import coil3.transform.RoundedCornersTransformation
-import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.anime_search.domain.model.SAnimeDiffCallback
 import com.justappz.aniyomitv.base.BasePagingAdapter
 import com.justappz.aniyomitv.core.util.FocusKeyHandler

@@ -6,4 +6,5 @@ import eu.kanade.tachiyomi.animesource.model.SAnime
 
 interface AnimeRepository {
     fun getPopularAnimePaging(source: AnimeCatalogueSource): Pager<Long, SAnime>
+    fun getLatestAnimePaging(source: AnimeCatalogueSource): Pager<Long, SAnime>
 }

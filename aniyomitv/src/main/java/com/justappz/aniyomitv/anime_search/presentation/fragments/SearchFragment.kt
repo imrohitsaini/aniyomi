@@ -12,19 +12,21 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.anime_search.domain.usecase.GetLatestAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.presentation.adapters.AnimePagingAdapter
 import com.justappz.aniyomitv.anime_search.presentation.states.GetInstalledExtensionsState
 import com.justappz.aniyomitv.anime_search.presentation.viewmodel.SearchViewModel
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
+import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecoration
 import com.justappz.aniyomitv.core.util.toJson
 import com.justappz.aniyomitv.databinding.FragmentSearchBinding
-import com.justappz.aniyomitv.databinding.ItemAnimeBinding
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +34,7 @@ import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-class SearchFragment : BaseFragment() {
+class SearchFragment : BaseFragment(), View.OnClickListener {
 
     //region variables
     private val tag = "SearchFragment"
@@ -43,10 +45,13 @@ class SearchFragment : BaseFragment() {
             SearchViewModel(
                 Injekt.get<GetInstalledExtensionsUseCase>(),
                 Injekt.get<GetPopularAnimePagingUseCase>(),
+                Injekt.get<GetLatestAnimePagingUseCase>(),
             )
         }
     }
     private val animeAdapter = AnimePagingAdapter()
+    private var availableChips: MutableList<ChipView> = arrayListOf()
+    private var selectedAnimeSource: AnimeHttpSource? = null
 
     //endregion
 
@@ -93,6 +98,12 @@ class SearchFragment : BaseFragment() {
         observeInstalledExtensions()
         viewModel.getExtensions(ctx)
         showLoading(true)
+
+        availableChips.add(0, binding.chipPopular)
+        availableChips.add(1, binding.chipLatest)
+
+        binding.chipPopular.setOnClickListener(this)
+        binding.chipLatest.setOnClickListener(this)
     }
     //endregion
 
@@ -117,7 +128,6 @@ class SearchFragment : BaseFragment() {
                         }
 
                         is GetInstalledExtensionsState.Success -> {
-                            showLoading(false)
                             val extensions = extensionsState.installedExtensions
                             Log.d(tag, "installed extensions ${extensions.toJson()}")
                             if (extensions.isEmpty()) {
@@ -128,16 +138,11 @@ class SearchFragment : BaseFragment() {
                                 binding.errorRoot.root.isVisible = false
 
                                 // take first available extension that has instance
-                                val source = extensions.firstOrNull()?.instance
-                                if (source != null) {
-                                    // collect paging data
-                                    lifecycleScope.launch {
-                                        viewModel.getPopularAnime(source).collect { pagingData ->
-                                            animeAdapter.submitData(pagingData)
-                                        }
-                                    }
-                                }
+                                selectedAnimeSource = extensions.firstOrNull()?.instance
+
+                                selectedAnimeSource?.let { loadPopularAnime(it) }
                             }
+                            showLoading(false)
                             viewModel.resetExtensionState()
                         }
                     }
@@ -215,6 +220,74 @@ class SearchFragment : BaseFragment() {
     //region Show Loading
     private fun showLoading(toShow: Boolean) {
         binding.loading.isVisible = toShow
+    }
+    //endregion
+
+    //region onClick
+    override fun onClick(view: View?) {
+        Log.d(tag, "onClick")
+        view?.let {
+            if (view == binding.chipPopular) {
+                selectChip(0)
+            } else if (view == binding.chipLatest) {
+                selectChip(1)
+            }
+        }
+    }
+    //endregion
+
+    //region selectChip
+    private fun selectChip(position: Int) {
+        Log.d(tag, "selectChip")
+        val chip = availableChips[position]
+        if (chip.getSelectedState()) return
+        availableChips.forEach { it.setSelectedState(false) }
+        chip.setSelectedState(true)
+        if (chip.getText().contains("popular", true)) {
+            // load popular anime
+            Log.d(tag, "loadPopularAnime from chip")
+            selectedAnimeSource?.let { loadPopularAnime(it) }
+        } else if (chip.getText().contains("latest", true)) {
+            // load latest anime
+            Log.d(tag, "loadLatestAnime from chip")
+            selectedAnimeSource?.let { loadLatestAnime(it) }
+        }
+    }
+    //endregion
+
+    //region loadPopularAnime
+    private fun loadPopularAnime(source: AnimeHttpSource) {
+        showLoading(true)
+        Log.d(tag, "loadPopularAnime")
+        lifecycleScope.launch(Dispatchers.IO) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                animeAdapter.submitData(PagingData.empty())
+                viewModel.getPopularAnime(source).collect { pagingData ->
+                    animeAdapter.submitData(pagingData)
+                }
+            }
+        }
+        showLoading(false)
+        binding.rvAnime.isVisible = true
+    }
+    //endregion
+
+
+    //region loadLatestAnime
+    private fun loadLatestAnime(source: AnimeHttpSource) {
+        Log.d(tag, "loadLatestAnime")
+        showLoading(true)
+        lifecycleScope.launch(Dispatchers.IO) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                animeAdapter.submitData(PagingData.empty())
+                viewModel.getLatestAnime(source).collect { pagingData ->
+                    animeAdapter.submitData(pagingData)
+                }
+            }
+        }
+        showLoading(false)
+        binding.rvAnime.isVisible = true
+
     }
     //endregion
 }

@@ -12,6 +12,7 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.request.allowRgb565
 import coil3.request.crossfade
+import com.justappz.aniyomitv.anime_search.di.SearchModule
 import com.justappz.aniyomitv.constants.LogKeys
 import com.justappz.aniyomitv.core.di.AppModule
 import com.justappz.aniyomitv.core.di.PreferenceModule
@@ -31,6 +32,7 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks, SingletonIm
         Injekt.importModule(PreferenceModule(this))
         Injekt.importModule(MainModule())
         Injekt.importModule(ExtensionModule())
+        Injekt.importModule(SearchModule())
 
         Log.d("MyApp", "Injekt modules initialized in ${System.currentTimeMillis() - start} ms")
 

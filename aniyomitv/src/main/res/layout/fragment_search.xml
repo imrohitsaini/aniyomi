@@ -44,7 +44,7 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         app:chipIcon="@drawable/svg_up_trend"
-        app:chipSelected="true"
+        app:chipSelected="false"
         app:chipText="Popular"
         app:chipType="filter"
         app:layout_constraintStart_toStartOf="@id/leftGuideline"
@@ -77,6 +77,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chipPopular"
         tools:listitem="@layout/item_anime" />
+
+    <TextView
+        android:id="@+id/tvChangeSource"
+        style="@style/AnimeTV_Text_Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:text="@string/change_source"
+        app:layout_constraintBottom_toBottomOf="@id/chipLatest"
+        app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+        app:layout_constraintTop_toTopOf="@id/chipLatest" />
 
     <ProgressBar
         android:id="@+id/loading"

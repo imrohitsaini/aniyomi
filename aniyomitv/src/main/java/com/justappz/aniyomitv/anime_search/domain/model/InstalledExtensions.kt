@@ -7,4 +7,6 @@ data class InstalledExtensions(
     val className: String,
     val nsfwFlag: Int,
     val instance: AnimeHttpSource?,
+    val appName: String,
+    var isSelected: Boolean? = false
 )

@@ -10,4 +10,7 @@
     <string name="uninstall">Uninstall</string>
     <string name="reinstall">Reinstall</string>
     <string name="update">Update</string>
+    <string name="change_source"><u>Change Source</u></string>
+    <string name="select_extensions">Select extensions</string>
+    <string name="done">Done</string>
 </resources>

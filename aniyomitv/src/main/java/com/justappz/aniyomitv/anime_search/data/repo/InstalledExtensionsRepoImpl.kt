@@ -28,6 +28,9 @@ class InstalledExtensionsRepoImpl : InstalledExtensionsRepo {
             val pkgName = info.packageName
             val fullClassName = if (className.startsWith(".")) pkgName + className else className
 
+            // App name (label)
+            val appName = pm.getApplicationLabel(info.applicationInfo!!).toString()
+
             // Try loading instance
             val instance = try {
                 val pathLoader = PathClassLoader(
@@ -46,6 +49,7 @@ class InstalledExtensionsRepoImpl : InstalledExtensionsRepo {
                 className = fullClassName,
                 nsfwFlag = nsfwFlag,
                 instance = instance,
+                appName = appName
             )
         }
     }

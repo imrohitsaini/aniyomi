@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import com.justappz.aniyomitv.R
+import com.justappz.aniyomitv.anime_search.domain.model.InstalledExtensions
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetLatestAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
@@ -25,6 +26,9 @@ import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecoration
+import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
+import com.justappz.aniyomitv.core.model.Options
+import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.toJson
 import com.justappz.aniyomitv.databinding.FragmentSearchBinding
 import dalvik.system.PathClassLoader
@@ -52,7 +56,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     private val animeAdapter = AnimePagingAdapter()
     private var availableChips: MutableList<ChipView> = arrayListOf()
     private var selectedAnimeSource: AnimeHttpSource? = null
-
+    private var installedExtensions: MutableList<InstalledExtensions> = arrayListOf()
     //endregion
 
     //region onCreateView
@@ -103,6 +107,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
         binding.chipPopular.setOnClickListener(this)
         binding.chipLatest.setOnClickListener(this)
+        binding.tvChangeSource.setOnClickListener(this)
     }
     //endregion
 
@@ -138,7 +143,11 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                                 // take first available extension that has instance
                                 selectedAnimeSource = extensions.firstOrNull()?.instance
 
-                                selectedAnimeSource?.let { loadPopularAnime(it) }
+                                installedExtensions.addAll(extensions)
+                                installedExtensions[0].isSelected = true
+
+                                // After changing the extension, always load popular anime
+                                selectChip(0)
                             }
                             showLoading(false)
                             viewModel.resetExtensionState()
@@ -232,6 +241,8 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                 selectChip(0)
             } else if (view == binding.chipLatest) {
                 selectChip(1)
+            } else if (view == binding.tvChangeSource) {
+                changeSourceDialog()
             }
         }
     }
@@ -241,7 +252,6 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     private fun selectChip(position: Int) {
         Log.d(tag, "selectChip")
         val chip = availableChips[position]
-        if (chip.getSelectedState()) return
         availableChips.forEach { it.setSelectedState(false) }
         chip.setSelectedState(true)
         if (chip.getText().contains("popular", true)) {
@@ -288,7 +298,41 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         }
         showLoading(false)
         binding.rvAnime.isVisible = true
+    }
+    //endregion
 
+    //region changeSourceDialog
+    private fun changeSourceDialog() {
+        val options: MutableList<Options> = arrayListOf()
+        installedExtensions.forEach { extension ->
+            options.add(
+                Options(
+                    buttonTitle = extension.appName,
+                    isSelected = extension.isSelected,
+                ),
+            )
+        }
+        val radioButtonDialogModel = RadioButtonDialogModel(
+            title = getString(R.string.select_extensions),
+            description = "Select source for anime!",
+            options = options,
+            isDefaultSelected = true,
+        )
+        val dialog = RadioButtonDialog(
+            radioButtonDialogModel,
+            onDone = { option ->
+                var selected: InstalledExtensions? = null
+                installedExtensions.forEach {
+                    val match = it.appName == option.buttonTitle
+                    it.isSelected = match
+                    if (match) selected = it
+                }
+                selectedAnimeSource = selected?.instance
+                selectChip(0)
+            },
+            onDismissListener = {},
+        )
+        dialog.show(parentFragmentManager, "options_dialog")
     }
     //endregion
 }

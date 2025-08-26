@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.presentation.adapters.AnimePagingAdapter
@@ -20,6 +21,7 @@ import com.justappz.aniyomitv.anime_search.presentation.states.GetInstalledExten
 import com.justappz.aniyomitv.anime_search.presentation.viewmodel.SearchViewModel
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.core.ViewModelFactory
+import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecoration
 import com.justappz.aniyomitv.core.util.toJson
 import com.justappz.aniyomitv.databinding.FragmentSearchBinding
 import com.justappz.aniyomitv.databinding.ItemAnimeBinding
@@ -82,8 +84,11 @@ class SearchFragment : BaseFragment() {
         Log.d(tag, "init")
 
         // setup adapter
+        val spacing = ctx.resources.getDimensionPixelSize(R.dimen._16dp)
         binding.rvAnime.layoutManager = GridLayoutManager(ctx, 5)
         binding.rvAnime.adapter = animeAdapter
+        binding.rvAnime.addItemDecoration(GridSpacingItemDecoration(5, spacing))
+        animeAdapter.attachRecyclerView(binding.rvAnime)
 
         observeInstalledExtensions()
         viewModel.getExtensions(ctx)

@@ -3,31 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-    <ImageView
+    <com.justappz.aniyomitv.core.components.imageview.RoundedImageView
         android:id="@+id/ivAnimeThumbnail"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/tvAnimeTitle"
+        android:adjustViewBounds="false"
+        android:focusable="false"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="3:4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
         tools:ignore="ContentDescription"
         tools:src="@drawable/ic_launcher_foreground" />
 
     <TextView
         android:id="@+id/tvAnimeTitle"
-        style="@style/AnimeTV_Text_Body"
-        android:layout_width="match_parent"
+        style="@style/AnimeTV_Text_Base"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivAnimeThumbnail"
+        android:background="@drawable/bg_gradient_text"
+        android:ellipsize="end"
+        android:gravity="start"
+        android:maxLines="2"
+        android:padding="@dimen/_4dp"
+        app:layout_constraintBottom_toBottomOf="@id/ivAnimeThumbnail"
+        app:layout_constraintEnd_toEndOf="@id/ivAnimeThumbnail"
+        app:layout_constraintStart_toStartOf="@id/ivAnimeThumbnail"
         tools:text="One Piece" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

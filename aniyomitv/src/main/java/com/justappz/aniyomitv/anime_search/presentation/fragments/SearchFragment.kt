@@ -12,7 +12,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.anime_search.domain.model.InstalledExtensions
@@ -20,9 +19,9 @@ import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensions
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetLatestAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.presentation.adapters.AnimePagingAdapter
-import com.justappz.aniyomitv.anime_search.presentation.states.GetInstalledExtensionsState
 import com.justappz.aniyomitv.anime_search.presentation.viewmodel.SearchViewModel
 import com.justappz.aniyomitv.base.BaseFragment
+import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecoration
@@ -119,38 +118,39 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.extensionState.collect { extensionsState ->
                     when (extensionsState) {
-                        is GetInstalledExtensionsState.Error -> {
+                        is BaseUiState.Error -> {
                             showLoading(false)
                         }
 
-                        GetInstalledExtensionsState.Idle -> {
+                        BaseUiState.Idle -> {
+                            showLoading(false)
                         }
 
-                        GetInstalledExtensionsState.Loading -> {
+                        BaseUiState.Loading -> {
                             showLoading(true)
                         }
 
-                        is GetInstalledExtensionsState.Success -> {
-                            val extensions = extensionsState.installedExtensions
+                        is BaseUiState.Success -> {
+                            val extensions = extensionsState.data
                             Log.d(tag, "installed extensions ${extensions.toJson()}")
-                            if (extensions.isEmpty()) {
-                                binding.errorRoot.tvError.text = "No extensions detected"
-                                binding.errorRoot.root.isVisible = true
-                            } else {
-                                // set the ui
-                                binding.errorRoot.root.isVisible = false
+                            // set the ui
+                            binding.errorRoot.root.isVisible = false
 
-                                // take first available extension that has instance
-                                selectedAnimeSource = extensions.firstOrNull()?.instance
+                            // take first available extension that has instance
+                            selectedAnimeSource = extensions.firstOrNull()?.instance
 
-                                installedExtensions.addAll(extensions)
-                                installedExtensions[0].isSelected = true
+                            installedExtensions.addAll(extensions)
+                            installedExtensions[0].isSelected = true
 
-                                // After changing the extension, always load popular anime
-                                selectChip(0)
-                            }
-                            showLoading(false)
+                            // After changing the extension, always load popular anime
+                            selectChip(0)
                             viewModel.resetExtensionState()
+                        }
+
+                        BaseUiState.Empty -> {
+                            showLoading(false)
+                            binding.errorRoot.tvError.text = "No extensions detected"
+                            binding.errorRoot.root.isVisible = true
                         }
                     }
 
@@ -237,12 +237,18 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     override fun onClick(view: View?) {
         Log.d(tag, "onClick")
         view?.let {
-            if (view == binding.chipPopular) {
-                selectChip(0)
-            } else if (view == binding.chipLatest) {
-                selectChip(1)
-            } else if (view == binding.tvChangeSource) {
-                changeSourceDialog()
+            when (view) {
+                binding.chipPopular -> {
+                    selectChip(0)
+                }
+
+                binding.chipLatest -> {
+                    selectChip(1)
+                }
+
+                binding.tvChangeSource -> {
+                    changeSourceDialog()
+                }
             }
         }
     }
@@ -268,18 +274,15 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
     //region loadPopularAnime
     private fun loadPopularAnime(source: AnimeHttpSource) {
-        showLoading(true)
         Log.d(tag, "loadPopularAnime")
         lifecycleScope.launch(Dispatchers.IO) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                animeAdapter.submitData(PagingData.empty())
                 viewModel.getPopularAnime(source).collect { pagingData ->
                     animeAdapter.submitData(pagingData)
                 }
             }
+            binding.rvAnime.isVisible = true
         }
-        showLoading(false)
-        binding.rvAnime.isVisible = true
     }
     //endregion
 
@@ -287,16 +290,13 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     //region loadLatestAnime
     private fun loadLatestAnime(source: AnimeHttpSource) {
         Log.d(tag, "loadLatestAnime")
-        showLoading(true)
         lifecycleScope.launch(Dispatchers.IO) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                animeAdapter.submitData(PagingData.empty())
                 viewModel.getLatestAnime(source).collect { pagingData ->
                     animeAdapter.submitData(pagingData)
                 }
             }
         }
-        showLoading(false)
         binding.rvAnime.isVisible = true
     }
     //endregion
@@ -310,7 +310,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                     buttonTitle = extension.appName,
                     isSelected = extension.isSelected,
                 ),
-            )
+                )
         }
         val radioButtonDialogModel = RadioButtonDialogModel(
             title = getString(R.string.select_extensions),

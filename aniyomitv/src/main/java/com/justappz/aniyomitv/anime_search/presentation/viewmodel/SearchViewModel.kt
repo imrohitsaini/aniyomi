@@ -5,10 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.justappz.aniyomitv.anime_search.domain.model.InstalledExtensions
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensionsUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetLatestAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
-import com.justappz.aniyomitv.anime_search.presentation.states.GetInstalledExtensionsState
+import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.base.BaseUiState.Empty
+import com.justappz.aniyomitv.base.BaseUiState.Error
+import com.justappz.aniyomitv.base.BaseUiState.Idle
+import com.justappz.aniyomitv.base.BaseUiState.Loading
+import com.justappz.aniyomitv.base.BaseUiState.Success
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.flow.Flow
@@ -24,18 +30,23 @@ class SearchViewModel(
 ) : ViewModel() {
 
     //region extensions
-    private val _extensionState = MutableStateFlow<GetInstalledExtensionsState>(GetInstalledExtensionsState.Idle)
-    val extensionState: StateFlow<GetInstalledExtensionsState> = _extensionState.asStateFlow()
+// Extensions (reusing BaseUiState instead of GetInstalledExtensionsState)
+    private val _extensionState = MutableStateFlow<BaseUiState<List<InstalledExtensions>>>(Idle)
+    val extensionState: StateFlow<BaseUiState<List<InstalledExtensions>>> = _extensionState.asStateFlow()
 
     fun getExtensions(context: Context) {
         viewModelScope.launch {
-            _extensionState.value = GetInstalledExtensionsState.Loading
+            _extensionState.value = Loading
             try {
                 val extensions = getInstalledExtensionsUseCase(context)
-                _extensionState.value = GetInstalledExtensionsState.Success(extensions)
+                if (extensions.isEmpty()) {
+                    _extensionState.value = Empty
+                } else {
+                    _extensionState.value = Success(extensions)
+                }
             } catch (e: Exception) {
-                _extensionState.value = GetInstalledExtensionsState.Error(
-                    code = null, // you can map exceptions to codes if needed
+                _extensionState.value = Error(
+                    code = null, // map exceptions to error codes if needed
                     message = e.message ?: "Unexpected error",
                 )
             }
@@ -43,8 +54,9 @@ class SearchViewModel(
     }
 
     fun resetExtensionState() {
-        _extensionState.value = GetInstalledExtensionsState.Idle
+        _extensionState.value = Idle
     }
+
     //endregion
 
     //region anime

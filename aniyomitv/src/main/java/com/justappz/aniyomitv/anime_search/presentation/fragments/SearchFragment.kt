@@ -98,6 +98,44 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         binding.rvAnime.addItemDecoration(GridSpacingItemDecoration(5, spacing))
         animeAdapter.attachRecyclerView(binding.rvAnime)
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                animeAdapter.loadStateFlow.collect { loadStates ->
+                    val refreshState = loadStates.refresh
+
+                    when (refreshState) {
+                        is androidx.paging.LoadState.Loading -> {
+                            // First load or refresh
+                            showLoading(true)
+                            binding.errorRoot.root.isVisible = false
+                        }
+
+                        is androidx.paging.LoadState.NotLoading -> {
+                            showLoading(false)
+
+                            // Check if adapter is empty after load completes
+                            val isEmpty = animeAdapter.itemCount == 0
+                            binding.errorRoot.root.isVisible = isEmpty
+                            if (isEmpty) {
+                                binding.errorRoot.tvError.text = "No anime found"
+                            }
+                        }
+
+                        is androidx.paging.LoadState.Error -> {
+                            showLoading(false)
+                            binding.errorRoot.root.isVisible = true
+                            binding.errorRoot.tvError.text =
+                                refreshState.error.message ?: "Something went wrong"
+                        }
+                    }
+                }
+            }
+        }
+
+        animeAdapter.addLoadStateListener {
+            Log.d("AnimeAdapter", "Item count: ${animeAdapter.itemCount}")
+        }
+
         observeInstalledExtensions()
         viewModel.getExtensions(ctx)
 
@@ -144,7 +182,6 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
                             // After changing the extension, always load popular anime
                             selectChip(0)
-                            viewModel.resetExtensionState()
                         }
 
                         BaseUiState.Empty -> {
@@ -274,14 +311,15 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
     //region loadPopularAnime
     private fun loadPopularAnime(source: AnimeHttpSource) {
+        binding.rvAnime.isVisible = true
         Log.d(tag, "loadPopularAnime")
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.getPopularAnime(source).collect { pagingData ->
+                    Log.d(tag, "Submitting popular data to adapter")
                     animeAdapter.submitData(pagingData)
                 }
             }
-            binding.rvAnime.isVisible = true
         }
     }
     //endregion
@@ -290,14 +328,15 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     //region loadLatestAnime
     private fun loadLatestAnime(source: AnimeHttpSource) {
         Log.d(tag, "loadLatestAnime")
-        lifecycleScope.launch(Dispatchers.IO) {
+        binding.rvAnime.isVisible = true
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.getLatestAnime(source).collect { pagingData ->
+                    Log.d(tag, "Submitting latest data to adapter")
                     animeAdapter.submitData(pagingData)
                 }
             }
         }
-        binding.rvAnime.isVisible = true
     }
     //endregion
 
@@ -310,7 +349,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                     buttonTitle = extension.appName,
                     isSelected = extension.isSelected,
                 ),
-                )
+            )
         }
         val radioButtonDialogModel = RadioButtonDialogModel(
             title = getString(R.string.select_extensions),

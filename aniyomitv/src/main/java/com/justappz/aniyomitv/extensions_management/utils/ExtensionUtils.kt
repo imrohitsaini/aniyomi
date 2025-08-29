@@ -7,6 +7,8 @@ import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.justappz.aniyomitv.extensions_management.domain.model.InstalledExtensionInfo
+import dalvik.system.PathClassLoader
+import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import java.io.File
 
 object ExtensionUtils {
@@ -60,5 +62,22 @@ object ExtensionUtils {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
+    }
+
+    fun Context.loadAnimeSource(packageName: String?, className: String?): AnimeHttpSource? {
+        if (packageName == null || className == null) return null
+        return try {
+            val info = packageManager.getPackageInfo(
+                packageName,
+                PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES,
+            )
+
+            val pathLoader = PathClassLoader(info.applicationInfo?.sourceDir, classLoader)
+            val clazz = pathLoader.loadClass(className)
+            clazz.getDeclaredConstructor().newInstance() as? AnimeHttpSource
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

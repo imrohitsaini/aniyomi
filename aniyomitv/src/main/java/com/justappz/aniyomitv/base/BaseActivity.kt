@@ -24,7 +24,6 @@ open class BaseActivity : FragmentActivity() {
      * */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     }
     //endregion
 }

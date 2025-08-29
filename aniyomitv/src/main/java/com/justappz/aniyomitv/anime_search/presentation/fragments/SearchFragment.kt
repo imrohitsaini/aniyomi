@@ -1,6 +1,7 @@
 package com.justappz.aniyomitv.anime_search.presentation.fragments
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +23,7 @@ import com.justappz.aniyomitv.anime_search.presentation.adapters.AnimePagingAdap
 import com.justappz.aniyomitv.anime_search.presentation.viewmodel.SearchViewModel
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecoration
@@ -31,7 +33,9 @@ import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.toJson
 import com.justappz.aniyomitv.databinding.FragmentSearchBinding
+import com.justappz.aniyomitv.episodes.presentation.activity.EpisodesActivity
 import dalvik.system.PathClassLoader
+import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -89,16 +93,37 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     //endregion
 
     //region init
-    @SuppressLint("SetTextI18n")
     private fun init() {
         Log.d(tag, "init")
 
+
+        setupAnimeAdapter()
+
+        observeInstalledExtensions()
+        viewModel.getExtensions(ctx)
+
+        availableChips.add(0, binding.chipPopular)
+        availableChips.add(1, binding.chipLatest)
+
+        binding.chipPopular.setOnClickListener(this)
+        binding.chipLatest.setOnClickListener(this)
+        binding.tvChangeSource.setOnClickListener(this)
+    }
+    //endregion
+
+    //region setupAnimeAdapter
+    @SuppressLint("SetTextI18n")
+    private fun setupAnimeAdapter() {
         // setup adapter
         val spacing = ctx.resources.getDimensionPixelSize(R.dimen._16dp)
         binding.rvAnime.layoutManager = GridLayoutManager(ctx, 5)
         binding.rvAnime.adapter = animeAdapter
         binding.rvAnime.addItemDecoration(GridSpacingItemDecoration(5, spacing))
         animeAdapter.attachRecyclerView(binding.rvAnime)
+
+        animeAdapter.onItemClick = { anime, position ->
+            startEpisodesActivity(anime)
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -137,16 +162,19 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         animeAdapter.addLoadStateListener {
             Log.d("AnimeAdapter", "Item count: ${animeAdapter.itemCount}")
         }
+    }
+    //endregion
 
-        observeInstalledExtensions()
-        viewModel.getExtensions(ctx)
-
-        availableChips.add(0, binding.chipPopular)
-        availableChips.add(1, binding.chipLatest)
-
-        binding.chipPopular.setOnClickListener(this)
-        binding.chipLatest.setOnClickListener(this)
-        binding.tvChangeSource.setOnClickListener(this)
+    //region startEpisodesActivity
+    private fun startEpisodesActivity(anime: SAnime) {
+        val extensionInfo = installedExtensions.firstOrNull { it.isSelected == true }
+        startActivity(
+            Intent(act, EpisodesActivity::class.java).apply {
+                putExtra(IntentKeys.ANIME, anime)
+                putExtra(IntentKeys.ANIME_CLASS, extensionInfo?.className)
+                putExtra(IntentKeys.ANIME_PKG, extensionInfo?.packageName)
+            },
+        )
     }
     //endregion
 

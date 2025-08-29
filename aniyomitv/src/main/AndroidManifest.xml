@@ -44,9 +44,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Aniyomi">
 
+
         <activity
             android:name=".SplashActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="landscape"
+            tools:ignore="DiscouragedApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -55,14 +58,25 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".episodes.presentation.activity.EpisodesActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            tools:ignore="DiscouragedApi" />
+        <activity
             android:name=".main.ui.activities.MainActivity"
-            android:exported="true" />
+            android:exported="false"
+            android:screenOrientation="landscape"
+            tools:ignore="DiscouragedApi" />
         <activity
             android:name=".PlayerActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="landscape"
+            tools:ignore="DiscouragedApi" />
         <activity
             android:name=".TestingActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="landscape"
+            tools:ignore="DiscouragedApi" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -218,6 +218,7 @@ class EpisodesActivity : BaseActivity() {
                                 state.data.serialize()
                             }
                             openPlayer(serialized)
+                            viewModel.resetVideoState()
                         }
                     }
                 }
@@ -273,7 +274,6 @@ class EpisodesActivity : BaseActivity() {
     //region openPlayer
     private fun openPlayer(serialized: String) {
         startActivity(Intent(ctx, ExoPlayerActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra(IntentKeys.VIDEO_LIST, serialized)
         })
     }

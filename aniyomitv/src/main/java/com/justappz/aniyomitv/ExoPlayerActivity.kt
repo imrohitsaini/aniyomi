@@ -2,7 +2,11 @@ package com.justappz.aniyomitv
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.databinding.DataBindingUtil
 import androidx.media3.common.MediaItem
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -21,6 +25,9 @@ class ExoPlayerActivity : BaseActivity() {
     private lateinit var binding: ActivityExoPlayerBinding
     private val tag = "ExoPlayerActivity"
     private lateinit var videoList: List<Video>
+    private var doubleBackToExitPressedOnce = false
+    private var exoPlayer: ExoPlayer? = null
+    private val backHandler = Handler(Looper.getMainLooper())
     //endregion
 
     //region onCreate
@@ -32,6 +39,24 @@ class ExoPlayerActivity : BaseActivity() {
 
         videoList = intent.getStringExtra(IntentKeys.VIDEO_LIST)?.toVideoList() ?: emptyList()
         Log.d(tag, "videos ${videoList.size}")
+
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (doubleBackToExitPressedOnce) {
+                        releasePlayer()
+                        finish()
+                    } else {
+                        doubleBackToExitPressedOnce = true
+                        Toast.makeText(this@ExoPlayerActivity, "Press back again to exit", Toast.LENGTH_SHORT).show()
+
+                        backHandler.postDelayed({ doubleBackToExitPressedOnce = false }, 2000) // 2s window
+                    }
+                }
+            },
+        )
 
         startPlayer(videoList[0])
 
@@ -57,7 +82,7 @@ class ExoPlayerActivity : BaseActivity() {
         val mediaItem = MediaItem.fromUri(video.videoUrl)
 
         // Initialize ExoPlayer
-        val exoPlayer = ExoPlayer.Builder(this)
+        exoPlayer = ExoPlayer.Builder(this)
             .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
             .build()
 
@@ -67,11 +92,24 @@ class ExoPlayerActivity : BaseActivity() {
             binding.playerView.player = exoPlayer
 
             // Set media and start playback
-            exoPlayer.setMediaItem(mediaItem)
-            exoPlayer.prepare()
-            exoPlayer.play()
+            exoPlayer?.setMediaItem(mediaItem)
+            exoPlayer?.prepare()
+            exoPlayer?.play()
 
         }
+    }
+    //endregion
+
+    //region releasePlayer
+    private fun releasePlayer() {
+        exoPlayer?.release()
+        exoPlayer = null
+        Log.d(tag, "ExoPlayer released")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        releasePlayer()
     }
     //endregion
 }

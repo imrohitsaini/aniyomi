@@ -56,5 +56,9 @@ class EpisodesViewModel(
             _videosList.value = getVideosUseCase(source, episode)
         }
     }
+
+    fun resetVideoState() {
+        _videosList.value = BaseUiState.Idle
+    }
     //endregion
 }

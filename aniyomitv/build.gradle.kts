@@ -132,6 +132,8 @@ dependencies {
     implementation(aniyomitvlibs.androidx.media3.exoplayer)
     implementation(aniyomitvlibs.androidx.media3.exoplayer.dash)
     implementation(aniyomitvlibs.androidx.media3.ui)
+    implementation(aniyomitvlibs.androidx.media3.exoplayer.hls)
+    implementation(aniyomitvlibs.androidx.media3.exoplayer.smoothstreaming)
 
     // Gson for JSON parsing
     implementation(aniyomitvlibs.gson)

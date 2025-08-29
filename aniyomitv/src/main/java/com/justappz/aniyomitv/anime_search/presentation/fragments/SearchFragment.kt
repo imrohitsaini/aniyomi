@@ -126,8 +126,8 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                         is androidx.paging.LoadState.Error -> {
                             showLoading(false)
                             binding.errorRoot.root.isVisible = true
-                            binding.errorRoot.tvError.text =
-                                refreshState.error.message ?: "Something went wrong"
+                            binding.rvAnime.isVisible = false
+                            binding.errorRoot.tvError.text = "No anime found"
                         }
                     }
                 }

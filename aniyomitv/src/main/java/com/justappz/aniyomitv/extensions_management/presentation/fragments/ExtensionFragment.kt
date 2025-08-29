@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -49,7 +48,6 @@ class ExtensionFragment : BaseFragment() {
     private var _binding: FragmentExtensionBinding? = null
     private val binding get() = _binding!!
     private val tag = "ExtensionFragment"
-    private var isDialogShowing = false
     private val extensionViewModel: ExtensionViewModel by viewModels {
         ViewModelFactory {
             ExtensionViewModel(
@@ -62,7 +60,7 @@ class ExtensionFragment : BaseFragment() {
     }
 
     // Need this to not add duplicate repo url
-    private lateinit var animeRepos: List<AnimeRepositoriesDetailsDomain>
+    private var animeRepos: List<AnimeRepositoriesDetailsDomain> = arrayListOf()
     private var chips: MutableList<Chip> = arrayListOf()
     private var selectedChip: Chip? = null
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
@@ -172,6 +170,7 @@ class ExtensionFragment : BaseFragment() {
                         }
 
                         BaseUiState.Empty -> {
+                            Log.d(tag, "Empty repo urls")
                             ErrorHandler.show(
                                 ctx,
                                 AppError.UnknownError(
@@ -253,7 +252,6 @@ class ExtensionFragment : BaseFragment() {
 
                         is ExtensionsUiState.Success -> {
                             Log.d(tag, "ExtensionsUiState.Success")
-                            showLoading(false)
                             val repoDomain = state.data
                             Log.i(
                                 tag,
@@ -284,6 +282,7 @@ class ExtensionFragment : BaseFragment() {
                                     pagingData = PagingData.from(sortedList),
                                 )
                             }
+                            showLoading(false)
                         }
 
                         is ExtensionsUiState.Error -> {
@@ -304,25 +303,19 @@ class ExtensionFragment : BaseFragment() {
     //region Show Loading
     private fun showLoading(toShow: Boolean) {
         binding.loading.isVisible = toShow
-
-        if (isDialogShowing) {
-            addRepoDialog?.let {
-                Log.i(tag, "isDialogShowing ${true} -> loader $toShow")
-                it.showLoaderOnButton(toShow)
-                if (!toShow) {
-                    it.dismiss()
-                }
+        addRepoDialog?.let {
+            Log.i(tag, "isDialogShowing ${true} -> loader $toShow")
+            it.showLoaderOnButton(toShow)
+            if (!toShow) {
+                it.dismiss()
             }
-            isDialogShowing = false
         }
     }
     //endregion
 
-    //region addChipDialog
-    private fun addChipDialog() {
+    //region addRepoDialog
+    private fun addRepoDialog() {
         Log.i(tag, "addChipDialog")
-        if (isDialogShowing) return
-        isDialogShowing = true
 
         addRepoDialog = InputDialogFragment(
             title = getString(R.string.add_repo),
@@ -334,10 +327,20 @@ class ExtensionFragment : BaseFragment() {
 
                 if (!UrlUtils.isValidRepoUrl(url)) {
                     // invalid url -> show toast
-                    Toast.makeText(requireContext(), "Invalid Repo URL", Toast.LENGTH_SHORT).show()
+                    ErrorHandler.show(
+                        context = ctx,
+                        error = AppError.ValidationError(
+                            message = "Invalid repo url",
+                        ),
+                    )
                 } else if (animeRepos.any { it.repoUrl == url }) {
                     // Repo already added -> show toast
-                    Toast.makeText(requireContext(), "This repo already exists", Toast.LENGTH_SHORT).show()
+                    ErrorHandler.show(
+                        context = ctx,
+                        error = AppError.ValidationError(
+                            message = "This repo already exists",
+                        ),
+                    )
                 } else {
                     // valid -> save the rep
                     Log.i(tag, "add new repo")
@@ -345,11 +348,9 @@ class ExtensionFragment : BaseFragment() {
                 }
             },
             onDismissListener = {
-                isDialogShowing = false
                 addRepoDialog = null
             },
         )
-
         addRepoDialog?.show(parentFragmentManager, "input_dialog")
     }
     //endregion
@@ -361,7 +362,7 @@ class ExtensionFragment : BaseFragment() {
         if (chip.isSelected) return
 
         if (chip.isAddRepoChip) {
-            addChipDialog()
+            addRepoDialog()
         } else {
             Log.i(tag, "load extensions on chip clicked")
             repoUrlChipsAdapter.selectChip(chip, position)
@@ -379,6 +380,7 @@ class ExtensionFragment : BaseFragment() {
             extension = extensionDomain,
             onRefreshed = { repoUrl ->
                 Log.d(tag, "onRefreshed $repoUrl")
+                
             },
             onDismissListener = {
 

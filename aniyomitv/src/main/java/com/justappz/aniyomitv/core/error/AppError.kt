@@ -29,7 +29,7 @@ sealed class AppError(
     class ValidationError(
         message: String,
         displayType: ErrorDisplayType? = null,
-    ) : AppError(message, displayType ?: ErrorDisplayType.INLINE)
+    ) : AppError(message, displayType ?: ErrorDisplayType.TOAST)
 
     class UnknownError(
         message: String = "Something went wrong",

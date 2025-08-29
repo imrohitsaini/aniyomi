@@ -40,6 +40,11 @@ class EpisodesRepoImpl : EpisodesRepository {
         return withContext(Dispatchers.IO) {
             try {
                 val details = source.getEpisodeList(anime)
+                if (details.isEmpty()) {
+                    BaseUiState.Empty
+                } else {
+                    BaseUiState.Success(details)
+                }
                 BaseUiState.Success(details)
             } catch (e: Exception) {
                 // You can branch specific errors here if needed
@@ -60,7 +65,11 @@ class EpisodesRepoImpl : EpisodesRepository {
         return withContext(Dispatchers.IO) {
             try {
                 val details = source.getVideoList(episode)
-                BaseUiState.Success(details)
+                if (details.isEmpty()) {
+                    BaseUiState.Empty
+                } else {
+                    BaseUiState.Success(details)
+                }
             } catch (e: Exception) {
                 // You can branch specific errors here if needed
                 val appError = when (e) {

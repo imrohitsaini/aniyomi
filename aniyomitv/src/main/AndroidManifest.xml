@@ -58,6 +58,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ExoPlayerActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            tools:ignore="DiscouragedApi" />
+        <activity
             android:name=".episodes.presentation.activity.EpisodesActivity"
             android:exported="false"
             android:screenOrientation="landscape"

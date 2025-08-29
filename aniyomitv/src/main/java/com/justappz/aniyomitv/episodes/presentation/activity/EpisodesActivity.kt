@@ -1,5 +1,6 @@
 package com.justappz.aniyomitv.episodes.presentation.activity
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,18 +14,22 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import coil3.load
 import coil3.request.crossfade
+import com.justappz.aniyomitv.ExoPlayerActivity
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.LoaderDialog
+import com.justappz.aniyomitv.core.error.AppError
+import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
 import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils.loadAnimeSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.model.SerializableVideo
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -182,6 +187,12 @@ class EpisodesActivity : BaseActivity() {
                         BaseUiState.Empty -> {
                             showDialogLoader(false)
                             Log.d(tag, "videosList empty")
+                            ErrorHandler.show(
+                                ctx, AppError.UnknownError(
+                                    message = "No videos found",
+                                    displayType = ErrorDisplayType.TOAST
+                                )
+                            )
                         }
 
                         is BaseUiState.Error -> {
@@ -203,6 +214,10 @@ class EpisodesActivity : BaseActivity() {
                         is BaseUiState.Success -> {
                             Log.d(tag, "videosList success ${state.data.size}")
                             showDialogLoader(false)
+                            val serialized = with(SerializableVideo.Companion) {
+                                state.data.serialize()
+                            }
+                            openPlayer(serialized)
                         }
                     }
                 }
@@ -246,12 +261,21 @@ class EpisodesActivity : BaseActivity() {
     }
     //endregion
 
-    //region Show Loading
+    //region showLoading
     private fun showLoading(toShow: Boolean, progressBar: View) {
         lifecycleScope.launch(Dispatchers.Main) {
             progressBar.isVisible = toShow
             Log.d(tag, "loader $toShow")
         }
+    }
+    //endregion
+
+    //region openPlayer
+    private fun openPlayer(serialized: String) {
+        startActivity(Intent(ctx, ExoPlayerActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra(IntentKeys.VIDEO_LIST, serialized)
+        })
     }
     //endregion
 }

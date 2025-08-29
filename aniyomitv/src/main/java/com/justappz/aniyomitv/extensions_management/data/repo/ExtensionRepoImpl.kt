@@ -1,6 +1,8 @@
 package com.justappz.aniyomitv.extensions_management.data.repo
 
 import android.util.Log
+import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.util.toObject
 import com.justappz.aniyomitv.extensions_management.data.dto.ExtensionDTO
 import com.justappz.aniyomitv.extensions_management.data.mapper.toDomain
@@ -17,7 +19,7 @@ class ExtensionRepoImpl(
         private const val TAG = "ExtensionRepo"
     }
 
-    override fun getExtensions(url: String): RepoDomain {
+    override fun getExtensions(url: String): BaseUiState<RepoDomain> {
         Log.i(TAG, "Fetching extensions from URL: $url")
 
         val client = networkHelper.client
@@ -26,27 +28,51 @@ class ExtensionRepoImpl(
             .get()
             .build()
 
-        try {
+        return try {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     Log.e(TAG, "HTTP error ${response.code}: ${response.message}")
-                    throw Exception("HTTP error ${response.code}: ${response.message}")
+                    return BaseUiState.Error(
+                        AppError.ServerError(
+                            code = response.code,
+                            message = response.message.ifBlank { "HTTP error" },
+                        ),
+                    )
                 }
 
                 val body = response.body.string()
+
                 Log.i(TAG, "Response body length: ${body.length}")
 
-                val dtoList: List<ExtensionDTO> = body.toObject()
+                val dtoList: List<ExtensionDTO> = try {
+                    body.toObject()
+                } catch (e: Exception) {
+                    Log.e(TAG, "JSON parsing failed: ${e.message}", e)
+                    return BaseUiState.Error(
+                        AppError.ValidationError("Invalid response format"),
+                    )
+                }
+
                 Log.i(TAG, "Parsed ${dtoList.size} extensions from JSON")
 
-                return RepoDomain(
-                    repoUrl = url,
-                    extensions =   dtoList.map { it.toDomain(url) }
+                if (dtoList.isEmpty()) {
+                    return BaseUiState.Empty
+                }
+
+                BaseUiState.Success(
+                    RepoDomain(
+                        repoUrl = url,
+                        extensions = dtoList.map { it.toDomain(url) },
+                    ),
                 )
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch extensions: ${e.message}", e)
-            throw e
+            BaseUiState.Error(
+                AppError.NetworkError(
+                    message = e.message ?: "Failed to fetch extensions",
+                ),
+            )
         }
     }
 

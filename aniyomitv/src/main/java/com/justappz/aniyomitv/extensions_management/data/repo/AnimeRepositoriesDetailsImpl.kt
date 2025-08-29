@@ -47,22 +47,4 @@ class AnimeRepositoriesDetailsImpl(
             // log/report if needed
         }
     }
-
-    override fun removeRepo(animeRepoDetail: AnimeRepositoriesDetailsDomain) {
-        try {
-            val current = repoUrlsPref.get().toMutableSet()
-            current.remove(animeRepoDetail.toJson())
-            repoUrlsPref.set(current)
-        } catch (e: Exception) {
-            // log/report if needed
-        }
-    }
-
-    override fun clearRepos() {
-        try {
-            repoUrlsPref.set(emptySet())
-        } catch (e: Exception) {
-            // log/report if needed
-        }
-    }
 }

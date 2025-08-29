@@ -6,6 +6,4 @@ import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositori
 interface AnimeRepositoriesDetailsRepo {
     fun getRepos(): BaseUiState<List<AnimeRepositoriesDetailsDomain>>
     fun addRepo(animeRepoDetail: AnimeRepositoriesDetailsDomain)
-    fun removeRepo(animeRepoDetail: AnimeRepositoriesDetailsDomain)
-    fun clearRepos()
 }

@@ -5,7 +5,7 @@ import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositori
 import com.justappz.aniyomitv.extensions_management.domain.repo.AnimeRepositoriesDetailsRepo
 
 class GetRepoUrlsUseCase(
-    private val animeRepositoriesDetailsRepo: AnimeRepositoriesDetailsRepo
+    private val animeRepositoriesDetailsRepo: AnimeRepositoriesDetailsRepo,
 ) {
     operator fun invoke(): BaseUiState<List<AnimeRepositoriesDetailsDomain>> = animeRepositoriesDetailsRepo.getRepos()
 }

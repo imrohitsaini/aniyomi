@@ -31,11 +31,9 @@ import com.justappz.aniyomitv.extensions_management.domain.model.Chip
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
-import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.ExtensionPagingAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoChipsAdapter
-import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
 import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils
 import kotlinx.coroutines.launch
@@ -48,13 +46,12 @@ class ExtensionFragment : BaseFragment() {
     private var _binding: FragmentExtensionBinding? = null
     private val binding get() = _binding!!
     private val tag = "ExtensionFragment"
-    private val extensionViewModel: ExtensionViewModel by viewModels {
+    private val viewModel: ExtensionViewModel by viewModels {
         ViewModelFactory {
             ExtensionViewModel(
                 Injekt.get<GetExtensionUseCase>(),
                 Injekt.get<GetRepoUrlsUseCase>(),
                 Injekt.get<SaveRepoUrlUseCase>(),
-                Injekt.get<RemoveRepoUrlUseCase>(),
             )
         }
     }
@@ -107,7 +104,7 @@ class ExtensionFragment : BaseFragment() {
         extensionAdapterProperties()
         observeRepo()
         observeExtensionState()
-        extensionViewModel.loadRepoUrls()
+        viewModel.loadRepoUrls()
     }
     //endregion
 
@@ -139,11 +136,18 @@ class ExtensionFragment : BaseFragment() {
         Log.d(tag, "observeRepo")
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                extensionViewModel.repoUrls.collect { reposState ->
-                    when (reposState) {
+                viewModel.repoUrls.collect { state ->
+                    when (state) {
                         is BaseUiState.Error -> {
                             Log.d(tag, "RepoUiState.Error")
                             showLoading(false)
+                            ErrorHandler.show(
+                                ctx,
+                                state.error,
+                                binding.errorRoot.tvError,
+                            )
+                            binding.errorRoot.root.isVisible = true
+                            binding.rvExtensions.isVisible = false
                         }
 
                         BaseUiState.Idle -> {
@@ -159,14 +163,14 @@ class ExtensionFragment : BaseFragment() {
                         is BaseUiState.Success -> {
                             Log.d(tag, "RepoUiState.Success")
                             showLoading(false)
-                            animeRepos = reposState.data
+                            animeRepos = state.data
                             Log.i(tag, "repoUrls fetched ${animeRepos.toJsonArray()}")
 
                             binding.errorRoot.root.isVisible = false
                             binding.rvExtensions.isVisible = true
 
                             updateRepoChips(animeRepos)
-                            extensionViewModel.resetRepoState()
+                            viewModel.resetRepoState()
                         }
 
                         BaseUiState.Empty -> {
@@ -227,7 +231,7 @@ class ExtensionFragment : BaseFragment() {
 
 
         selectedChip?.let {
-            extensionViewModel.loadExtensions(it.url)
+            viewModel.loadExtensions(it.url)
         }
     }
     //endregion
@@ -237,20 +241,20 @@ class ExtensionFragment : BaseFragment() {
         Log.d(tag, "observeExtensionState")
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                extensionViewModel.extensionState.collect { state ->
+                viewModel.extensionState.collect { state ->
                     when (state) {
-                        ExtensionsUiState.Idle -> {
+                        BaseUiState.Idle -> {
                             Log.d(tag, "ExtensionsUiState.Idle")
                             showLoading(false)
                         }
 
-                        is ExtensionsUiState.Loading -> {
-                            Log.d(tag, "ExtensionsUiState.Loading ")
+                        is BaseUiState.Loading -> {
+                            Log.d(tag, "ExtensionsUiState.Loading")
                             showLoading(true)
                             binding.errorRoot.root.isVisible = false
                         }
 
-                        is ExtensionsUiState.Success -> {
+                        is BaseUiState.Success -> {
                             Log.d(tag, "ExtensionsUiState.Success")
                             val repoDomain = state.data
                             Log.i(
@@ -274,24 +278,43 @@ class ExtensionFragment : BaseFragment() {
                                 val sortedList =
                                     updatedList.sortedByDescending { it.installedExtensionInfo?.installed == true }
 
-                                // Clear previous extensions
-                                extensionAdapter.submitData(PagingData.empty())
-
                                 // Submit updated + sorted list
                                 extensionAdapter.submitData(
                                     pagingData = PagingData.from(sortedList),
                                 )
                             }
+
+                            binding.errorRoot.root.isVisible = false
+                            binding.rvExtensions.isVisible = true
                             showLoading(false)
+
+                            viewModel.resetExtensionState()
                         }
 
-                        is ExtensionsUiState.Error -> {
+                        is BaseUiState.Error -> {
                             Log.d(tag, "ExtensionsUiState.Error ")
                             showLoading(false)
+                            ErrorHandler.show(
+                                ctx,
+                                state.error,
+                                binding.errorRoot.tvError,
+                            )
                             binding.errorRoot.root.isVisible = true
-                            val errorText = state.code?.let { "Error $it: ${state.message}" }
-                                ?: state.message
-                            binding.errorRoot.tvError.text = errorText
+                            binding.rvExtensions.isVisible = false
+                        }
+
+                        BaseUiState.Empty -> {
+                            Log.d(tag, "Empty repo urls")
+                            ErrorHandler.show(
+                                ctx,
+                                AppError.UnknownError(
+                                    message = "No valid extensions detected",
+                                    displayType = ErrorDisplayType.INLINE,
+                                ),
+                                binding.errorRoot.tvError,
+                            )
+                            binding.errorRoot.root.isVisible = true
+                            binding.rvExtensions.isVisible = false
                         }
                     }
                 }
@@ -300,7 +323,7 @@ class ExtensionFragment : BaseFragment() {
     }
     //endregion
 
-    //region Show Loading
+    //region showLoading
     private fun showLoading(toShow: Boolean) {
         binding.loading.isVisible = toShow
         addRepoDialog?.let {
@@ -344,7 +367,7 @@ class ExtensionFragment : BaseFragment() {
                 } else {
                     // valid -> save the rep
                     Log.i(tag, "add new repo")
-                    extensionViewModel.addRepo(url)
+                    viewModel.addRepo(url)
                 }
             },
             onDismissListener = {
@@ -367,7 +390,7 @@ class ExtensionFragment : BaseFragment() {
             Log.i(tag, "load extensions on chip clicked")
             repoUrlChipsAdapter.selectChip(chip, position)
 
-            extensionViewModel.loadExtensions(chip.url)
+            viewModel.loadExtensions(chip.url)
         }
     }
     //endregion
@@ -380,7 +403,7 @@ class ExtensionFragment : BaseFragment() {
             extension = extensionDomain,
             onRefreshed = { repoUrl ->
                 Log.d(tag, "onRefreshed $repoUrl")
-                
+                viewModel.loadExtensions(repoUrl)
             },
             onDismissListener = {
 

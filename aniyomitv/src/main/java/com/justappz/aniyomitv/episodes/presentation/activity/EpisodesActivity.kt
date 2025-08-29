@@ -3,6 +3,7 @@ package com.justappz.aniyomitv.episodes.presentation.activity
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -19,7 +20,6 @@ import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
 import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils.loadAnimeSource
-import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class EpisodesActivity : BaseActivity() {
     private var anime: SAnime? = null
     private var animeHttpSource: AnimeHttpSource? = null
     private val viewModel: EpisodesViewModel by viewModels {
-        ViewModelFactory { EpisodesViewModel(Injekt.get()) }
+        ViewModelFactory { EpisodesViewModel(Injekt.get(), Injekt.get()) }
     }
     //endregion
 
@@ -70,7 +70,13 @@ class EpisodesActivity : BaseActivity() {
         }
 
         observeAnimeDetails()
-        anime?.let { viewModel.getAnimeDetails(animeHttpSource as AnimeCatalogueSource, it) }
+        observeEpisodes()
+        animeHttpSource?.let { source ->
+            anime?.let {
+                viewModel.getAnimeDetails(source, it)
+                viewModel.getEpisodesList(source, it)
+            }
+        }
     }
     //endregion
 
@@ -81,23 +87,23 @@ class EpisodesActivity : BaseActivity() {
                 viewModel.animeDetailsState.collect { state ->
                     when (state) {
                         BaseUiState.Empty -> {
-                            showLoading(false)
+                            showLoading(false, binding.detailsLoading)
                             Log.d(tag, "anime details empty")
                         }
 
                         is BaseUiState.Error -> {
-                            showLoading(false)
+                            showLoading(false, binding.detailsLoading)
 
                             Log.d(tag, "anime details error")
                         }
 
                         BaseUiState.Idle -> {
-                            showLoading(false)
+                            showLoading(false, binding.detailsLoading)
                             Log.d(tag, "anime details idle")
                         }
 
                         BaseUiState.Loading -> {
-                            showLoading(true)
+                            showLoading(true, binding.detailsLoading)
                             Log.d(tag, "anime details loading")
                         }
 
@@ -112,7 +118,45 @@ class EpisodesActivity : BaseActivity() {
                                 it.update_strategy = state.data.update_strategy
                             }
                             anime?.let { updateAnimeDetails(it) }
-                            showLoading(false)
+                            showLoading(false, binding.detailsLoading)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //endregion
+
+    //region observeEpisodes
+    private fun observeEpisodes() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.episodesList.collect { state ->
+                    when (state) {
+                        BaseUiState.Empty -> {
+                            showLoading(false, binding.episodesLoading)
+                            Log.d(tag, "episodesList empty")
+                        }
+
+                        is BaseUiState.Error -> {
+                            showLoading(false, binding.episodesLoading)
+                            Log.d(tag, "episodesList error")
+                        }
+
+                        BaseUiState.Idle -> {
+                            showLoading(false, binding.episodesLoading)
+                            Log.d(tag, "episodesList idle")
+                        }
+
+                        BaseUiState.Loading -> {
+                            showLoading(true, binding.episodesLoading)
+                            Log.d(tag, "episodesList loading")
+                        }
+
+                        is BaseUiState.Success -> {
+                            Log.d(tag, "episodesList success")
+                            val list = state.data
+                            showLoading(false, binding.episodesLoading)
                         }
                     }
                 }
@@ -130,9 +174,9 @@ class EpisodesActivity : BaseActivity() {
     //endregion
 
     //region Show Loading
-    private fun showLoading(toShow: Boolean) {
+    private fun showLoading(toShow: Boolean, progressBar: View) {
         lifecycleScope.launch(Dispatchers.Main) {
-            binding.detailsLoading.isVisible = toShow
+            progressBar.isVisible = toShow
             Log.d(tag, "loader $toShow")
         }
     }

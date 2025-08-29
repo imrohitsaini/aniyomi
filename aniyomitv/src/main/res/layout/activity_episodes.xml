@@ -132,9 +132,9 @@
             android:layout_width="@dimen/_2dp"
             android:layout_height="0dp"
             android:background="@color/grey"
-            app:layout_constraintTop_toTopOf="@id/topGuideline"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@id/centerVerticalGuideline" />
+            app:layout_constraintStart_toStartOf="@id/centerVerticalGuideline"
+            app:layout_constraintTop_toTopOf="@id/topGuideline" />
 
         <!--        region rightPane-->
         <TextView
@@ -144,6 +144,19 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/_8dp"
             android:text="@string/episodes"
+            app:layout_constraintEnd_toEndOf="@id/endGuideline"
+            app:layout_constraintStart_toEndOf="@id/centerVerticalGuideline"
+            app:layout_constraintTop_toTopOf="@id/topGuideline" />
+
+        <ProgressBar
+            android:id="@+id/episodesLoading"
+            android:layout_width="@dimen/_48dp"
+            android:layout_height="@dimen/_48dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:indeterminateTint="@color/anime_tv_primary"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/endGuideline"
             app:layout_constraintStart_toEndOf="@id/centerVerticalGuideline"
             app:layout_constraintTop_toTopOf="@id/topGuideline" />

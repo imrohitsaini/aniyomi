@@ -2,14 +2,14 @@ package com.justappz.aniyomitv.episodes.domain.usecase
 
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.episodes.domain.repo.EpisodesRepository
-import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 
-class GetAnimeDetailsUseCase(
+class GetEpisodesUseCase(
     private val repo: EpisodesRepository,
 ) {
-    suspend operator fun invoke(source: AnimeHttpSource, anime: SAnime): BaseUiState<SAnime> {
-        return repo.getAnimeDetails(source, anime)
+    suspend operator fun invoke(source: AnimeHttpSource, anime: SAnime): BaseUiState<List<SEpisode>> {
+        return repo.getEpisodes(source, anime)
     }
 }

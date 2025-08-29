@@ -3,6 +3,7 @@ package com.justappz.aniyomitv.extensions_management.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJson
 import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositoriesDetailsDomain
@@ -11,7 +12,6 @@ import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUs
 import com.justappz.aniyomitv.extensions_management.domain.usecase.RemoveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
-import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import eu.kanade.tachiyomi.network.HttpException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +29,38 @@ class ExtensionViewModel(
 ) : ViewModel() {
 
     private val tag = "ExtensionViewModel"
+
+
+    //region repo
+    //region loadRepoUrls
+    private val _repoUrls = MutableStateFlow<BaseUiState<List<AnimeRepositoriesDetailsDomain>>>(BaseUiState.Idle)
+    val repoUrls: StateFlow<BaseUiState<List<AnimeRepositoriesDetailsDomain>>> = _repoUrls.asStateFlow()
+    fun loadRepoUrls() {
+        viewModelScope.launch {
+            _repoUrls.value = BaseUiState.Loading
+            val uiState = withContext(Dispatchers.IO) {
+                getRepoUrlsUseCase()
+            }
+            _repoUrls.value = uiState
+        }
+    }
+    //endregion
+
+    fun addRepo(url: String) {
+        val animeRepositoriesDetailsDomain = AnimeRepositoriesDetailsDomain(
+            repoUrl = url,
+            cleanName = UrlUtils.getCleanUrl(url),
+            dateAdded = System.currentTimeMillis(),
+        )
+
+        saveRepoUrlUseCase(animeRepositoriesDetailsDomain)
+        loadRepoUrls()
+    }
+
+    fun resetRepoState() {
+        _repoUrls.value = BaseUiState.Idle
+    }
+    //endregion
 
     //region extensions
     private val _extensionState = MutableStateFlow<ExtensionsUiState>(ExtensionsUiState.Idle)
@@ -65,38 +97,5 @@ class ExtensionViewModel(
             }
         }
     }
-    //endregion
-
-    //region repos
-    //region loadRepoUrls
-    private val _repoUrls = MutableStateFlow<RepoUiState>(RepoUiState.Idle)
-    val repoUrls: StateFlow<RepoUiState> = _repoUrls.asStateFlow()
-    fun loadRepoUrls() {
-        viewModelScope.launch {
-            _repoUrls.value = RepoUiState.Loading
-            val list = withContext(Dispatchers.IO) {
-                getRepoUrlsUseCase()
-            }
-            _repoUrls.value = RepoUiState.Success(list)
-        }
-    }
-    //endregion
-
-    fun addRepo(url: String) {
-        val animeRepositoriesDetailsDomain = AnimeRepositoriesDetailsDomain(
-            repoUrl = url,
-            cleanName = UrlUtils.getCleanUrl(url),
-            dateAdded = System.currentTimeMillis(),
-        )
-
-        saveRepoUrlUseCase(animeRepositoriesDetailsDomain)
-        loadRepoUrls()
-    }
-
-    fun resetRepoState() {
-        _repoUrls.value = RepoUiState.Idle
-    }
-
-
     //endregion
 }

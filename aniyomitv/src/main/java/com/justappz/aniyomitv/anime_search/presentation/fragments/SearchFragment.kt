@@ -26,6 +26,7 @@ import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecoration
 import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
+import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.toJson
@@ -88,6 +89,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     //endregion
 
     //region init
+    @SuppressLint("SetTextI18n")
     private fun init() {
         Log.d(tag, "init")
 
@@ -157,6 +159,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                 viewModel.extensionState.collect { extensionsState ->
                     when (extensionsState) {
                         is BaseUiState.Error -> {
+                            ErrorHandler.show(ctx, extensionsState.error, binding.errorRoot.tvError)
                             showLoading(false)
                         }
 
@@ -170,7 +173,6 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
                         is BaseUiState.Success -> {
                             val extensions = extensionsState.data
-                            Log.d(tag, "installed extensions ${extensions.toJson()}")
                             // set the ui
                             binding.errorRoot.root.isVisible = false
 

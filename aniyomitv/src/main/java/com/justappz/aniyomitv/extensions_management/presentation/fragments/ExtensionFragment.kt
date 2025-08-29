@@ -12,12 +12,17 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseFragment
+import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
+import com.justappz.aniyomitv.core.error.AppError
+import com.justappz.aniyomitv.core.error.ErrorDisplayType
+import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
@@ -32,7 +37,6 @@ import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUs
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.ExtensionPagingAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoChipsAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.states.ExtensionsUiState
-import com.justappz.aniyomitv.extensions_management.presentation.states.RepoUiState
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
 import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils
 import kotlinx.coroutines.launch
@@ -139,29 +143,46 @@ class ExtensionFragment : BaseFragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 extensionViewModel.repoUrls.collect { reposState ->
                     when (reposState) {
-                        is RepoUiState.Error -> {
+                        is BaseUiState.Error -> {
                             Log.d(tag, "RepoUiState.Error")
                             showLoading(false)
                         }
 
-                        RepoUiState.Idle -> {
+                        BaseUiState.Idle -> {
                             Log.d(tag, "RepoUiState.Idle")
                             showLoading(false)
                         }
 
-                        RepoUiState.Loading -> {
+                        BaseUiState.Loading -> {
                             Log.d(tag, "RepoUiState.Loading")
                             showLoading(true)
                         }
 
-                        is RepoUiState.Success -> {
+                        is BaseUiState.Success -> {
                             Log.d(tag, "RepoUiState.Success")
                             showLoading(false)
                             animeRepos = reposState.data
                             Log.i(tag, "repoUrls fetched ${animeRepos.toJsonArray()}")
 
+                            binding.errorRoot.root.isVisible = false
+                            binding.rvExtensions.isVisible = true
+
                             updateRepoChips(animeRepos)
                             extensionViewModel.resetRepoState()
+                        }
+
+                        BaseUiState.Empty -> {
+                            ErrorHandler.show(
+                                ctx,
+                                AppError.UnknownError(
+                                    message = "No repos added",
+                                    displayType = ErrorDisplayType.INLINE,
+                                ),
+                                binding.errorRoot.tvError,
+                            )
+                            binding.errorRoot.root.isVisible = true
+                            binding.rvExtensions.isVisible = false
+                            updateRepoChips(emptyList())
                         }
                     }
 
@@ -243,23 +264,24 @@ class ExtensionFragment : BaseFragment() {
                                 val updatedList = repoDomain.extensions.map { extension ->
                                     val installedInfo = ExtensionUtils.getInstalledExtensionByPackageName(
                                         context = requireContext(),
-                                        packageName = extension.pkg
+                                        packageName = extension.pkg,
                                     )
 
                                     extension.copy(
-                                        installedExtensionInfo = installedInfo
+                                        installedExtensionInfo = installedInfo,
                                     )
                                 }
 
                                 // Sort: installed first, then not installed
-                                val sortedList = updatedList.sortedByDescending { it.installedExtensionInfo?.installed == true }
+                                val sortedList =
+                                    updatedList.sortedByDescending { it.installedExtensionInfo?.installed == true }
 
                                 // Clear previous extensions
-                                extensionAdapter.submitData(androidx.paging.PagingData.empty())
+                                extensionAdapter.submitData(PagingData.empty())
 
                                 // Submit updated + sorted list
                                 extensionAdapter.submitData(
-                                    pagingData = androidx.paging.PagingData.from(sortedList),
+                                    pagingData = PagingData.from(sortedList),
                                 )
                             }
                         }

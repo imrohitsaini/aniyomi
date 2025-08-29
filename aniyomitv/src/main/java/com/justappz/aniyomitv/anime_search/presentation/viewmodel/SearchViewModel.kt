@@ -10,11 +10,8 @@ import com.justappz.aniyomitv.anime_search.domain.usecase.GetInstalledExtensions
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetLatestAnimePagingUseCase
 import com.justappz.aniyomitv.anime_search.domain.usecase.GetPopularAnimePagingUseCase
 import com.justappz.aniyomitv.base.BaseUiState
-import com.justappz.aniyomitv.base.BaseUiState.Empty
-import com.justappz.aniyomitv.base.BaseUiState.Error
 import com.justappz.aniyomitv.base.BaseUiState.Idle
 import com.justappz.aniyomitv.base.BaseUiState.Loading
-import com.justappz.aniyomitv.base.BaseUiState.Success
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.flow.Flow
@@ -30,26 +27,14 @@ class SearchViewModel(
 ) : ViewModel() {
 
     //region extensions
-// Extensions (reusing BaseUiState instead of GetInstalledExtensionsState)
+    // Extensions (reusing BaseUiState instead of GetInstalledExtensionsState)
     private val _extensionState = MutableStateFlow<BaseUiState<List<InstalledExtensions>>>(Idle)
     val extensionState: StateFlow<BaseUiState<List<InstalledExtensions>>> = _extensionState.asStateFlow()
 
     fun getExtensions(context: Context) {
         viewModelScope.launch {
             _extensionState.value = Loading
-            try {
-                val extensions = getInstalledExtensionsUseCase(context)
-                if (extensions.isEmpty()) {
-                    _extensionState.value = Empty
-                } else {
-                    _extensionState.value = Success(extensions)
-                }
-            } catch (e: Exception) {
-                _extensionState.value = Error(
-                    code = null, // map exceptions to error codes if needed
-                    message = e.message ?: "Unexpected error",
-                )
-            }
+            _extensionState.value = getInstalledExtensionsUseCase(context)
         }
     }
 

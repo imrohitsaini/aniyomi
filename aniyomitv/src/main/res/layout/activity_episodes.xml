@@ -54,16 +54,99 @@
             android:layout_height="0dp"
             android:adjustViewBounds="false"
             android:focusable="false"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="@id/seventyFivePercentHorizontalGuideline"
+            app:layout_constraintDimensionRatio="3:4"
             app:layout_constraintEnd_toEndOf="@id/centerVerticalGuideline"
             app:layout_constraintHorizontal_bias="0"
-            android:scaleType="centerCrop"
-            app:layout_constraintDimensionRatio="3:4"
             app:layout_constraintStart_toStartOf="@id/startGuideline"
             app:layout_constraintTop_toTopOf="@id/topGuideline"
             tools:ignore="ContentDescription"
             tools:src="@drawable/ic_launcher_foreground" />
 
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toBottomOf="@id/seventyFivePercentHorizontalGuideline"
+            app:layout_constraintEnd_toEndOf="@id/centerVerticalGuideline"
+            app:layout_constraintStart_toEndOf="@id/ivAnimeThumbnail"
+            app:layout_constraintTop_toTopOf="@id/ivAnimeThumbnail">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvAnimeTitle"
+                    style="@style/AnimeTV_Text_Base"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/_8dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="One Piece" />
+
+                <TextView
+                    android:id="@+id/tvDescription"
+                    style="@style/AnimeTV_Text_Caption"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="@id/tvAnimeTitle"
+                    app:layout_constraintStart_toStartOf="@id/tvAnimeTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvAnimeTitle"
+                    tools:text="One Piece" />
+
+                <ProgressBar
+                    android:id="@+id/detailsLoading"
+                    android:layout_width="@dimen/_48dp"
+                    android:layout_height="@dimen/_48dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:indeterminateTint="@color/anime_tv_primary"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/tvGenre"
+            style="@style/AnimeTV_Text_Caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_4dp"
+            android:justificationMode="inter_word"
+            android:text="@string/genre"
+            app:layout_constraintEnd_toEndOf="@id/centerVerticalGuideline"
+            app:layout_constraintStart_toStartOf="@id/ivAnimeThumbnail"
+            app:layout_constraintTop_toBottomOf="@id/ivAnimeThumbnail"
+            tools:text="Genre: Action, Adventure, Comedy, Super Power, Drama, Fantasy, Shounen, Samurai, Isekai" />
+        <!--        endregion-->
+
+        <View
+            android:layout_width="@dimen/_2dp"
+            android:layout_height="0dp"
+            android:background="@color/grey"
+            app:layout_constraintTop_toTopOf="@id/topGuideline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/centerVerticalGuideline" />
+
+        <!--        region rightPane-->
+        <TextView
+            android:id="@+id/tvEpisode"
+            style="@style/AnimeTV_Text_Base"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_8dp"
+            android:text="@string/episodes"
+            app:layout_constraintEnd_toEndOf="@id/endGuideline"
+            app:layout_constraintStart_toEndOf="@id/centerVerticalGuideline"
+            app:layout_constraintTop_toTopOf="@id/topGuideline" />
         <!--        endregion-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>

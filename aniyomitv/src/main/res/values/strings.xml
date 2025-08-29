@@ -13,4 +13,6 @@
     <string name="change_source"><u>Change Source</u></string>
     <string name="select_extensions">Select extensions</string>
     <string name="done">Done</string>
+    <string name="genre">Genre: %1$s</string>
+    <string name="episodes">Episodes</string>
 </resources>

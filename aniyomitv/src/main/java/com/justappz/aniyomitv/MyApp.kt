@@ -16,6 +16,7 @@ import com.justappz.aniyomitv.anime_search.di.SearchModule
 import com.justappz.aniyomitv.constants.LogKeys
 import com.justappz.aniyomitv.core.di.AppModule
 import com.justappz.aniyomitv.core.di.PreferenceModule
+import com.justappz.aniyomitv.episodes.di.EpisodesModule
 import com.justappz.aniyomitv.extensions_management.di.ExtensionModule
 import com.justappz.aniyomitv.main.di.MainModule
 import dev.mihon.injekt.patchInjekt
@@ -33,6 +34,7 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks, SingletonIm
         Injekt.importModule(MainModule())
         Injekt.importModule(ExtensionModule())
         Injekt.importModule(SearchModule())
+        Injekt.importModule(EpisodesModule())
 
         Log.d("MyApp", "Injekt modules initialized in ${System.currentTimeMillis() - start} ms")
 

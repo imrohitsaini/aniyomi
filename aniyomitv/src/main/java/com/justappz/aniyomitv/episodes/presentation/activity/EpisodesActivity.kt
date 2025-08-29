@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import coil3.load
 import coil3.request.crossfade
 import com.justappz.aniyomitv.R
@@ -18,6 +19,7 @@ import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
+import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
 import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils.loadAnimeSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
@@ -34,6 +36,7 @@ class EpisodesActivity : BaseActivity() {
     private val tag = "EpisodesActivity"
     private var anime: SAnime? = null
     private var animeHttpSource: AnimeHttpSource? = null
+    private lateinit var episodeAdapter: EpisodesAdapter
     private val viewModel: EpisodesViewModel by viewModels {
         ViewModelFactory { EpisodesViewModel(Injekt.get(), Injekt.get()) }
     }
@@ -71,6 +74,7 @@ class EpisodesActivity : BaseActivity() {
 
         observeAnimeDetails()
         observeEpisodes()
+        setEpisodeProperties()
         animeHttpSource?.let { source ->
             anime?.let {
                 viewModel.getAnimeDetails(source, it)
@@ -155,13 +159,21 @@ class EpisodesActivity : BaseActivity() {
 
                         is BaseUiState.Success -> {
                             Log.d(tag, "episodesList success")
-                            val list = state.data
+                            episodeAdapter.updateList(state.data)
                             showLoading(false, binding.episodesLoading)
                         }
                     }
                 }
             }
         }
+    }
+    //endregion
+
+    //region setEpisodeProperties
+    private fun setEpisodeProperties() {
+        episodeAdapter = EpisodesAdapter(emptyList())
+        binding.rvEpisodes.layoutManager = GridLayoutManager(ctx, 4)
+        binding.rvEpisodes.adapter = episodeAdapter
     }
     //endregion
 

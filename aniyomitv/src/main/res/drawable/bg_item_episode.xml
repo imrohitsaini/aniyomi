@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--    Focused State-->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+
+            <!-- Fill color -->
+            <solid android:color="@color/anime_tv_surface" />
+
+            <!-- Rounded corners (tweak as you like) -->
+            <corners android:radius="@dimen/item_extension_radius" />
+            <stroke android:width="@dimen/_2dp" android:color="@color/anime_tv_primary" />
+        </shape>
+    </item>
+
+    <!--    Default State-->
+    <item>
+        <shape android:shape="rectangle">
+
+            <!-- Fill color -->
+            <solid android:color="@color/anime_tv_surface" />
+
+            <!-- Rounded corners (tweak as you like) -->
+            <corners android:radius="@dimen/item_extension_radius" />
+        </shape>
+    </item>
+
+</selector>

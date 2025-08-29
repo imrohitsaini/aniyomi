@@ -8,6 +8,8 @@
     <dimen name="button_corner_radius">@dimen/_8dp</dimen>
     <dimen name="item_extension_radius">@dimen/_8dp</dimen>
     <dimen name="item_anime_radius">@dimen/_8dp</dimen>
+    <dimen name="scrollbar_radius">@dimen/_8dp</dimen>
+    <dimen name="scrollbar_width">@dimen/_8dp</dimen>
 
 <!--    region Other Dimensions-->
     <dimen name="_2sp">2.00sp</dimen>

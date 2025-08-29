@@ -175,12 +175,16 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             val extensions = extensionsState.data
                             // set the ui
                             binding.errorRoot.root.isVisible = false
+                            binding.chipPopular.isVisible = true
+                            binding.chipLatest.isVisible = true
 
                             // take first available extension that has instance
                             selectedAnimeSource = extensions.firstOrNull()?.instance
 
                             installedExtensions.addAll(extensions)
                             installedExtensions[0].isSelected = true
+
+                            binding.tvChangeSource.isVisible = installedExtensions.size >= 2
 
                             // After changing the extension, always load popular anime
                             selectChip(0)
@@ -190,6 +194,9 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             showLoading(false)
                             binding.errorRoot.tvError.text = "No extensions detected"
                             binding.errorRoot.root.isVisible = true
+                            binding.chipPopular.isVisible = false
+                            binding.chipLatest.isVisible = false
+                            binding.tvChangeSource.isVisible = false
                         }
                     }
 

@@ -22,7 +22,7 @@
 
     <TextView
         android:id="@+id/tvAnimeTitle"
-        style="@style/AnimeTV_Text_Base"
+        style="@style/AnimeTV_Text_Caption"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_gradient_text"

@@ -8,4 +8,5 @@
         android:endColor="#B3000000"
         android:startColor="#00000000"
         android:type="linear" />
+    <corners android:radius="@dimen/item_anime_radius" />
 </shape>

@@ -18,6 +18,8 @@ import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
+import com.justappz.aniyomitv.core.components.dialog.LoaderDialog
+import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
@@ -37,8 +39,9 @@ class EpisodesActivity : BaseActivity() {
     private var anime: SAnime? = null
     private var animeHttpSource: AnimeHttpSource? = null
     private lateinit var episodeAdapter: EpisodesAdapter
+    private lateinit var loaderDialog: LoaderDialog
     private val viewModel: EpisodesViewModel by viewModels {
-        ViewModelFactory { EpisodesViewModel(Injekt.get(), Injekt.get()) }
+        ViewModelFactory { EpisodesViewModel(Injekt.get(), Injekt.get(), Injekt.get()) }
     }
     //endregion
 
@@ -60,8 +63,7 @@ class EpisodesActivity : BaseActivity() {
         anime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(IntentKeys.ANIME, SAnime::class.java)
         } else {
-            @Suppress("DEPRECATION")
-            intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
+            @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
         }
 
         val packageName = intent.getStringExtra(IntentKeys.ANIME_PKG)
@@ -74,6 +76,7 @@ class EpisodesActivity : BaseActivity() {
 
         observeAnimeDetails()
         observeEpisodes()
+        observeVideos()
         setEpisodeProperties()
         animeHttpSource?.let { source ->
             anime?.let {
@@ -81,6 +84,7 @@ class EpisodesActivity : BaseActivity() {
                 viewModel.getEpisodesList(source, it)
             }
         }
+        initLoader()
     }
     //endregion
 
@@ -169,9 +173,66 @@ class EpisodesActivity : BaseActivity() {
     }
     //endregion
 
+    //region observeVideos
+    private fun observeVideos() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.videosList.collect { state ->
+                    when (state) {
+                        BaseUiState.Empty -> {
+                            showDialogLoader(false)
+                            Log.d(tag, "videosList empty")
+                        }
+
+                        is BaseUiState.Error -> {
+                            showDialogLoader(false)
+                            Log.d(tag, "videosList error")
+                            ErrorHandler.show(ctx, state.error)
+                        }
+
+                        BaseUiState.Idle -> {
+                            showDialogLoader(false)
+                            Log.d(tag, "videosList idle")
+                        }
+
+                        BaseUiState.Loading -> {
+                            showDialogLoader(true)
+                            Log.d(tag, "videosList loading")
+                        }
+
+                        is BaseUiState.Success -> {
+                            Log.d(tag, "videosList success ${state.data.size}")
+                            showDialogLoader(false)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //endregion
+
+    //region initLoader
+    private fun initLoader() {
+        loaderDialog = LoaderDialog(title = "Searching for videos...!")
+    }
+
+    private fun showDialogLoader(toShow: Boolean) {
+        if (toShow && !loaderDialog.isRunning) {
+            loaderDialog.show(supportFragmentManager, "loader")
+        } else if (loaderDialog.isRunning) {
+            loaderDialog.dismiss()
+        }
+    }
+    //endregion
+
     //region setEpisodeProperties
     private fun setEpisodeProperties() {
         episodeAdapter = EpisodesAdapter(emptyList())
+        episodeAdapter.onItemClick = { episode, position ->
+            animeHttpSource?.let {
+                viewModel.getVideosList(it, episode)
+            }
+        }
         binding.rvEpisodes.layoutManager = GridLayoutManager(ctx, 4)
         binding.rvEpisodes.adapter = episodeAdapter
     }

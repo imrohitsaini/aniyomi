@@ -19,7 +19,7 @@ sealed class AppError(
         val code: Int,
         message: String,
         displayType: ErrorDisplayType? = null,
-    ) : AppError(message, displayType ?: ErrorDisplayType.DIALOG)
+    ) : AppError(message, displayType ?: ErrorDisplayType.INLINE)
 
     class UnauthorizedError(
         message: String = "Unauthorized",
@@ -35,4 +35,9 @@ sealed class AppError(
         message: String = "Something went wrong",
         displayType: ErrorDisplayType? = null,
     ) : AppError(message, displayType ?: ErrorDisplayType.TOAST)
+
+    class RoomDbError(
+        message: String = "Database error",
+        displayType: ErrorDisplayType? = null,
+    ) : AppError(message, displayType ?: ErrorDisplayType.INLINE)
 }

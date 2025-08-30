@@ -35,7 +35,7 @@ class ExtensionRepoImpl(
                     return BaseUiState.Error(
                         AppError.ServerError(
                             code = response.code,
-                            message = response.message.ifBlank { "HTTP error" },
+                            message = response.message.ifBlank { "HTTP error ${response.code}" },
                         ),
                     )
                 }

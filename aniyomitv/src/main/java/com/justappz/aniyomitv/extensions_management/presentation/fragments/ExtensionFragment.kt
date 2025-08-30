@@ -26,12 +26,12 @@ import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
 import com.justappz.aniyomitv.extensions_management.dialog.ExtensionDialogFragment
-import com.justappz.aniyomitv.extensions_management.domain.model.AnimeRepositoriesDetailsDomain
+import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionRepositoriesDetailsDomain
 import com.justappz.aniyomitv.extensions_management.domain.model.Chip
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
-import com.justappz.aniyomitv.extensions_management.domain.usecase.GetRepoUrlsUseCase
-import com.justappz.aniyomitv.extensions_management.domain.usecase.SaveRepoUrlUseCase
+import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionRepoDetailsUseCase
+import com.justappz.aniyomitv.extensions_management.domain.usecase.InsertExtensionRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.ExtensionPagingAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoChipsAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.viewmodel.ExtensionViewModel
@@ -50,14 +50,14 @@ class ExtensionFragment : BaseFragment() {
         ViewModelFactory {
             ExtensionViewModel(
                 Injekt.get<GetExtensionUseCase>(),
-                Injekt.get<GetRepoUrlsUseCase>(),
-                Injekt.get<SaveRepoUrlUseCase>(),
+                Injekt.get<GetExtensionRepoDetailsUseCase>(),
+                Injekt.get<InsertExtensionRepoUrlUseCase>(),
             )
         }
     }
 
     // Need this to not add duplicate repo url
-    private var animeRepos: List<AnimeRepositoriesDetailsDomain> = arrayListOf()
+    private var animeRepos: List<ExtensionRepositoriesDetailsDomain> = arrayListOf()
     private var chips: MutableList<Chip> = arrayListOf()
     private var selectedChip: Chip? = null
     private lateinit var repoUrlChipsAdapter: RepoChipsAdapter
@@ -196,7 +196,7 @@ class ExtensionFragment : BaseFragment() {
     //endregion
 
     //region updateRepoChips
-    private fun updateRepoChips(repositoriesDetailsDomains: List<AnimeRepositoriesDetailsDomain>) {
+    private fun updateRepoChips(repositoriesDetailsDomains: List<ExtensionRepositoriesDetailsDomain>) {
         Log.i(tag, "updateRepoChips()")
 
         chips.clear()

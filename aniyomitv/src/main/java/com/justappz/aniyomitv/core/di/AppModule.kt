@@ -1,6 +1,8 @@
 package com.justappz.aniyomitv.core.di
 
 import android.app.Application
+import com.justappz.aniyomitv.constants.RoomDBConstants
+import com.justappz.aniyomitv.core.data.local.database.AppDatabase
 import eu.kanade.tachiyomi.network.NetworkHelper
 import kotlinx.serialization.json.Json
 import uy.kohesive.injekt.api.InjektModule
@@ -18,6 +20,14 @@ class AppModule(val app: Application) : InjektModule {
                 ignoreUnknownKeys = true
                 explicitNulls = false
             }
+        }
+
+        addSingletonFactory {
+            androidx.room.Room.databaseBuilder(
+                app,
+                AppDatabase::class.java,
+                RoomDBConstants.DATABASE
+            ).build()
         }
     }
 }

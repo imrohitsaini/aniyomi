@@ -77,6 +77,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                         releasePlayer()
                         finish()
                     } else {
+                        setControlsVisible(true)
                         doubleBackToExitPressedOnce = true
                         Toast.makeText(this@ExoPlayerActivity, "Press back again to exit", Toast.LENGTH_SHORT).show()
 
@@ -149,6 +150,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             episodeList?.let {
                 setHeading(it[nowPlayingPosition])
             }
+            toggleControls()
         }
     }
     //endregion

@@ -49,9 +49,8 @@
     <View
         android:id="@+id/topGradient"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="@dimen/_200dp"
         android:background="@drawable/bg_top_gradient"
-        app:layout_constraintBottom_toBottomOf="@id/topBarBottomGuideline"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView

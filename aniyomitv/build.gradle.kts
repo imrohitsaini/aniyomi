@@ -3,6 +3,7 @@ plugins {
     id("mihon.android.application.compose")
     kotlin("plugin.serialization")
     alias(libs.plugins.aboutLibraries)
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
 
 
@@ -143,4 +144,10 @@ dependencies {
 
     // Paging3
     implementation(aniyomitvlibs.paging.runtime)
+
+    // Room dependencies
+    implementation(aniyomitvlibs.room.runtime)
+    implementation(aniyomitvlibs.room.ktx)
+    implementation(aniyomitvlibs.room.paging)
+    ksp(aniyomitvlibs.room.compiler)
 }

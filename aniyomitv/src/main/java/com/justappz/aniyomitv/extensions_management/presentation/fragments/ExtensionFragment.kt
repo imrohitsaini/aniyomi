@@ -26,11 +26,11 @@ import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
 import com.justappz.aniyomitv.extensions_management.dialog.ExtensionDialogFragment
-import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionRepositoriesDetailsDomain
 import com.justappz.aniyomitv.extensions_management.domain.model.Chip
 import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionDomain
-import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
+import com.justappz.aniyomitv.extensions_management.domain.model.ExtensionRepositoriesDetailsDomain
 import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionRepoDetailsUseCase
+import com.justappz.aniyomitv.extensions_management.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions_management.domain.usecase.InsertExtensionRepoUrlUseCase
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.ExtensionPagingAdapter
 import com.justappz.aniyomitv.extensions_management.presentation.adapters.RepoChipsAdapter
@@ -64,7 +64,7 @@ class ExtensionFragment : BaseFragment() {
     private var addRepoDialog: InputDialogFragment? = null
     private var extensionDialog: ExtensionDialogFragment? = null
     private val extensionAdapter = ExtensionPagingAdapter()
-
+    private var isNewRepo = false // set this to true when new repo is added
     //endregion
 
     //region onCreateView
@@ -114,8 +114,7 @@ class ExtensionFragment : BaseFragment() {
         repoUrlChipsAdapter = RepoChipsAdapter(emptyList()).apply {
             onItemClick = { chip, position -> onChipClicked(chip, position) }
         }
-        binding.rvRepos.layoutManager =
-            LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvRepos.layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
         binding.rvRepos.adapter = repoUrlChipsAdapter
     }
     //endregion
@@ -132,6 +131,12 @@ class ExtensionFragment : BaseFragment() {
     //endregion
 
     //region observeRepo
+    /**
+     * Success will be collected twice on happy flow
+     * 1. When user has stored the urls in the db before this instance
+     * 2. When the user has added the new url. For new url case we do not need to load extensions again as extensions will
+     * be loaded first then added to the db for accurate data
+     * */
     private fun observeRepo() {
         Log.d(tag, "observeRepo")
         lifecycleScope.launch {
@@ -152,7 +157,6 @@ class ExtensionFragment : BaseFragment() {
 
                         BaseUiState.Idle -> {
                             Log.d(tag, "RepoUiState.Idle")
-                            showLoading(false)
                         }
 
                         BaseUiState.Loading -> {
@@ -231,7 +235,12 @@ class ExtensionFragment : BaseFragment() {
 
 
         selectedChip?.let {
-            viewModel.loadExtensions(it.url)
+            // Do not load the extensions for the new repo
+            if (isNewRepo) {
+                isNewRepo = false
+            } else {
+                viewModel.loadExtensions(it.url)
+            }
         }
     }
     //endregion
@@ -245,7 +254,6 @@ class ExtensionFragment : BaseFragment() {
                     when (state) {
                         BaseUiState.Idle -> {
                             Log.d(tag, "ExtensionsUiState.Idle")
-                            showLoading(false)
                         }
 
                         is BaseUiState.Loading -> {
@@ -265,7 +273,7 @@ class ExtensionFragment : BaseFragment() {
                             lifecycleScope.launch {
                                 val updatedList = repoDomain.extensions.map { extension ->
                                     val installedInfo = ExtensionUtils.getInstalledExtensionByPackageName(
-                                        context = requireContext(),
+                                        context = ctx,
                                         packageName = extension.pkg,
                                     )
 
@@ -289,32 +297,49 @@ class ExtensionFragment : BaseFragment() {
                             showLoading(false)
 
                             viewModel.resetExtensionState()
+
+                            if (isNewRepo) {
+                                viewModel.addRepo(repoDomain.repoUrl)
+                            }
                         }
 
                         is BaseUiState.Error -> {
                             Log.d(tag, "ExtensionsUiState.Error ")
                             showLoading(false)
-                            ErrorHandler.show(
-                                ctx,
-                                state.error,
-                                binding.errorRoot.tvError,
-                            )
-                            binding.errorRoot.root.isVisible = true
-                            binding.rvExtensions.isVisible = false
+
+                            // If is new repo error will be toast
+                            val error = if (isNewRepo) {
+                                AppError.UnknownError(
+                                    message = state.error.message,
+                                    displayType = ErrorDisplayType.TOAST,
+                                )
+                            } else {
+                                binding.errorRoot.root.isVisible = true
+                                binding.rvExtensions.isVisible = false
+                                state.error
+                            }
+
+                            ErrorHandler.show(ctx, error, binding.errorRoot.tvError)
                         }
 
                         BaseUiState.Empty -> {
-                            Log.d(tag, "Empty repo urls")
-                            ErrorHandler.show(
-                                ctx,
+                            Log.d(tag, "No valid extensions detected")
+                            // If is new repo error will be toast
+                            val message = "No valid extensions detected"
+                            val error = if (isNewRepo) {
                                 AppError.UnknownError(
-                                    message = "No valid extensions detected",
+                                    message = message,
+                                    displayType = ErrorDisplayType.TOAST,
+                                )
+                            } else {
+                                binding.errorRoot.root.isVisible = true
+                                binding.rvExtensions.isVisible = false
+                                AppError.UnknownError(
+                                    message = message,
                                     displayType = ErrorDisplayType.INLINE,
-                                ),
-                                binding.errorRoot.tvError,
-                            )
-                            binding.errorRoot.root.isVisible = true
-                            binding.rvExtensions.isVisible = false
+                                )
+                            }
+                            ErrorHandler.show(ctx, error, binding.errorRoot.tvError)
                         }
                     }
                 }
@@ -365,9 +390,10 @@ class ExtensionFragment : BaseFragment() {
                         ),
                     )
                 } else {
-                    // valid -> save the rep
-                    Log.i(tag, "add new repo")
-                    viewModel.addRepo(url)
+                    // valid -> load the extensions -> then save it to new repo after success
+                    Log.i(tag, "load the extensions for new the url")
+                    isNewRepo = true
+                    viewModel.loadExtensions(url)
                 }
             },
             onDismissListener = {

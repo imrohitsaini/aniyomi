@@ -46,6 +46,14 @@
 
     <!--        endregion-->
 
+    <View
+        android:id="@+id/topGradient"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_top_gradient"
+        app:layout_constraintBottom_toBottomOf="@id/topBarBottomGuideline"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/ivBack"
         android:layout_width="@dimen/_36dp"

@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
@@ -38,6 +39,8 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private var doubleBackToExitPressedOnce = false
     private var exoPlayer: ExoPlayer? = null
     private val backHandler = Handler(Looper.getMainLooper())
+    private val controlsHandler = Handler(Looper.getMainLooper())
+    private val hideRunnable = Runnable { setControlsVisible(false) }
     //endregion
 
     //region onCreate
@@ -95,6 +98,10 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
         val tintList = ContextCompat.getColorStateList(ctx, R.color.player_icon_selector)
         ImageViewCompat.setImageTintList(binding.topBar.ivBack, tintList)
+
+        binding.playerView.setOnClickListener {
+            toggleControls()
+        }
     }
     //endregion
 
@@ -155,6 +162,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     override fun onStop() {
         super.onStop()
+        controlsHandler.removeCallbacks(hideRunnable)
         releasePlayer()
     }
     //endregion
@@ -175,7 +183,42 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     }
     //endregion
 
-    private fun setControlsVisible(visible: Boolean) {
-        binding.topBar.root.visibility = if (visible) View.VISIBLE else View.GONE
+    //region autohide controls
+    private fun toggleControls() {
+        if (binding.topBar.root.isVisible) {
+            setControlsVisible(false)
+        } else {
+            setControlsVisible(true)
+            startControlsAutoHideTimer()
+        }
     }
+
+    private fun startControlsAutoHideTimer() {
+        controlsHandler.removeCallbacks(hideRunnable)
+        controlsHandler.postDelayed(hideRunnable, 3000) // 3 sec
+    }
+
+
+    private fun setControlsVisible(visible: Boolean) {
+        val topBar = binding.topBar.root
+
+        if (visible) {
+            // Ensure it's visible before animating
+            topBar.isVisible = true
+            topBar.animate()
+                .translationY(0f) // slide down into view
+                .setDuration(250) // short & snappy
+                .setInterpolator(DecelerateInterpolator())
+                .withEndAction { startControlsAutoHideTimer() }
+                .start()
+        } else {
+            topBar.animate()
+                .translationY(-topBar.height.toFloat()) // slide up
+                .setDuration(250)
+                .setInterpolator(DecelerateInterpolator())
+                .withEndAction { topBar.isVisible = false }
+                .start()
+        }
+    }
+    //endregion
 }

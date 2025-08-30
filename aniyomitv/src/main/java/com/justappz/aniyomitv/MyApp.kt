@@ -12,12 +12,12 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.request.allowRgb565
 import coil3.request.crossfade
-import com.justappz.aniyomitv.anime_search.di.SearchModule
+import com.justappz.aniyomitv.search.di.SearchModule
 import com.justappz.aniyomitv.constants.LogKeys
 import com.justappz.aniyomitv.core.di.AppModule
 import com.justappz.aniyomitv.core.di.PreferenceModule
 import com.justappz.aniyomitv.episodes.di.EpisodesModule
-import com.justappz.aniyomitv.extensions_management.di.ExtensionModule
+import com.justappz.aniyomitv.extensions.di.ExtensionModule
 import com.justappz.aniyomitv.main.di.MainModule
 import dev.mihon.injekt.patchInjekt
 import uy.kohesive.injekt.Injekt

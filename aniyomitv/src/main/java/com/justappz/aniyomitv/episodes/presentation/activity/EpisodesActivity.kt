@@ -27,7 +27,7 @@ import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
-import com.justappz.aniyomitv.extensions_management.utils.ExtensionUtils.loadAnimeSource
+import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource

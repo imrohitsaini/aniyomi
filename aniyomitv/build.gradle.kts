@@ -2,8 +2,8 @@ plugins {
     id("mihon.android.application")
     id("mihon.android.application.compose")
     kotlin("plugin.serialization")
+    id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.aboutLibraries)
-    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
 
 
@@ -149,5 +149,5 @@ dependencies {
     implementation(aniyomitvlibs.room.runtime)
     implementation(aniyomitvlibs.room.ktx)
     implementation(aniyomitvlibs.room.paging)
-    ksp(aniyomitvlibs.room.compiler)
+    kapt(aniyomitvlibs.room.compiler)
 }

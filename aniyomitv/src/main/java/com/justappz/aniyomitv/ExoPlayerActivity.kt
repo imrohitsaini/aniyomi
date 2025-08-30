@@ -1,12 +1,17 @@
 package com.justappz.aniyomitv
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.media3.common.MediaItem
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -15,31 +20,51 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
+import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
 import eu.kanade.tachiyomi.animesource.model.Video
 import okhttp3.Headers
 
-class ExoPlayerActivity : BaseActivity() {
+class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     //region variables
     private lateinit var binding: ActivityExoPlayerBinding
     private val tag = "ExoPlayerActivity"
-    private lateinit var videoList: List<Video>
+    private lateinit var sourceList: List<Video>
+    private var selectedSourcePosition = 0
+    private var animeName: String = ""
+    private var episodeList: ArrayList<SEpisode>? = arrayListOf()
+    private var nowPlayingPosition = -1
     private var doubleBackToExitPressedOnce = false
     private var exoPlayer: ExoPlayer? = null
     private val backHandler = Handler(Looper.getMainLooper())
     //endregion
 
     //region onCreate
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(tag, "onCreate")
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_exo_player)
 
-        videoList = intent.getStringExtra(IntentKeys.VIDEO_LIST)?.toVideoList() ?: emptyList()
-        Log.d(tag, "videos ${videoList.size}")
+        // handle intent data
+        sourceList = intent.getStringExtra(IntentKeys.SOURCE_LIST)?.toVideoList() ?: emptyList()
+        Log.d(tag, "videos ${sourceList.size}")
 
+        //episode list
+        @Suppress("UNCHECKED_CAST")
+        episodeList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getSerializableExtra(IntentKeys.EPISODE_LIST, ArrayList::class.java) as? ArrayList<SEpisode>
+        } else {
+            intent.getSerializableExtra(IntentKeys.EPISODE_LIST) as? ArrayList<SEpisode>
+        }
+
+        // playing position
+        nowPlayingPosition = intent.getIntExtra(IntentKeys.NOW_PLAYING, -1)
+
+        // anime name
+        animeName = intent.getStringExtra(IntentKeys.ANIME_NAME).toString()
 
         onBackPressedDispatcher.addCallback(
             this,
@@ -58,8 +83,25 @@ class ExoPlayerActivity : BaseActivity() {
             },
         )
 
-        startPlayer(videoList[0])
+        init()
+        startPlayer(nowPlayingPosition, selectedSourcePosition)
 
+    }
+    //endregion
+
+    //region init
+    private fun init() {
+        binding.topBar.ivBack.setOnClickListener(this)
+
+        val tintList = ContextCompat.getColorStateList(ctx, R.color.player_icon_selector)
+        ImageViewCompat.setImageTintList(binding.topBar.ivBack, tintList)
+    }
+    //endregion
+
+    //region setHeading
+    private fun setHeading(episode: SEpisode) {
+        binding.topBar.tvAnimeTitle.text = animeName
+        binding.topBar.tvEpisodeDetail.text = episode.name
     }
     //endregion
 
@@ -73,7 +115,8 @@ class ExoPlayerActivity : BaseActivity() {
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    private fun startPlayer(video: Video) {
+    private fun startPlayer(nowPlayingPosition: Int, selectedSourcePosition: Int) {
+        val video = sourceList[selectedSourcePosition]
         // Create a DataSource.Factory with custom headers
         val dataSourceFactory = DefaultHttpDataSource.Factory()
             .setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
@@ -95,7 +138,10 @@ class ExoPlayerActivity : BaseActivity() {
             exoPlayer?.setMediaItem(mediaItem)
             exoPlayer?.prepare()
             exoPlayer?.play()
-
+            binding.playerView.isVisible = true
+            episodeList?.let {
+                setHeading(it[nowPlayingPosition])
+            }
         }
     }
     //endregion
@@ -112,4 +158,24 @@ class ExoPlayerActivity : BaseActivity() {
         releasePlayer()
     }
     //endregion
+
+    //region onClick
+    override fun onClick(view: View?) {
+        view?.let {
+            when (it) {
+                binding.topBar.ivBack -> onBackButtonClicked()
+            }
+        }
+    }
+    //endregion
+
+    //region onBackButtonClicked
+    private fun onBackButtonClicked() {
+        finish()
+    }
+    //endregion
+
+    private fun setControlsVisible(visible: Boolean) {
+        binding.topBar.root.visibility = if (visible) View.VISIBLE else View.GONE
+    }
 }

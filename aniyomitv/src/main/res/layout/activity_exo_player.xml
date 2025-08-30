@@ -8,14 +8,82 @@
         android:layout_height="match_parent"
         android:background="@color/anime_tv_background">
 
+        <!--        region Guidelines-->
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/topGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/topBarBottomGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.20" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/bottomBarTopGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.80" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/startGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/endGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
+
+        <!--        endregion-->
+
+
         <androidx.media3.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:use_controller="false"
-            app:show_buffering="when_playing"
+            android:visibility="gone"
             app:resize_mode="fit"
-            android:visibility="visible" />
+            app:show_buffering="when_playing"
+            app:use_controller="false" />
+
+        <View
+            android:id="@+id/topGradient"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_top_gradient"
+            app:layout_constraintBottom_toBottomOf="@id/topBarBottomGuideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/topBar"
+            layout="@layout/player_topbar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/topBarBottomGuideline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/topGuideline" />
+
+        <!-- ✅ Bottom gradient overlay -->
+        <View
+            android:id="@+id/bottomGradient"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_bottom_gradient"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bottomBarTopGuideline" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

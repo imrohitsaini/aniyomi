@@ -48,6 +48,7 @@ class EpisodesActivity : BaseActivity() {
     private val viewModel: EpisodesViewModel by viewModels {
         ViewModelFactory { EpisodesViewModel(Injekt.get(), Injekt.get(), Injekt.get()) }
     }
+    private var nowPlayingPosition = -1
     //endregion
 
     //region onCreate
@@ -246,6 +247,7 @@ class EpisodesActivity : BaseActivity() {
         episodeAdapter = EpisodesAdapter(emptyList())
         episodeAdapter.onItemClick = { episode, position ->
             animeHttpSource?.let {
+                nowPlayingPosition = position
                 viewModel.getVideosList(it, episode)
             }
         }
@@ -273,8 +275,12 @@ class EpisodesActivity : BaseActivity() {
 
     //region openPlayer
     private fun openPlayer(serialized: String) {
+        val episodes = ArrayList(episodeAdapter.getCurrentList())
         startActivity(Intent(ctx, ExoPlayerActivity::class.java).apply {
-            putExtra(IntentKeys.VIDEO_LIST, serialized)
+            putExtra(IntentKeys.SOURCE_LIST, serialized)
+            putExtra(IntentKeys.EPISODE_LIST, episodes)
+            putExtra(IntentKeys.NOW_PLAYING, nowPlayingPosition)
+            putExtra(IntentKeys.ANIME_NAME, anime?.title)
         })
     }
     //endregion

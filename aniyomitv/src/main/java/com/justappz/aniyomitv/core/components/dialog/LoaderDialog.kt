@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.databinding.DialogLoaderBinding
@@ -30,8 +32,8 @@ class LoaderDialog(
         setStyle(STYLE_NORMAL, R.style.AppDialog_Fullscreen)
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(false)      // 🚫 User cannot cancel
-        dialog.setCanceledOnTouchOutside(false) // 🚫 No cancel on outside touch
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
         return dialog
     }
     //endregion
@@ -64,6 +66,18 @@ class LoaderDialog(
             attributes = params
         }
         isRunning = true
+
+        // Consume BACK press explicitly
+        requireDialog().setOnKeyListener { _, keyCode, event ->
+            if (keyCode == android.view.KeyEvent.KEYCODE_BACK &&
+                event.action == android.view.KeyEvent.ACTION_UP
+            ) {
+                // Block back press
+                true
+            } else {
+                false
+            }
+        }
     }
     //endregion
 

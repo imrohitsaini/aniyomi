@@ -19,7 +19,7 @@ class ExtensionPagingAdapter : BasePagingAdapter<ExtensionDomain, ItemExtensionB
         ItemExtensionBinding.inflate(inflater, parent, attach)
     },
     bind = { item, _ ->
-        tvAppName.text = item.name.replace("Aniyomi: ", "")
+        tvAppName.text = item.name
         tvVersion.text = "${item.version}-${item.code}"
 
         try {

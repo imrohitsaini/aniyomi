@@ -2,12 +2,11 @@ package com.justappz.aniyomitv.extensions.di
 
 import com.justappz.aniyomitv.core.data.local.database.AppDatabase
 import com.justappz.aniyomitv.extensions.data.repo.ExtensionRepoDetailsImpl
-import com.justappz.aniyomitv.extensions.data.repo.ExtensionRepoImpl
-import com.justappz.aniyomitv.extensions.domain.repo.ExtensionRepo
 import com.justappz.aniyomitv.extensions.domain.repo.ExtensionRepoDetailsRepository
+import com.justappz.aniyomitv.extensions.domain.usecase.ObserveExtensionsUseCase
 import com.justappz.aniyomitv.extensions.domain.usecase.GetExtensionRepoDetailsUseCase
-import com.justappz.aniyomitv.extensions.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions.domain.usecase.InsertExtensionRepoUrlUseCase
+import com.justappz.aniyomitv.extensions.domain.usecase.RefreshExtensionsUseCase
 import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
 import uy.kohesive.injekt.api.addSingletonFactory
@@ -21,16 +20,13 @@ class ExtensionModule : InjektModule {
         addSingletonFactory { get<AppDatabase>().animeRepositoryDao() }
 
         // fetching repo url from db
-        addSingletonFactory<ExtensionRepoDetailsRepository> { ExtensionRepoDetailsImpl(get()) }
-
-        // Fetching extensions from api
-        addSingletonFactory<ExtensionRepo> { ExtensionRepoImpl(get()) }
+        addSingletonFactory<ExtensionRepoDetailsRepository> { ExtensionRepoDetailsImpl(get(), get()) }
 
         // Use case binding
-        addSingletonFactory { GetExtensionUseCase(get()) }
-
         addSingletonFactory { GetExtensionRepoDetailsUseCase(get()) }
         addSingletonFactory { InsertExtensionRepoUrlUseCase(get()) }
+        addSingletonFactory { ObserveExtensionsUseCase(get()) }
+        addSingletonFactory { RefreshExtensionsUseCase(get()) }
 
     }
 }

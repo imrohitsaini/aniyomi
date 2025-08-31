@@ -12,21 +12,12 @@ data class ExtensionDomain(
     val name: String,
     val nsfw: Int,
     val pkg: String,
-    val sources: List<Source>,
     val version: String,
     val repoBase: String? = null,
-    val installedExtensionInfo: InstalledExtensionInfo? = null
+    val fileUrl: String? = null,
+    val iconUrl: String? = null,
+    val installedExtensionInfo: InstalledExtensionInfo? = null,
 ) {
-    private fun normalizeBase(): String? {
-        return repoBase?.trimEnd('/') // remove trailing slash if present
-    }
-
-    val iconUrl: String?
-        get() = normalizeBase()?.let { "$it/icon/$pkg.png" }
-
-    val fileUrl: String?
-        get() = normalizeBase()?.let { "$it/apk/$apk" }
-
     companion object {
         val DIFF_CALLBACK = object : androidx.recyclerview.widget.DiffUtil.ItemCallback<ExtensionDomain>() {
             override fun areItemsTheSame(oldItem: ExtensionDomain, newItem: ExtensionDomain) =
@@ -53,11 +44,4 @@ data class InstalledExtensionInfo(
     var installed: Boolean? = false,
     var installedVersionCode: Int? = 0,
     var installedVersionName: String? = "",
-)
-
-data class Source(
-    val baseUrl: String,
-    val id: String,
-    val lang: String,
-    val name: String,
 )

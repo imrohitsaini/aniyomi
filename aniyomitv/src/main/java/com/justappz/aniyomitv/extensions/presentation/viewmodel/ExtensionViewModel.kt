@@ -3,11 +3,14 @@ package com.justappz.aniyomitv.extensions.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.core.error.AppError
+import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.extensions.domain.model.ExtensionRepositoriesDetailsDomain
 import com.justappz.aniyomitv.extensions.domain.model.RepoDomain
 import com.justappz.aniyomitv.extensions.domain.usecase.GetExtensionRepoDetailsUseCase
-import com.justappz.aniyomitv.extensions.domain.usecase.GetExtensionUseCase
 import com.justappz.aniyomitv.extensions.domain.usecase.InsertExtensionRepoUrlUseCase
+import com.justappz.aniyomitv.extensions.domain.usecase.ObserveExtensionsUseCase
+import com.justappz.aniyomitv.extensions.domain.usecase.RefreshExtensionsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,9 +19,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ExtensionViewModel(
-    private val getExtensionsUseCase: GetExtensionUseCase,
     private val getRepoUrlsUseCase: GetExtensionRepoDetailsUseCase,
     private val saveRepoUrlUseCase: InsertExtensionRepoUrlUseCase,
+    private val observeExtensionsUseCase: ObserveExtensionsUseCase,
+    private val refreshExtensionsUseCase: RefreshExtensionsUseCase,
 ) : ViewModel() {
 
     //region repo
@@ -44,7 +48,14 @@ class ExtensionViewModel(
                     loadRepoUrls()
                 }
 
-                else -> {}
+                else -> {
+                    _repoUrls.value = BaseUiState.Error(
+                        AppError.RoomDbError(
+                            message = "Unable to save repo",
+                            displayType = ErrorDisplayType.TOAST,
+                        ),
+                    )
+                }
             }
         }
     }
@@ -59,12 +70,42 @@ class ExtensionViewModel(
     val extensionState: StateFlow<BaseUiState<RepoDomain>> = _extensionState.asStateFlow()
 
     fun loadExtensions(repoUrl: String) {
+        // Observe DB
         viewModelScope.launch {
-            _extensionState.value = BaseUiState.Loading
-            val uiState = withContext(Dispatchers.IO) {
-                getExtensionsUseCase(repoUrl)
+            observeExtensionsUseCase(repoUrl).collect { state ->
+                _extensionState.value = state
             }
-            _extensionState.value = uiState
+        }
+
+        // Trigger network refresh
+        viewModelScope.launch(Dispatchers.IO) {
+            refreshExtensionsUseCase(repoUrl)
+        }
+    }
+
+    fun loadExtensionsFromNewUrl(repoUrl: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Step 1: Fetch from network first
+            _extensionState.value = BaseUiState.Idle
+            val apiResult = refreshExtensionsUseCase(repoUrl)
+
+            when (apiResult) {
+                is BaseUiState.Success -> {
+                    // Step 2: Start observing DB for updated extensions
+                    observeExtensionsUseCase(repoUrl).collect { state ->
+                        _extensionState.value = state
+                    }
+                }
+
+                else -> {
+                    _extensionState.value = BaseUiState.Error(
+                        AppError.RoomDbError(
+                            message = "Unable to get extensions",
+                            displayType = ErrorDisplayType.TOAST,
+                        ),
+                    )
+                }
+            }
         }
     }
 

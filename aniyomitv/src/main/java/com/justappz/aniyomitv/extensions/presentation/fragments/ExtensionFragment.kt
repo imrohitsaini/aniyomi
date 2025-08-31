@@ -29,9 +29,11 @@ import com.justappz.aniyomitv.extensions.dialog.ExtensionDialogFragment
 import com.justappz.aniyomitv.extensions.domain.model.Chip
 import com.justappz.aniyomitv.extensions.domain.model.ExtensionDomain
 import com.justappz.aniyomitv.extensions.domain.model.ExtensionRepositoriesDetailsDomain
+import com.justappz.aniyomitv.extensions.domain.usecase.ObserveExtensionsUseCase
 import com.justappz.aniyomitv.extensions.domain.usecase.GetExtensionRepoDetailsUseCase
-import com.justappz.aniyomitv.extensions.domain.usecase.GetExtensionUseCase
+
 import com.justappz.aniyomitv.extensions.domain.usecase.InsertExtensionRepoUrlUseCase
+import com.justappz.aniyomitv.extensions.domain.usecase.RefreshExtensionsUseCase
 import com.justappz.aniyomitv.extensions.presentation.adapters.ExtensionPagingAdapter
 import com.justappz.aniyomitv.extensions.presentation.adapters.RepoChipsAdapter
 import com.justappz.aniyomitv.extensions.presentation.viewmodel.ExtensionViewModel
@@ -49,9 +51,10 @@ class ExtensionFragment : BaseFragment() {
     private val viewModel: ExtensionViewModel by viewModels {
         ViewModelFactory {
             ExtensionViewModel(
-                Injekt.get<GetExtensionUseCase>(),
                 Injekt.get<GetExtensionRepoDetailsUseCase>(),
                 Injekt.get<InsertExtensionRepoUrlUseCase>(),
+                Injekt.get<ObserveExtensionsUseCase>(),
+                Injekt.get<RefreshExtensionsUseCase>(),
             )
         }
     }
@@ -173,11 +176,20 @@ class ExtensionFragment : BaseFragment() {
                             binding.errorRoot.root.isVisible = false
                             binding.rvExtensions.isVisible = true
 
+                            if (isNewRepo) {
+                                addRepoDialog?.let {
+                                    Log.i(tag, "disable loader on button for new repo")
+                                    it.showLoaderOnButton(false)
+                                    it.dismiss()
+                                }
+                            }
+
                             updateRepoChips(animeRepos)
                             viewModel.resetRepoState()
                         }
 
                         BaseUiState.Empty -> {
+                            showLoading(false)
                             Log.d(tag, "Empty repo urls")
                             ErrorHandler.show(
                                 ctx,
@@ -294,12 +306,13 @@ class ExtensionFragment : BaseFragment() {
 
                             binding.errorRoot.root.isVisible = false
                             binding.rvExtensions.isVisible = true
-                            showLoading(false)
 
                             viewModel.resetExtensionState()
 
                             if (isNewRepo) {
                                 viewModel.addRepo(repoDomain.repoUrl)
+                            } else {
+                                showLoading(false)
                             }
                         }
 
@@ -323,6 +336,7 @@ class ExtensionFragment : BaseFragment() {
                         }
 
                         BaseUiState.Empty -> {
+                            showLoading(false)
                             Log.d(tag, "No valid extensions detected")
                             // If is new repo error will be toast
                             val message = "No valid extensions detected"
@@ -351,18 +365,11 @@ class ExtensionFragment : BaseFragment() {
     //region showLoading
     private fun showLoading(toShow: Boolean) {
         binding.loading.isVisible = toShow
-        addRepoDialog?.let {
-            Log.i(tag, "isDialogShowing ${true} -> loader $toShow")
-            it.showLoaderOnButton(toShow)
-            if (!toShow) {
-                it.dismiss()
-            }
-        }
     }
     //endregion
 
-    //region addRepoDialog
-    private fun addRepoDialog() {
+    //region addNewRepoDialog
+    private fun addNewRepoDialog() {
         Log.i(tag, "addChipDialog")
 
         addRepoDialog = InputDialogFragment(
@@ -391,9 +398,10 @@ class ExtensionFragment : BaseFragment() {
                     )
                 } else {
                     // valid -> load the extensions -> then save it to new repo after success
-                    Log.i(tag, "load the extensions for new the url")
+                    Log.i(tag, "load the extensions for new url")
                     isNewRepo = true
-                    viewModel.loadExtensions(url)
+                    addRepoDialog?.showLoaderOnButton(true)
+                    viewModel.loadExtensionsFromNewUrl(url)
                 }
             },
             onDismissListener = {
@@ -411,7 +419,7 @@ class ExtensionFragment : BaseFragment() {
         if (chip.isSelected) return
 
         if (chip.isAddRepoChip) {
-            addRepoDialog()
+            addNewRepoDialog()
         } else {
             Log.i(tag, "load extensions on chip clicked")
             repoUrlChipsAdapter.selectChip(chip, position)

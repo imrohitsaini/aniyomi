@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dialogRoot"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@drawable/dialog_bg"
     android:orientation="vertical"
     android:padding="@dimen/_16dp">
@@ -32,11 +32,11 @@
         app:layout_constraintTop_toBottomOf="@id/tvOptionTitle"
         tools:text="You can select only 1 option" />
 
-    <RadioGroup
-        android:id="@+id/radioGroupOption"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvOptions"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_4dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/btnDone"
         app:layout_constraintTop_toBottomOf="@id/tvOptionDescription" />
 
     <com.justappz.aniyomitv.core.components.buttons.PrimaryButton
@@ -48,8 +48,8 @@
         android:padding="0dp"
         android:text="@string/done"
         app:buttonType="positive"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/radioGroupOption" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

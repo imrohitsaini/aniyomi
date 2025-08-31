@@ -11,17 +11,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.widget.RadioButton
-import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.justappz.aniyomitv.R
+import com.justappz.aniyomitv.base.BaseRecyclerViewAdapter
 import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
+import com.justappz.aniyomitv.databinding.ItemOptionsBinding
 import com.justappz.aniyomitv.databinding.RadioButtonDialogBinding
 
 class RadioButtonDialog(
     private val radioButtonDialogModel: RadioButtonDialogModel,
-    private val onDone: (option: Options) -> Unit,
+    private val onDone: (positon: Int) -> Unit,
     private val onDismissListener: (() -> Unit)? = null,
 ) : DialogFragment() {
 
@@ -55,7 +57,7 @@ class RadioButtonDialog(
         binding.tvOptionTitle.text = radioButtonDialogModel.title
         binding.tvOptionDescription.text = radioButtonDialogModel.description
 
-        setupRadioGroup(binding.radioGroupOption, radioButtonDialogModel, binding.root.context)
+        setupRadioGroup(radioButtonDialogModel, binding.root.context)
 
         return binding.root
     }
@@ -69,7 +71,7 @@ class RadioButtonDialog(
         dialog?.window?.apply {
             setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, // or MATCH_PARENT if fullscreen
+                ViewGroup.LayoutParams.MATCH_PARENT, // or MATCH_PARENT if fullscreen
             )
 
             // Then adjust params to give margins
@@ -99,33 +101,51 @@ class RadioButtonDialog(
     //endregion
 
     fun setupRadioGroup(
-        radioGroup: RadioGroup,
         model: RadioButtonDialogModel,
         context: Context,
     ) {
-        radioGroup.removeAllViews() // clear old items if any
 
-        model.options.forEachIndexed { index, option ->
-            val radioButton = RadioButton(context).apply {
-                id = View.generateViewId()
-                text = option.buttonTitle
-                isChecked = model.isDefaultSelected == true && option.isSelected == true// select first if default
+        binding.rvOptions.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+        // Track last selected position
+        var lastSelectedPosition = model.options.indexOfFirst { it.isSelected == true }
+
+
+        var optionsAdapter: BaseRecyclerViewAdapter<Options, ItemOptionsBinding>? = null
+        optionsAdapter = BaseRecyclerViewAdapter(
+            items = model.options,
+            bindingInflater = { inflater, parent, attach ->
+                ItemOptionsBinding.inflate(inflater, parent, attach)
+            },
+        ) { option, position ->
+            rbOption.text = option.buttonTitle
+
+            // Always bind the current state correctly
+            rbOption.isChecked = option.isSelected == true
+
+            rbOption.setOnCheckedChangeListener(null) // avoid unwanted triggers while recycling
+            rbOption.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    // Update model
+                    if (lastSelectedPosition != -1 && lastSelectedPosition != position) {
+                        model.options[lastSelectedPosition].isSelected = false
+                        optionsAdapter?.notifyItemChanged(lastSelectedPosition)
+                    }
+
+                    model.options[position].isSelected = true
+                    lastSelectedPosition = position
+                }
             }
-            radioGroup.addView(radioButton)
         }
+        binding.rvOptions.adapter = optionsAdapter
 
         binding.btnDone.setOnClickListener {
-            val selectedId = radioGroup.checkedRadioButtonId
-            if (selectedId != -1) {
-                val selectedRadioButton = radioGroup.findViewById<RadioButton>(selectedId)
-                val selectedText = selectedRadioButton.text.toString()
-
-                // Search in model.options by text
-                val selectedOption = model.options.firstOrNull { it.buttonTitle == selectedText }
-                selectedOption?.let {
-                    onDone(it)
-                    dismiss() // close dialog after done
-                }
+            val selectedOption = model.options.indexOfFirst { it.isSelected == true }
+            if (selectedOption != -1) {
+                onDone(selectedOption)
+                dismiss()
+            } else {
+                Toast.makeText(context, "No option selected", Toast.LENGTH_SHORT).show()
             }
         }
     }

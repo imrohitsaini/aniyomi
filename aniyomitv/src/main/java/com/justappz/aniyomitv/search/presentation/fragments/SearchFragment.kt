@@ -14,15 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.justappz.aniyomitv.R
-import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
-import com.justappz.aniyomitv.search.domain.usecase.GetInstalledExtensionsUseCase
-import com.justappz.aniyomitv.search.domain.usecase.GetLatestAnimePagingUseCase
-import com.justappz.aniyomitv.search.domain.usecase.GetPopularAnimePagingUseCase
-import com.justappz.aniyomitv.search.presentation.adapters.AnimePagingAdapter
-import com.justappz.aniyomitv.search.presentation.viewmodel.SearchViewModel
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.IntentKeys
+import com.justappz.aniyomitv.constants.PrefsKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecoration
@@ -30,8 +25,15 @@ import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
 import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
+import com.justappz.aniyomitv.core.util.PrefsManager
 import com.justappz.aniyomitv.databinding.FragmentSearchBinding
 import com.justappz.aniyomitv.episodes.presentation.activity.EpisodesActivity
+import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
+import com.justappz.aniyomitv.search.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.search.domain.usecase.GetLatestAnimePagingUseCase
+import com.justappz.aniyomitv.search.domain.usecase.GetPopularAnimePagingUseCase
+import com.justappz.aniyomitv.search.presentation.adapters.AnimePagingAdapter
+import com.justappz.aniyomitv.search.presentation.viewmodel.SearchViewModel
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +60,9 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     private var availableChips: MutableList<ChipView> = arrayListOf()
     private var selectedAnimeSource: AnimeHttpSource? = null
     private var installedExtensions: MutableList<InstalledExtensions> = arrayListOf()
+
+    private val popularChip = 0
+    private val latestChip = 1
     //endregion
 
     //region onCreateView
@@ -203,18 +208,25 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             binding.chipPopular.isVisible = true
                             binding.chipLatest.isVisible = true
 
-                            // take first available extension that has instance
-                            selectedAnimeSource = extensions.firstOrNull()?.instance
+                            val preferredExtensionName = PrefsManager.getString(PrefsKeys.PREFERRED_EXTENSION, null)
+
+                            var selectionIndex = 0
+                            if (preferredExtensionName != null) {
+                                selectionIndex = extensions.indexOfFirst { it.appName == preferredExtensionName }
+                            }
+
+                            // take first installed extension
+                            selectedAnimeSource = extensions[selectionIndex].instance
 
                             installedExtensions.addAll(extensions)
-                            installedExtensions[0].isSelected = true
+                            installedExtensions[selectionIndex].isSelected = true
 
                             binding.chipLatest.isVisible = selectedAnimeSource?.supportsLatest == true
 
                             binding.tvChangeSource.isVisible = installedExtensions.size >= 2
 
                             // After changing the extension, always load popular anime
-                            selectChip(0)
+                            selectChip(popularChip)
                         }
 
                         BaseUiState.Empty -> {
@@ -248,11 +260,11 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         view?.let {
             when (view) {
                 binding.chipPopular -> {
-                    selectChip(0)
+                    selectChip(popularChip)
                 }
 
                 binding.chipLatest -> {
-                    selectChip(1)
+                    selectChip(latestChip)
                 }
 
                 binding.tvChangeSource -> {
@@ -325,22 +337,26 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         }
         val radioButtonDialogModel = RadioButtonDialogModel(
             title = getString(R.string.select_extensions),
-            description = "Select source for anime!",
+            description = "Select your preferred extension!",
             options = options,
             isDefaultSelected = true,
         )
         val dialog = RadioButtonDialog(
             radioButtonDialogModel,
-            onDone = { option ->
-                var selected: InstalledExtensions? = null
+            onDone = { position ->
                 installedExtensions.forEach {
-                    val match = it.appName == option.buttonTitle
-                    it.isSelected = match
-                    if (match) selected = it
+                    it.isSelected = false
                 }
+                installedExtensions[position].isSelected = true
+                val selected = installedExtensions.firstOrNull { it.isSelected == true }
                 selectedAnimeSource = selected?.instance
                 binding.chipLatest.isVisible = selectedAnimeSource?.supportsLatest == true
-                selectChip(0)
+                selectChip(popularChip)
+
+                // Save this as preference for next time
+                selected?.let {
+                    PrefsManager.putString(PrefsKeys.PREFERRED_EXTENSION, it.appName)
+                }
             },
             onDismissListener = {},
         )

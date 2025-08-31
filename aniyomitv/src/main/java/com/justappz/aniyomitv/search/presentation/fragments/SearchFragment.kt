@@ -209,6 +209,8 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             installedExtensions.addAll(extensions)
                             installedExtensions[0].isSelected = true
 
+                            binding.chipLatest.isVisible = selectedAnimeSource?.supportsLatest == true
+
                             binding.tvChangeSource.isVisible = installedExtensions.size >= 2
 
                             // After changing the extension, always load popular anime
@@ -337,6 +339,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                     if (match) selected = it
                 }
                 selectedAnimeSource = selected?.instance
+                binding.chipLatest.isVisible = selectedAnimeSource?.supportsLatest == true
                 selectChip(0)
             },
             onDismissListener = {},

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Focused state -->
+    <item android:state_focused="true">
+        <shape android:shape="oval">
+            <size android:width="@dimen/_4dp" android:height="@dimen/_4dp" />
+            <solid android:color="@color/anime_tv_primary" />
+        </shape>
+    </item>
+
+    <!-- Default (not focused) -->
+    <item>
+        <shape android:shape="oval">
+            <size android:width="@dimen/_14sp" android:height="@dimen/_14sp" />
+            <solid android:color="@color/white" />
+            <stroke android:width="@dimen/_1dp" android:color="#DDDDDD" />
+        </shape>
+    </item>
+</selector>

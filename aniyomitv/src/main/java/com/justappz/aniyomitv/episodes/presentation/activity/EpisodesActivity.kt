@@ -14,7 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import coil3.load
 import coil3.request.crossfade
-import com.justappz.aniyomitv.ExoPlayerActivity
+import com.justappz.aniyomitv.playback.presentation.activity.ExoPlayerActivity
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.base.BaseUiState
@@ -275,10 +275,8 @@ class EpisodesActivity : BaseActivity() {
 
     //region openPlayer
     private fun openPlayer(serialized: String) {
-        val episodes = ArrayList(episodeAdapter.getCurrentList())
         startActivity(Intent(ctx, ExoPlayerActivity::class.java).apply {
             putExtra(IntentKeys.SOURCE_LIST, serialized)
-            putExtra(IntentKeys.EPISODE_LIST, episodes)
             putExtra(IntentKeys.NOW_PLAYING, nowPlayingPosition)
             putExtra(IntentKeys.ANIME_NAME, anime?.title)
         })

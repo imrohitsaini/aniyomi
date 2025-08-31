@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Focused state -->
+    <item android:state_focused="true">
+        <layer-list>
+            <!-- Background -->
+            <item android:id="@android:id/background">
+                <shape>
+                    <size android:height="@dimen/_1dp" />
+                    <solid android:color="#555555" />
+                    <corners android:radius="@dimen/seekbar_radius" />
+                </shape>
+            </item>
+
+            <!-- Played portion (focused → primary color) -->
+            <item android:id="@android:id/progress">
+                <clip>
+                    <shape>
+                        <size android:height="@dimen/_1dp" />
+                        <solid android:color="@color/anime_tv_primary" />
+                        <corners android:radius="@dimen/seekbar_radius" />
+                    </shape>
+                </clip>
+            </item>
+        </layer-list>
+    </item>
+
+    <!-- Default (not focused) -->
+    <item>
+        <layer-list>
+            <!-- Background -->
+            <item android:id="@android:id/background">
+                <shape>
+                    <size android:height="@dimen/_1dp" />
+                    <solid android:color="#555555" />
+                    <corners android:radius="@dimen/seekbar_radius" />
+                </shape>
+            </item>
+
+            <!-- Played portion (default → white) -->
+            <item android:id="@android:id/progress">
+                <clip>
+                    <shape>
+                        <size android:height="@dimen/_1dp" />
+                        <solid android:color="@android:color/white" />
+                        <corners android:radius="@dimen/seekbar_radius" />
+                    </shape>
+                </clip>
+            </item>
+        </layer-list>
+    </item>
+</selector>

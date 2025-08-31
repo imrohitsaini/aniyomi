@@ -58,7 +58,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ExoPlayerActivity"
+            android:name=".playback.presentation.activity.ExoPlayerActivity"
             android:exported="false"
             android:screenOrientation="landscape"
             tools:ignore="DiscouragedApi" />

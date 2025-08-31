@@ -10,6 +10,7 @@
     <dimen name="item_anime_radius">@dimen/_8dp</dimen>
     <dimen name="scrollbar_radius">@dimen/_8dp</dimen>
     <dimen name="scrollbar_width">@dimen/_8dp</dimen>
+    <dimen name="seekbar_radius">@dimen/_40dp</dimen>
 
 <!--    region Other Dimensions-->
     <dimen name="_2sp">2.00sp</dimen>

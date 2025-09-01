@@ -7,7 +7,7 @@
             <!-- Background -->
             <item android:id="@android:id/background">
                 <shape>
-                    <size android:height="@dimen/_1dp" />
+                    <size android:height="@dimen/_2dp" />
                     <solid android:color="#555555" />
                     <corners android:radius="@dimen/seekbar_radius" />
                 </shape>
@@ -17,7 +17,7 @@
             <item android:id="@android:id/progress">
                 <clip>
                     <shape>
-                        <size android:height="@dimen/_1dp" />
+                        <size android:height="@dimen/_2dp" />
                         <solid android:color="@color/anime_tv_primary" />
                         <corners android:radius="@dimen/seekbar_radius" />
                     </shape>

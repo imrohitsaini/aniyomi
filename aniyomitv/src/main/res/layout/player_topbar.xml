@@ -66,6 +66,19 @@
         app:layout_constraintStart_toStartOf="@id/startGuideline"
         app:layout_constraintTop_toTopOf="@id/tvAnimeTitle" />
 
+    <ImageView
+        android:id="@+id/ivSource"
+        android:layout_width="@dimen/_36dp"
+        android:layout_height="@dimen/_36dp"
+        android:background="@drawable/icon_focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:importantForAccessibility="no"
+        android:src="@drawable/svg_source"
+        app:layout_constraintBottom_toBottomOf="@id/tvEpisodeDetail"
+        app:layout_constraintEnd_toEndOf="@id/endGuideline"
+        app:layout_constraintTop_toTopOf="@id/tvAnimeTitle" />
+
     <TextView
         android:id="@+id/tvAnimeTitle"
         style="@style/AnimeTV_Text_Base"

@@ -338,8 +338,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         val radioButtonDialogModel = RadioButtonDialogModel(
             title = getString(R.string.select_extensions),
             description = "Select your preferred extension!",
-            options = options,
-            isDefaultSelected = true,
+            options = options
         )
         val dialog = RadioButtonDialog(
             radioButtonDialogModel,

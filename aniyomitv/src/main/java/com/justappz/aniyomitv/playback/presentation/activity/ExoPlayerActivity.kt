@@ -16,6 +16,7 @@ import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
@@ -23,6 +24,9 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.constants.IntentKeys
+import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
+import com.justappz.aniyomitv.core.model.Options
+import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
@@ -41,7 +45,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private lateinit var sourceList: List<Video>
     private var selectedSourcePosition = 0
     private var animeName: String = ""
-    private var nowPlayingPosition = -1
+    private var nowPlayingEpisode = -1
     private var doubleBackToExitPressedOnce = false
     private var exoPlayer: ExoPlayer? = null
     private val backHandler = Handler(Looper.getMainLooper())
@@ -50,6 +54,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private val progressHandler = Handler(Looper.getMainLooper())
     private var isUserSeeking = false
     private var seekJob: Job? = null
+    private var resumePosition = 0L
     //endregion
 
     //region onCreate
@@ -65,7 +70,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         Log.d(tag, "videos ${sourceList.size}")
 
         // playing position
-        nowPlayingPosition = intent.getIntExtra(IntentKeys.NOW_PLAYING, -1)
+        nowPlayingEpisode = intent.getIntExtra(IntentKeys.NOW_PLAYING, -1)
 
         // anime name
         animeName = intent.getStringExtra(IntentKeys.ANIME_NAME).toString()
@@ -90,7 +95,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         )
 
         init()
-        startPlayer(nowPlayingPosition, selectedSourcePosition)
+        startPlayer(nowPlayingEpisode, selectedSourcePosition, resumePosition)
 
     }
     //endregion
@@ -98,6 +103,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     //region init
     private fun init() {
         binding.topBar.ivBack.setOnClickListener(this)
+        binding.topBar.ivSource.setOnClickListener(this)
 
         val tintList = ContextCompat.getColorStateList(ctx, R.color.player_icon_selector)
         ImageViewCompat.setImageTintList(binding.topBar.ivBack, tintList)
@@ -109,6 +115,16 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                     togglePlayPause()
                     return@FocusKeyHandler true
                 },
+                onDown = {
+                    setControlsVisible(true)
+                    binding.bottomBar.seekBar.requestFocus()
+                    return@FocusKeyHandler true
+                },
+                onUp = {
+                    setControlsVisible(true)
+                    binding.topBar.ivBack.requestFocus()
+                    return@FocusKeyHandler true
+                },
             ),
         )
 
@@ -117,8 +133,8 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 onCenter = {
                     togglePlayPause()
                     return@FocusKeyHandler true
-                }
-            )
+                },
+            ),
         )
 
         binding.topBar.ivBack.setOnKeyListener(
@@ -219,6 +235,15 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         progressHandler.post(updateProgress)
     }
 
+    private fun updateDurationUi() {
+        val tvTotal = binding.bottomBar.tvTotalTime
+        val seekBar = binding.bottomBar.seekBar
+        val duration = exoPlayer?.duration ?: 0L
+
+        tvTotal.text = formatTime(duration)
+        seekBar.max = duration.toInt()
+    }
+
     private fun startSeekIdleJob(position: Long) {
         cancelSeekJob()
         seekJob = lifecycleScope.launch {
@@ -257,19 +282,36 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    private fun startPlayer(nowPlayingPosition: Int, selectedSourcePosition: Int) {
+    private fun startPlayer(nowPlayingPosition: Int, selectedSourcePosition: Int, resumePosition: Long) {
         val video = sourceList[selectedSourcePosition]
-        // Create a DataSource.Factory with custom headers
+
         val dataSourceFactory = DefaultHttpDataSource.Factory()
             .setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
 
-        // Create a MediaItem
         val mediaItem = MediaItem.fromUri(video.videoUrl)
 
-        // Initialize ExoPlayer
-        exoPlayer = ExoPlayer.Builder(this)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
-            .build()
+        if (exoPlayer == null) {
+            // First-time init
+            exoPlayer = ExoPlayer.Builder(this)
+                .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
+                .build().apply {
+                    binding.playerView.player = this
+
+                    addListener(object : Player.Listener {
+                        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                            if (playbackState == Player.STATE_READY) {
+                                updateDurationUi()
+                            }
+                        }
+
+                        override fun onPlayerError(error: PlaybackException) {
+                            Log.e(tag, "ExoPlayer error: ${error.message}", error)
+                            Toast.makeText(this@ExoPlayerActivity, "Error: ${error.errorCodeName}", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                }
+            initSeekBar()
+        }
 
         // UI operations must be on the main thread
         runOnUiThread {
@@ -277,12 +319,19 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             binding.playerView.player = exoPlayer
 
             // Set media and start playback
+            exoPlayer?.stop()
             exoPlayer?.setMediaItem(mediaItem)
             exoPlayer?.prepare()
+
+            if (resumePosition > 0) {
+                exoPlayer?.seekTo(resumePosition)
+            }
+
             exoPlayer?.play()
+
+
             binding.playerView.isVisible = true
             toggleControls()
-            initSeekBar()
         }
     }
 
@@ -326,8 +375,43 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         view?.let {
             when (it) {
                 binding.topBar.ivBack -> onBackButtonClicked()
+                binding.topBar.ivSource -> changeSourceDialog()
             }
         }
+    }
+    //endregion
+
+    //region changeSourceDialog
+    private fun changeSourceDialog() {
+        val options: MutableList<Options> = arrayListOf()
+        sourceList.forEach {
+            options.add(
+                Options(
+                    buttonTitle = it.videoTitle,
+                    isSelected = false,
+                ),
+            )
+        }
+        options[selectedSourcePosition].isSelected = true
+        val radioButtonDialogModel = RadioButtonDialogModel(
+            title = "Change source",
+            description = "Set your preferred video source",
+            options = options,
+        )
+        val dialog = RadioButtonDialog(
+            radioButtonDialogModel = radioButtonDialogModel,
+            { position ->
+                selectedSourcePosition = position
+                resumePosition = exoPlayer?.currentPosition ?: 0L
+                releasePlayer()
+                startPlayer(nowPlayingEpisode, selectedSourcePosition, resumePosition)
+            },
+            {
+
+            }
+        )
+        dialog.show(supportFragmentManager, "change_source")
+
     }
     //endregion
 
@@ -349,13 +433,12 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     private fun startControlsAutoHideTimer() {
         controlsHandler.removeCallbacks(hideRunnable)
-        controlsHandler.postDelayed(hideRunnable, 3000) // 3 sec
+        controlsHandler.postDelayed(hideRunnable, 5000) // 3 sec
     }
 
 
     private fun setControlsVisible(visible: Boolean) {
         if (isUserSeeking) return
-        if (exoPlayer?.isPlaying == false) return
         val topBar = binding.topBar.root
         val bottomBar = binding.bottomBar.root
 

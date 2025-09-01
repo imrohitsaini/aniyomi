@@ -76,11 +76,9 @@
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/_4dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:maxHeight="@dimen/_2dp"
-        android:minHeight="@dimen/_1dp"
         android:progressDrawable="@drawable/custom_seek_progress"
         android:thumb="@null"
         app:layout_constraintBottom_toTopOf="@id/bottomBarTopGuideline"

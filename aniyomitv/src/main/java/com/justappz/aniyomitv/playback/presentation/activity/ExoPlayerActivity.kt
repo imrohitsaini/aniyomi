@@ -78,6 +78,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                         releasePlayer()
                         finish()
                     } else {
+                        binding.bottomBar.seekBar.requestFocus()
                         setControlsVisible(true)
                         doubleBackToExitPressedOnce = true
                         Toast.makeText(this@ExoPlayerActivity, "Press back again to exit", Toast.LENGTH_SHORT).show()
@@ -100,15 +101,47 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
         val tintList = ContextCompat.getColorStateList(ctx, R.color.player_icon_selector)
         ImageViewCompat.setImageTintList(binding.topBar.ivBack, tintList)
+        ImageViewCompat.setImageTintList(binding.ivPlayPause, tintList)
 
         binding.playerView.setOnKeyListener(
             FocusKeyHandler(
-                onDown = {
-                    binding.bottomBar.seekBar.requestFocus()
+                onCenter = {
+                    togglePlayPause()
                     return@FocusKeyHandler true
                 },
+            ),
+        )
+
+        binding.ivPlayPause.setOnKeyListener(
+            FocusKeyHandler(
+                onCenter = {
+                    togglePlayPause()
+                    return@FocusKeyHandler true
+                }
+            )
+        )
+
+        binding.topBar.ivBack.setOnKeyListener(
+            FocusKeyHandler(
+                onDown = {
+                    if (binding.ivPlayPause.isVisible) {
+                        binding.playerView.requestFocus()
+                    } else {
+                        binding.bottomBar.seekBar.requestFocus()
+                    }
+                    return@FocusKeyHandler true
+                },
+            ),
+        )
+
+        binding.bottomBar.seekBar.setOnKeyListener(
+            FocusKeyHandler(
                 onUp = {
-                    binding.topBar.ivBack.requestFocus()
+                    if (binding.ivPlayPause.isVisible) {
+                        binding.playerView.requestFocus()
+                    } else {
+                        binding.topBar.ivBack.requestFocus()
+                    }
                     return@FocusKeyHandler true
                 },
             ),
@@ -124,40 +157,44 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         val tvTotal = binding.bottomBar.tvTotalTime
 
         // Player listener for duration
-        exoPlayer?.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_READY) {
-                    tvTotal.text = formatTime(exoPlayer?.duration ?: 0L)
-                    seekBar.max = (exoPlayer?.duration ?: 0L).toInt()
+        exoPlayer?.addListener(
+            object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    if (state == Player.STATE_READY) {
+                        tvTotal.text = formatTime(exoPlayer?.duration ?: 0L)
+                        seekBar.max = (exoPlayer?.duration ?: 0L).toInt()
+                    }
                 }
-            }
-        })
+            },
+        )
 
         // Normal + TV scrubbing
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    // User is scrubbing (TV or touch)
-                    tvCurrent.text = formatTime(progress.toLong())
-                    isUserSeeking = true
+        seekBar.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        // User is scrubbing (TV or touch)
+                        tvCurrent.text = formatTime(progress.toLong())
+                        isUserSeeking = true
 
-                    // restart idle commit timer
-                    startSeekIdleJob(progress.toLong())
+                        // restart idle commit timer
+                        startSeekIdleJob(progress.toLong())
+                    }
                 }
-            }
 
-            override fun onStartTrackingTouch(sb: SeekBar?) {
-                isUserSeeking = true
-                cancelSeekJob()
-            }
+                override fun onStartTrackingTouch(sb: SeekBar?) {
+                    isUserSeeking = true
+                    cancelSeekJob()
+                }
 
-            override fun onStopTrackingTouch(sb: SeekBar?) {
-                // touch-based commit (phones/tablets)
-                sb?.let { seekToPosition(it.progress.toLong()) }
-                isUserSeeking = false
-                startControlsAutoHideTimer()
-            }
-        })
+                override fun onStopTrackingTouch(sb: SeekBar?) {
+                    // touch-based commit (phones/tablets)
+                    sb?.let { seekToPosition(it.progress.toLong()) }
+                    isUserSeeking = false
+                    startControlsAutoHideTimer()
+                }
+            },
+        )
 
         // TV focus listener
         seekBar.setOnFocusChangeListener { _, hasFocus ->
@@ -199,6 +236,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     private fun seekToPosition(position: Long) {
         exoPlayer?.seekTo(position)
+        if (exoPlayer?.isPlaying == false) togglePlayPause()
     }
 
     private fun formatTime(ms: Long): String {
@@ -245,6 +283,26 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             binding.playerView.isVisible = true
             toggleControls()
             initSeekBar()
+        }
+    }
+
+    private fun togglePlayPause() {
+        exoPlayer?.let { player ->
+            if (player.isPlaying) {
+                player.pause()
+                binding.ivPlayPause.setImageResource(R.drawable.svg_play) // your play icon
+                binding.ivPlayPause.isVisible = true
+                binding.ivPlayPause.requestFocus()
+                setControlsVisible(true)
+            } else {
+                player.play()
+                binding.ivPlayPause.setImageResource(R.drawable.svg_pause) // your pause icon
+                binding.ivPlayPause.isVisible = true
+                lifecycleScope.launch {
+                    delay(1000)
+                    binding.ivPlayPause.isVisible = false
+                }
+            }
         }
     }
     //endregion
@@ -297,6 +355,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     private fun setControlsVisible(visible: Boolean) {
         if (isUserSeeking) return
+        if (exoPlayer?.isPlaying == false) return
         val topBar = binding.topBar.root
         val bottomBar = binding.bottomBar.root
 

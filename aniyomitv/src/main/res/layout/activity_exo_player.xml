@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
@@ -47,6 +48,8 @@
             android:layout_height="match_parent"
             android:visibility="gone"
             app:resize_mode="fit"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             app:show_buffering="when_playing"
             app:use_controller="false" />
 
@@ -64,10 +67,24 @@
             layout="@layout/player_bottombar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivPlayPause"
+            android:layout_width="@dimen/_36dp"
+            android:layout_height="@dimen/_36dp"
+            android:src="@drawable/svg_pause"
+            android:visibility="gone"
+            android:focusableInTouchMode="true"
+            android:focusable="true"
+            android:background="@drawable/icon_focus_selector"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

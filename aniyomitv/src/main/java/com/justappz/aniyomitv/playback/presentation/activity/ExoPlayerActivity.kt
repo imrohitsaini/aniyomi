@@ -1,6 +1,7 @@
 package com.justappz.aniyomitv.playback.presentation.activity
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -29,8 +30,11 @@ import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
+import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
+import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
 import eu.kanade.tachiyomi.animesource.model.Video
+import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,7 +48,10 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private val tag = "ExoPlayerActivity"
     private lateinit var sourceList: List<Video>
     private var selectedSourcePosition = 0
-    private var animeName: String = ""
+    private var anime: SAnime? = null
+    private lateinit var className: String
+    private lateinit var packageName: String
+    private var animeHttpSource: AnimeHttpSource? = null
     private var nowPlayingEpisode = -1
     private var doubleBackToExitPressedOnce = false
     private var exoPlayer: ExoPlayer? = null
@@ -65,15 +72,22 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_exo_player)
 
+        anime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getSerializableExtra(IntentKeys.ANIME, SAnime::class.java)
+        } else {
+            @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
+        }
+
+        packageName = intent.getStringExtra(IntentKeys.ANIME_PKG).toString()
+        className = intent.getStringExtra(IntentKeys.ANIME_CLASS).toString()
+        animeHttpSource = ctx.loadAnimeSource(packageName, className)
+
         // handle intent data
         sourceList = intent.getStringExtra(IntentKeys.SOURCE_LIST)?.toVideoList() ?: emptyList()
         Log.d(tag, "videos ${sourceList.size}")
 
         // playing position
         nowPlayingEpisode = intent.getIntExtra(IntentKeys.NOW_PLAYING, -1)
-
-        // anime name
-        animeName = intent.getStringExtra(IntentKeys.ANIME_NAME).toString()
 
         onBackPressedDispatcher.addCallback(
             this,
@@ -387,6 +401,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     //region UI Updates
     private fun updateUi() {
         binding.bottomBar.ivPlayNext.isVisible = !isLastEpisode()
+        binding.topBar.tvAnimeTitle.text = anime?.title
     }
     //endregion
 

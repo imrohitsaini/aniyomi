@@ -14,7 +14,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import coil3.load
 import coil3.request.crossfade
-import com.justappz.aniyomitv.playback.presentation.activity.ExoPlayerActivity
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.base.BaseUiState
@@ -28,6 +27,7 @@ import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
+import com.justappz.aniyomitv.playback.presentation.activity.ExoPlayerActivity
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
@@ -42,6 +42,8 @@ class EpisodesActivity : BaseActivity() {
     private lateinit var binding: ActivityEpisodesBinding
     private val tag = "EpisodesActivity"
     private var anime: SAnime? = null
+    private lateinit var className: String
+    private lateinit var packageName: String
     private var animeHttpSource: AnimeHttpSource? = null
     private lateinit var episodeAdapter: EpisodesAdapter
     private lateinit var loaderDialog: LoaderDialog
@@ -72,8 +74,8 @@ class EpisodesActivity : BaseActivity() {
             @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
         }
 
-        val packageName = intent.getStringExtra(IntentKeys.ANIME_PKG)
-        val className = intent.getStringExtra(IntentKeys.ANIME_CLASS)
+        packageName = intent.getStringExtra(IntentKeys.ANIME_PKG).toString()
+        className = intent.getStringExtra(IntentKeys.ANIME_CLASS).toString()
         animeHttpSource = ctx.loadAnimeSource(packageName, className)
 
         binding.ivAnimeThumbnail.load(anime?.thumbnail_url) {
@@ -189,10 +191,11 @@ class EpisodesActivity : BaseActivity() {
                             showDialogLoader(false)
                             Log.d(tag, "videosList empty")
                             ErrorHandler.show(
-                                ctx, AppError.UnknownError(
+                                ctx,
+                                AppError.UnknownError(
                                     message = "No videos found",
-                                    displayType = ErrorDisplayType.TOAST
-                                )
+                                    displayType = ErrorDisplayType.TOAST,
+                                ),
                             )
                         }
 
@@ -275,11 +278,15 @@ class EpisodesActivity : BaseActivity() {
 
     //region openPlayer
     private fun openPlayer(serialized: String) {
-        startActivity(Intent(ctx, ExoPlayerActivity::class.java).apply {
-            putExtra(IntentKeys.SOURCE_LIST, serialized)
-            putExtra(IntentKeys.NOW_PLAYING, nowPlayingPosition)
-            putExtra(IntentKeys.ANIME_NAME, anime?.title)
-        })
+        startActivity(
+            Intent(ctx, ExoPlayerActivity::class.java).apply {
+                putExtra(IntentKeys.SOURCE_LIST, serialized)
+                putExtra(IntentKeys.NOW_PLAYING, nowPlayingPosition)
+                putExtra(IntentKeys.ANIME, anime)
+                putExtra(IntentKeys.ANIME_CLASS, className)
+                putExtra(IntentKeys.ANIME_PKG, packageName)
+            },
+        )
     }
     //endregion
 }

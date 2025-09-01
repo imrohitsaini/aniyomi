@@ -136,6 +136,15 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 },
             ),
         )
+        binding.bottomBar.ivPlayPause.setOnKeyListener(
+            FocusKeyHandler(
+                onCenter = {
+                    togglePlayPause()
+                    return@FocusKeyHandler true
+                },
+            ),
+        )
+
 
         binding.topBar.ivBack.setOnKeyListener(
             FocusKeyHandler(
@@ -350,12 +359,14 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             if (player.isPlaying) {
                 player.pause()
                 binding.ivPlayPause.setImageResource(R.drawable.svg_play) // your play icon
+                binding.bottomBar.ivPlayPause.setImageResource(R.drawable.svg_play)
                 binding.ivPlayPause.isVisible = true
                 binding.ivPlayPause.requestFocus()
                 setControlsVisible(true)
             } else {
                 player.play()
                 binding.ivPlayPause.setImageResource(R.drawable.svg_pause) // your pause icon
+                binding.bottomBar.ivPlayPause.setImageResource(R.drawable.svg_pause) // your pause icon
                 binding.ivPlayPause.isVisible = true
                 lifecycleScope.launch {
                     delay(1000)

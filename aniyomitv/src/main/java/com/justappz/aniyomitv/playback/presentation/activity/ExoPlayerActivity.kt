@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -26,6 +27,9 @@ import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
 import eu.kanade.tachiyomi.animesource.model.Video
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.Headers
 import java.util.Locale
 
@@ -45,6 +49,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private val hideRunnable = Runnable { setControlsVisible(false) }
     private val progressHandler = Handler(Looper.getMainLooper())
     private var isUserSeeking = false
+    private var seekJob: Job? = null
     //endregion
 
     //region onCreate
@@ -118,46 +123,52 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         val tvCurrent = binding.bottomBar.tvCurrentTime
         val tvTotal = binding.bottomBar.tvTotalTime
 
-        exoPlayer?.addListener(
-            object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_READY) {
-                        tvTotal.text = formatTime(exoPlayer?.duration ?: 0L)
-                        seekBar.max = (exoPlayer?.duration ?: 0L).toInt()
-                    }
+        // Player listener for duration
+        exoPlayer?.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_READY) {
+                    tvTotal.text = formatTime(exoPlayer?.duration ?: 0L)
+                    seekBar.max = (exoPlayer?.duration ?: 0L).toInt()
                 }
-            },
-        )
+            }
+        })
 
-        seekBar.setOnSeekBarChangeListener(
-            object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser) {
-                        tvCurrent.text = formatTime(progress.toLong())
-                    }
-                }
-
-                override fun onStartTrackingTouch(sb: SeekBar?) {
+        // Normal + TV scrubbing
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    // User is scrubbing (TV or touch)
+                    tvCurrent.text = formatTime(progress.toLong())
                     isUserSeeking = true
-                }
 
-                override fun onStopTrackingTouch(sb: SeekBar?) {
-                    sb?.let { seekToPosition(it.progress.toLong()) }
-                    isUserSeeking = false
-                    startControlsAutoHideTimer()
+                    // restart idle commit timer
+                    startSeekIdleJob(progress.toLong())
                 }
-            },
-        )
+            }
 
-        // Handle focus on TV → act like "startTracking" when focused
+            override fun onStartTrackingTouch(sb: SeekBar?) {
+                isUserSeeking = true
+                cancelSeekJob()
+            }
+
+            override fun onStopTrackingTouch(sb: SeekBar?) {
+                // touch-based commit (phones/tablets)
+                sb?.let { seekToPosition(it.progress.toLong()) }
+                isUserSeeking = false
+                startControlsAutoHideTimer()
+            }
+        })
+
+        // TV focus listener
         seekBar.setOnFocusChangeListener { _, hasFocus ->
             isUserSeeking = hasFocus
             if (!hasFocus) {
-                // Commit seek when leaving SeekBar
-                seekToPosition(seekBar.progress.toLong())
+                // Leaving focus → just let idle job finish
+                cancelSeekJob()
             }
         }
 
+        // Progress updater
         val updateProgress = object : Runnable {
             override fun run() {
                 if (!isUserSeeking && exoPlayer?.isPlaying == true) {
@@ -169,6 +180,21 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             }
         }
         progressHandler.post(updateProgress)
+    }
+
+    private fun startSeekIdleJob(position: Long) {
+        cancelSeekJob()
+        seekJob = lifecycleScope.launch {
+            delay(500) // wait 1s of inactivity
+            seekToPosition(position)
+            isUserSeeking = false
+            startControlsAutoHideTimer()
+        }
+    }
+
+    private fun cancelSeekJob() {
+        seekJob?.cancel()
+        seekJob = null
     }
 
     private fun seekToPosition(position: Long) {

@@ -29,6 +29,7 @@ import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
 import com.justappz.aniyomitv.playback.presentation.activity.ExoPlayerActivity
 import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,7 @@ class EpisodesActivity : BaseActivity() {
     private lateinit var binding: ActivityEpisodesBinding
     private val tag = "EpisodesActivity"
     private var anime: SAnime? = null
+    private var selectedEpisode: SEpisode? = null
     private lateinit var className: String
     private lateinit var packageName: String
     private var animeHttpSource: AnimeHttpSource? = null
@@ -251,6 +253,7 @@ class EpisodesActivity : BaseActivity() {
         episodeAdapter.onItemClick = { episode, position ->
             animeHttpSource?.let {
                 nowPlayingPosition = position
+                selectedEpisode = episode
                 viewModel.getVideosList(it, episode)
             }
         }
@@ -285,6 +288,7 @@ class EpisodesActivity : BaseActivity() {
                 putExtra(IntentKeys.ANIME, anime)
                 putExtra(IntentKeys.ANIME_CLASS, className)
                 putExtra(IntentKeys.ANIME_PKG, packageName)
+                putExtra(IntentKeys.ANIME_EPISODE, selectedEpisode)
             },
         )
     }

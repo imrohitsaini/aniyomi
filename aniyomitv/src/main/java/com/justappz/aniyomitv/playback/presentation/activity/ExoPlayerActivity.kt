@@ -32,6 +32,7 @@ import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
@@ -46,12 +47,17 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     //region variables
     private lateinit var binding: ActivityExoPlayerBinding
     private val tag = "ExoPlayerActivity"
+
     private lateinit var sourceList: List<Video>
     private var selectedSourcePosition = 0
+
     private var anime: SAnime? = null
+
     private lateinit var className: String
     private lateinit var packageName: String
     private var animeHttpSource: AnimeHttpSource? = null
+
+    private var selectedEpisode: SEpisode? = null
     private var nowPlayingEpisode = -1
     private var doubleBackToExitPressedOnce = false
     private var exoPlayer: ExoPlayer? = null
@@ -76,6 +82,12 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             intent.getSerializableExtra(IntentKeys.ANIME, SAnime::class.java)
         } else {
             @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
+        }
+
+        selectedEpisode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getSerializableExtra(IntentKeys.ANIME_EPISODE, SEpisode::class.java)
+        } else {
+            @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME_EPISODE) as? SEpisode
         }
 
         packageName = intent.getStringExtra(IntentKeys.ANIME_PKG).toString()
@@ -116,6 +128,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     //region init
     private fun init() {
+        binding.topBar.tvAnimeTitle.text = anime?.title
         binding.topBar.ivBack.setOnClickListener(this)
         binding.topBar.ivSource.setOnClickListener(this)
 
@@ -401,7 +414,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     //region UI Updates
     private fun updateUi() {
         binding.bottomBar.ivPlayNext.isVisible = !isLastEpisode()
-        binding.topBar.tvAnimeTitle.text = anime?.title
+        binding.topBar.tvEpisodeDetail.text = selectedEpisode?.name
     }
     //endregion
 

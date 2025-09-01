@@ -129,7 +129,9 @@ class RadioButtonDialog(
                     // Update model
                     if (lastSelectedPosition != -1 && lastSelectedPosition != position) {
                         model.options[lastSelectedPosition].isSelected = false
-                        optionsAdapter?.notifyItemChanged(lastSelectedPosition)
+                        binding.rvOptions.post {
+                            optionsAdapter?.notifyItemChanged(lastSelectedPosition)
+                        }
                     }
 
                     model.options[position].isSelected = true

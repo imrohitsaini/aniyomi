@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.KeyEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.SeekBar
@@ -119,57 +118,44 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         val tvCurrent = binding.bottomBar.tvCurrentTime
         val tvTotal = binding.bottomBar.tvTotalTime
 
-        exoPlayer?.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_READY) {
-                    tvTotal.text = formatTime(exoPlayer?.duration ?: 0L)
-                    seekBar.max = (exoPlayer?.duration ?: 0L).toInt()
-                }
-            }
-        })
-
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    tvCurrent.text = formatTime(progress.toLong())
-                }
-            }
-
-            override fun onStartTrackingTouch(sb: SeekBar?) {
-                isUserSeeking = true
-            }
-
-            override fun onStopTrackingTouch(sb: SeekBar?) {
-                sb?.let { seekToPosition(it.progress.toLong()) }
-                isUserSeeking = false
-                startControlsAutoHideTimer()
-            }
-        })
-
-       val seekCommitHandler = Handler(Looper.getMainLooper())
-       val seekCommitRunnable = Runnable {
-            seekToPosition(binding.bottomBar.seekBar.progress.toLong())
-            isUserSeeking = false
-            startControlsAutoHideTimer()
-        }
-
-        seekBar.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                        // User scrubbing
-                        isUserSeeking = true
-                        tvCurrent.text = formatTime(seekBar.progress.toLong())
-
-                        // reset delayed commit timer
-                        seekCommitHandler.removeCallbacks(seekCommitRunnable)
-                        seekCommitHandler.postDelayed(seekCommitRunnable, 500)
-
-                        return@setOnKeyListener true
+        exoPlayer?.addListener(
+            object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    if (state == Player.STATE_READY) {
+                        tvTotal.text = formatTime(exoPlayer?.duration ?: 0L)
+                        seekBar.max = (exoPlayer?.duration ?: 0L).toInt()
                     }
                 }
+            },
+        )
+
+        seekBar.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        tvCurrent.text = formatTime(progress.toLong())
+                    }
+                }
+
+                override fun onStartTrackingTouch(sb: SeekBar?) {
+                    isUserSeeking = true
+                }
+
+                override fun onStopTrackingTouch(sb: SeekBar?) {
+                    sb?.let { seekToPosition(it.progress.toLong()) }
+                    isUserSeeking = false
+                    startControlsAutoHideTimer()
+                }
+            },
+        )
+
+        // Handle focus on TV → act like "startTracking" when focused
+        seekBar.setOnFocusChangeListener { _, hasFocus ->
+            isUserSeeking = hasFocus
+            if (!hasFocus) {
+                // Commit seek when leaving SeekBar
+                seekToPosition(seekBar.progress.toLong())
             }
-            false
         }
 
         val updateProgress = object : Runnable {

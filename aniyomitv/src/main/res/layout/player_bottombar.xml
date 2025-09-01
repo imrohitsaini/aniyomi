@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.80" />
+        app:layout_constraintGuide_percent="0.75" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/startGuideline"
@@ -86,7 +86,21 @@
         app:layout_constraintStart_toStartOf="@id/startGuideline" />
 
     <ImageView
-        android:id="@+id/ivPlayPause"
+        android:id="@+id/ivPlayPrevious"
+        android:layout_width="@dimen/_36dp"
+        android:layout_height="@dimen/_36dp"
+        android:layout_marginEnd="@dimen/_8dp"
+        android:background="@drawable/icon_focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:src="@drawable/svg_play_previous"
+        app:layout_constraintBottom_toBottomOf="@id/ivPlayPauseBottombar"
+        app:layout_constraintEnd_toStartOf="@id/ivPlayPauseBottombar"
+        app:layout_constraintTop_toTopOf="@id/ivPlayPauseBottombar"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/ivPlayPauseBottombar"
         android:layout_width="@dimen/_36dp"
         android:layout_height="@dimen/_36dp"
         android:background="@drawable/icon_focus_selector"
@@ -97,6 +111,48 @@
         app:layout_constraintEnd_toEndOf="@id/endGuideline"
         app:layout_constraintStart_toStartOf="@id/startGuideline"
         app:layout_constraintTop_toBottomOf="@id/seekBar"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/ivPlayNext"
+        android:layout_width="@dimen/_36dp"
+        android:layout_height="@dimen/_36dp"
+        android:layout_marginStart="@dimen/_8dp"
+        android:background="@drawable/icon_focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:src="@drawable/svg_play_next"
+        app:layout_constraintBottom_toBottomOf="@id/ivPlayPauseBottombar"
+        app:layout_constraintStart_toEndOf="@id/ivPlayPauseBottombar"
+        app:layout_constraintTop_toTopOf="@id/ivPlayPauseBottombar"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/ivBackward"
+        android:layout_width="@dimen/_36dp"
+        android:layout_height="@dimen/_36dp"
+        android:layout_marginStart="@dimen/_8dp"
+        android:background="@drawable/icon_focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:src="@drawable/svg_backward"
+        app:layout_constraintBottom_toBottomOf="@id/ivPlayPauseBottombar"
+        app:layout_constraintStart_toStartOf="@id/startGuideline"
+        app:layout_constraintTop_toTopOf="@id/ivPlayPauseBottombar"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/ivForward"
+        android:layout_width="@dimen/_36dp"
+        android:layout_height="@dimen/_36dp"
+        android:layout_marginStart="@dimen/_4dp"
+        android:background="@drawable/icon_focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:src="@drawable/svg_forward"
+        app:layout_constraintBottom_toBottomOf="@id/ivPlayPauseBottombar"
+        app:layout_constraintStart_toEndOf="@id/ivBackward"
+        app:layout_constraintTop_toTopOf="@id/ivPlayPauseBottombar"
         tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

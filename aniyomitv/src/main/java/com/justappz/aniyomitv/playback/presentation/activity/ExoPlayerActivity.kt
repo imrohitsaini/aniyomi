@@ -84,7 +84,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                         finish()
                     } else {
                         binding.bottomBar.seekBar.requestFocus()
-                        setControlsVisible(true)
+                        toggleControls()
                         doubleBackToExitPressedOnce = true
                         Toast.makeText(this@ExoPlayerActivity, "Press back again to exit", Toast.LENGTH_SHORT).show()
 
@@ -105,9 +105,27 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         binding.topBar.ivBack.setOnClickListener(this)
         binding.topBar.ivSource.setOnClickListener(this)
 
+        binding.ivPlayPause.setOnClickListener(this)
+        binding.playerView.setOnClickListener(this)
+
+        binding.bottomBar.ivPlayPrevious.setOnClickListener(this)
+        binding.bottomBar.ivPlayNext.setOnClickListener(this)
+        binding.bottomBar.ivPlayPauseBottombar.setOnClickListener(this)
+        binding.bottomBar.ivBackward.setOnClickListener(this)
+        binding.bottomBar.ivForward.setOnClickListener(this)
+
         val tintList = ContextCompat.getColorStateList(ctx, R.color.player_icon_selector)
+
         ImageViewCompat.setImageTintList(binding.topBar.ivBack, tintList)
+        ImageViewCompat.setImageTintList(binding.topBar.ivSource, tintList)
+
         ImageViewCompat.setImageTintList(binding.ivPlayPause, tintList)
+
+        ImageViewCompat.setImageTintList(binding.bottomBar.ivPlayPauseBottombar, tintList)
+        ImageViewCompat.setImageTintList(binding.bottomBar.ivPlayPrevious, tintList)
+        ImageViewCompat.setImageTintList(binding.bottomBar.ivPlayNext, tintList)
+        ImageViewCompat.setImageTintList(binding.bottomBar.ivBackward, tintList)
+        ImageViewCompat.setImageTintList(binding.bottomBar.ivForward, tintList)
 
         binding.playerView.setOnKeyListener(
             FocusKeyHandler(
@@ -123,23 +141,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 onUp = {
                     setControlsVisible(true)
                     binding.topBar.ivBack.requestFocus()
-                    return@FocusKeyHandler true
-                },
-            ),
-        )
-
-        binding.ivPlayPause.setOnKeyListener(
-            FocusKeyHandler(
-                onCenter = {
-                    togglePlayPause()
-                    return@FocusKeyHandler true
-                },
-            ),
-        )
-        binding.bottomBar.ivPlayPause.setOnKeyListener(
-            FocusKeyHandler(
-                onCenter = {
-                    togglePlayPause()
                     return@FocusKeyHandler true
                 },
             ),
@@ -172,6 +173,11 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             ),
         )
     }
+    //endregion
+
+    //region previous or next episodes
+    private fun isFirstEpisode(): Boolean = nowPlayingEpisode == 0
+    private fun isLastEpisode(): Boolean = nowPlayingEpisode == 0
     //endregion
 
     //region seekbar
@@ -351,6 +357,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
             binding.playerView.isVisible = true
             toggleControls()
+            updateUi()
         }
     }
 
@@ -359,14 +366,14 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             if (player.isPlaying) {
                 player.pause()
                 binding.ivPlayPause.setImageResource(R.drawable.svg_play) // your play icon
-                binding.bottomBar.ivPlayPause.setImageResource(R.drawable.svg_play)
+                binding.bottomBar.ivPlayPauseBottombar.setImageResource(R.drawable.svg_play)
                 binding.ivPlayPause.isVisible = true
                 binding.ivPlayPause.requestFocus()
                 setControlsVisible(true)
             } else {
                 player.play()
                 binding.ivPlayPause.setImageResource(R.drawable.svg_pause) // your pause icon
-                binding.bottomBar.ivPlayPause.setImageResource(R.drawable.svg_pause) // your pause icon
+                binding.bottomBar.ivPlayPauseBottombar.setImageResource(R.drawable.svg_pause) // your pause icon
                 binding.ivPlayPause.isVisible = true
                 lifecycleScope.launch {
                     delay(1000)
@@ -374,6 +381,12 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 }
             }
         }
+    }
+    //endregion
+
+    //region UI Updates
+    private fun updateUi() {
+        binding.bottomBar.ivPlayNext.isVisible = !isLastEpisode()
     }
     //endregion
 
@@ -397,10 +410,31 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             when (it) {
                 binding.topBar.ivBack -> onBackButtonClicked()
                 binding.topBar.ivSource -> changeSourceDialog()
+                binding.ivPlayPause, binding.bottomBar.ivPlayPauseBottombar -> togglePlayPause()
+                binding.bottomBar.ivBackward -> back10Seconds()
+                binding.bottomBar.ivForward -> forward10Seconds()
             }
         }
     }
     //endregion
+
+    //region back and forward 10Seconds
+    private fun back10Seconds() {
+        exoPlayer?.let { player ->
+            val newPosition = player.currentPosition - 10_000L // 10 seconds
+            player.seekTo(maxOf(newPosition, 0L)) // prevent going below 0
+        }
+    }
+
+    private fun forward10Seconds() {
+        exoPlayer?.let { player ->
+            val newPosition = player.currentPosition + 10_000L // 10 seconds
+            val duration = player.duration
+            player.seekTo(minOf(newPosition, duration)) // prevent going past video end
+        }
+    }
+    //endregion
+
 
     //region changeSourceDialog
     private fun changeSourceDialog() {
@@ -459,7 +493,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
 
     private fun setControlsVisible(visible: Boolean) {
-        if (isUserSeeking) return
         val topBar = binding.topBar.root
         val bottomBar = binding.bottomBar.root
 

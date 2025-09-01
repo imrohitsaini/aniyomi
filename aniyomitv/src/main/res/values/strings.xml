@@ -15,4 +15,5 @@
     <string name="done">Done</string>
     <string name="genre">Genre: %1$s</string>
     <string name="episodes">Episodes</string>
+    <string name="please_select_different_source">Please select different source</string>
 </resources>

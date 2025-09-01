@@ -297,18 +297,28 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 .build().apply {
                     binding.playerView.player = this
 
-                    addListener(object : Player.Listener {
-                        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                            if (playbackState == Player.STATE_READY) {
-                                updateDurationUi()
+                    addListener(
+                        object : Player.Listener {
+                            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                                if (playbackState == Player.STATE_READY) {
+                                    updateDurationUi()
+                                    binding.errorRoot.tvError.text = ""
+                                    binding.errorRoot.root.isVisible = false
+                                }
                             }
-                        }
 
-                        override fun onPlayerError(error: PlaybackException) {
-                            Log.e(tag, "ExoPlayer error: ${error.message}", error)
-                            Toast.makeText(this@ExoPlayerActivity, "Error: ${error.errorCodeName}", Toast.LENGTH_SHORT).show()
-                        }
-                    })
+                            override fun onPlayerError(error: PlaybackException) {
+                                Log.e(tag, "ExoPlayer error: ${error.message}", error)
+                                Toast.makeText(
+                                    this@ExoPlayerActivity,
+                                    "Error: ${error.errorCodeName}",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                                binding.errorRoot.tvError.text = getString(R.string.please_select_different_source)
+                                binding.errorRoot.root.isVisible = true
+                            }
+                        },
+                    )
                 }
             initSeekBar()
         }
@@ -408,7 +418,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             },
             {
 
-            }
+            },
         )
         dialog.show(supportFragmentManager, "change_source")
 

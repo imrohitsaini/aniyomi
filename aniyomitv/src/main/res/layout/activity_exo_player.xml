@@ -46,10 +46,10 @@
             android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            app:resize_mode="fit"
             android:focusable="true"
             android:focusableInTouchMode="true"
+            android:visibility="gone"
+            app:resize_mode="fit"
             app:show_buffering="when_playing"
             app:use_controller="false" />
 
@@ -75,16 +75,23 @@
             android:id="@+id/ivPlayPause"
             android:layout_width="@dimen/_36dp"
             android:layout_height="@dimen/_36dp"
+            android:background="@drawable/icon_focus_selector"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:src="@drawable/svg_pause"
             android:visibility="gone"
-            android:focusableInTouchMode="true"
-            android:focusable="true"
-            android:background="@drawable/icon_focus_selector"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="ContentDescription" />
+
+        <include
+            android:id="@+id/errorRoot"
+            layout="@layout/main_error"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

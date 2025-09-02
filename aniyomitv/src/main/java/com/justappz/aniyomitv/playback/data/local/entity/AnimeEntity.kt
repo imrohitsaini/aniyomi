@@ -7,7 +7,7 @@ import com.justappz.aniyomitv.constants.RoomDBConstants
 @Entity(tableName = RoomDBConstants.ENTITY_ANIME)
 data class AnimeEntity(
 
-// SANIME
+    // SANIME
     @PrimaryKey
     val url: String,
     val title: String,
@@ -18,7 +18,7 @@ data class AnimeEntity(
     val status: Int,
     val thumbnailUrl: String,
 
-// AnimeHttpSource using ctx.loadAnimeSource(packageName, className)
+    // AnimeHttpSource using ctx.loadAnimeSource(packageName, className)
     val packageName: String,
     val className: String,
 )

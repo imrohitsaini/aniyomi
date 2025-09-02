@@ -6,6 +6,7 @@ import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.playback.data.local.dao.AnimeEpisodeDao
 import com.justappz.aniyomitv.playback.data.mapper.toEntity
 import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
+import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import com.justappz.aniyomitv.playback.domain.repo.AnimeEpisodeRepo
 
 class AnimeEpisodeRepoImpl(
@@ -16,6 +17,20 @@ class AnimeEpisodeRepoImpl(
         return try {
             dao.insertAnime(animeDomain.toEntity())
             BaseUiState.Success(animeDomain)
+        } catch (e: Exception) {
+            BaseUiState.Error(
+                AppError.RoomDbError(
+                    message = "Insertion failed",
+                    displayType = ErrorDisplayType.TOAST,
+                ),
+            )
+        }
+    }
+
+    override suspend fun updateEpisodeWithDb(episode: EpisodeDomain): BaseUiState<EpisodeDomain> {
+        return try {
+            dao.insertEpisode(episode.toEntity())
+            BaseUiState.Success(episode)
         } catch (e: Exception) {
             BaseUiState.Error(
                 AppError.RoomDbError(

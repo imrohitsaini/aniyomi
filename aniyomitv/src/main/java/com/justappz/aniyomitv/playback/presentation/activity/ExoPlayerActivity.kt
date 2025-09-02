@@ -37,6 +37,7 @@ import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
+import com.justappz.aniyomitv.playback.domain.usecase.UpdateEpisodeWithDbUseCase
 import com.justappz.aniyomitv.playback.presentation.viewmodel.PlayerViewModel
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
@@ -68,6 +69,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     private var selectedEpisode: SEpisode? = null
     private var nowPlayingEpisode = -1
+    private var lastEpisodeUpdateTime = 0L
 
     private var doubleBackToExitPressedOnce = false
 
@@ -84,6 +86,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         ViewModelFactory {
             PlayerViewModel(
                 Injekt.get<UpdateAnimeWithDbUseCase>(),
+                Injekt.get<UpdateEpisodeWithDbUseCase>(),
             )
         }
     }
@@ -290,8 +293,19 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             override fun run() {
                 if (!isUserSeeking && exoPlayer?.isPlaying == true) {
                     val position = exoPlayer?.currentPosition ?: 0L
+                    val duration = exoPlayer?.duration ?: 1L // avoid divide
                     seekBar.progress = position.toInt()
                     tvCurrent.text = formatTime(position)
+
+                    val now = System.currentTimeMillis()
+
+                    if (now - lastEpisodeUpdateTime >= 5000) {
+                        selectedEpisode?.let { episode ->
+                            val progressPercent = (position.toDouble() / duration.toDouble()) * 100
+                            val watchState = if (progressPercent >= 80) 2 else 1
+                            updateEpisodeWithDb(position, episode, watchState)
+                        }
+                    }
                 }
                 progressHandler.postDelayed(this, 500)
             }
@@ -588,19 +602,23 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.animeDomain.collect { state ->
-                    when(state) {
+                    when (state) {
                         BaseUiState.Empty -> {
                             Log.d(tag, "Anime Domain Empty")
                         }
+
                         is BaseUiState.Error -> {
                             Log.d(tag, "Anime Domain Error")
                         }
+
                         BaseUiState.Idle -> {
                             Log.d(tag, "Anime Domain Error")
                         }
+
                         BaseUiState.Loading -> {
                             Log.d(tag, "Anime Domain Loading")
                         }
+
                         is BaseUiState.Success<*> -> {
                             Log.d(tag, "Anime Domain Success")
                         }
@@ -610,8 +628,47 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    private fun observeEpisodeUpdate() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.episodeDomain.collect { state ->
+                    when (state) {
+                        BaseUiState.Empty -> {
+                            Log.d(tag, "Episode Domain Empty")
+                        }
+
+                        is BaseUiState.Error -> {
+                            Log.d(tag, "Episode Domain Error")
+                        }
+
+                        BaseUiState.Idle -> {
+                            Log.d(tag, "Episode Domain Error")
+                        }
+
+                        BaseUiState.Loading -> {
+                            Log.d(tag, "Episode Domain Loading")
+                        }
+
+                        is BaseUiState.Success<*> -> {
+                            Log.d(tag, "Episode Domain Success")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun updateAnimeWithDb(packageName: String, className: String, anime: SAnime) {
         viewModel.updateAnimeWithDb(packageName, className, anime)
+    }
+
+    private fun updateEpisodeWithDb(position: Long, episode: SEpisode, watchState: Int) {
+        viewModel.updateEpisodeWithDb(
+            animeUrl = anime?.url ?: return,
+            lastWatchTime = position,
+            watchState = watchState,
+            episode = episode,
+        )
     }
     //endregion
 }

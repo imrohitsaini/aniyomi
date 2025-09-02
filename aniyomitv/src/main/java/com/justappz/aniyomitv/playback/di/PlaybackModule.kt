@@ -4,6 +4,7 @@ import com.justappz.aniyomitv.core.data.local.database.AppDatabase
 import com.justappz.aniyomitv.playback.data.repo.AnimeEpisodeRepoImpl
 import com.justappz.aniyomitv.playback.domain.repo.AnimeEpisodeRepo
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
+import com.justappz.aniyomitv.playback.domain.usecase.UpdateEpisodeWithDbUseCase
 import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
 import uy.kohesive.injekt.api.addSingletonFactory
@@ -19,5 +20,6 @@ class PlaybackModule : InjektModule {
 
         // USE CASES
         addSingletonFactory { UpdateAnimeWithDbUseCase(get()) }
+        addSingletonFactory { UpdateEpisodeWithDbUseCase(get()) }
     }
 }

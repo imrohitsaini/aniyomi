@@ -9,6 +9,7 @@ object RoomDBConstants {
     const val ENTITY_REPO_DETAILS = "repo_details"
     const val ENTITY_EXTENSIONS = "extension_details"
     const val ENTITY_ANIME = "anime"
+    const val ENTITY_EPISODES = "episodes"
     //endregion
 
 }

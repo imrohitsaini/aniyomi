@@ -28,6 +28,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.constants.EpisodeWatchState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
@@ -36,6 +37,8 @@ import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
+import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
+import com.justappz.aniyomitv.playback.domain.model.toSEpisode
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateEpisodeWithDbUseCase
 import com.justappz.aniyomitv.playback.presentation.viewmodel.PlayerViewModel
@@ -67,7 +70,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private lateinit var packageName: String
     private var animeHttpSource: AnimeHttpSource? = null
 
-    private var selectedEpisode: SEpisode? = null
+    private var selectedEpisode: EpisodeDomain? = null
     private var nowPlayingEpisode = -1
     private var lastEpisodeUpdateTime = 0L
 
@@ -107,9 +110,9 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         }
 
         selectedEpisode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getSerializableExtra(IntentKeys.ANIME_EPISODE, SEpisode::class.java)
+            intent.getSerializableExtra(IntentKeys.ANIME_EPISODE, EpisodeDomain::class.java)
         } else {
-            @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME_EPISODE) as? SEpisode
+            @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME_EPISODE) as? EpisodeDomain
         }
 
         packageName = intent.getStringExtra(IntentKeys.ANIME_PKG).toString()
@@ -142,6 +145,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             },
         )
 
+        resumePosition = selectedEpisode?.lastWatchTime ?: 0L
         init()
         startPlayer(nowPlayingEpisode, selectedSourcePosition, resumePosition)
 
@@ -302,8 +306,9 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                     if (now - lastEpisodeUpdateTime >= 5000) {
                         selectedEpisode?.let { episode ->
                             val progressPercent = (position.toDouble() / duration.toDouble()) * 100
-                            val watchState = if (progressPercent >= 80) 2 else 1
-                            updateEpisodeWithDb(position, episode, watchState)
+                            val watchState =
+                                if (progressPercent >= 80) EpisodeWatchState.WATCHED else EpisodeWatchState.IN_PROGRESS
+                            updateEpisodeWithDb(position, episode.toSEpisode(), watchState)
                         }
                     }
                 }
@@ -363,41 +368,41 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private fun startPlayer(nowPlayingPosition: Int, selectedSourcePosition: Int, resumePosition: Long) {
         val video = sourceList[selectedSourcePosition]
 
-        val dataSourceFactory = DefaultHttpDataSource.Factory()
-            .setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
+        val dataSourceFactory =
+            DefaultHttpDataSource.Factory().setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
 
         val mediaItem = MediaItem.fromUri(video.videoUrl)
 
         if (exoPlayer == null) {
             // First-time init
-            exoPlayer = ExoPlayer.Builder(this)
-                .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
-                .build().apply {
-                    binding.playerView.player = this
+            exoPlayer =
+                ExoPlayer.Builder(this).setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory)).build()
+                    .apply {
+                        binding.playerView.player = this
 
-                    addListener(
-                        object : Player.Listener {
-                            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                                if (playbackState == Player.STATE_READY) {
-                                    updateDurationUi()
-                                    binding.errorRoot.tvError.text = ""
-                                    binding.errorRoot.root.isVisible = false
+                        addListener(
+                            object : Player.Listener {
+                                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                                    if (playbackState == Player.STATE_READY) {
+                                        updateDurationUi()
+                                        binding.errorRoot.tvError.text = ""
+                                        binding.errorRoot.root.isVisible = false
+                                    }
                                 }
-                            }
 
-                            override fun onPlayerError(error: PlaybackException) {
-                                Log.e(tag, "ExoPlayer error: ${error.message}", error)
-                                Toast.makeText(
-                                    this@ExoPlayerActivity,
-                                    "Error: ${error.errorCodeName}",
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                                binding.errorRoot.tvError.text = getString(R.string.please_select_different_source)
-                                binding.errorRoot.root.isVisible = true
-                            }
-                        },
-                    )
-                }
+                                override fun onPlayerError(error: PlaybackException) {
+                                    Log.e(tag, "ExoPlayer error: ${error.message}", error)
+                                    Toast.makeText(
+                                        this@ExoPlayerActivity,
+                                        "Error: ${error.errorCodeName}",
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                                    binding.errorRoot.tvError.text = getString(R.string.please_select_different_source)
+                                    binding.errorRoot.root.isVisible = true
+                                }
+                            },
+                        )
+                    }
             initSeekBar()
         }
 
@@ -562,37 +567,21 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         if (visible) {
             // --- TOP BAR (slide down into view) ---
             topBar.isVisible = true
-            topBar.animate()
-                .translationY(0f)
-                .setDuration(250)
-                .setInterpolator(DecelerateInterpolator())
-                .withEndAction { startControlsAutoHideTimer() }
-                .start()
+            topBar.animate().translationY(0f).setDuration(250).setInterpolator(DecelerateInterpolator())
+                .withEndAction { startControlsAutoHideTimer() }.start()
 
             // --- BOTTOM BAR (slide up into view, reversed) ---
             bottomBar.isVisible = true
-            bottomBar.animate()
-                .translationY(0f)
-                .setDuration(250)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
+            bottomBar.animate().translationY(0f).setDuration(250).setInterpolator(DecelerateInterpolator()).start()
 
         } else {
             // --- TOP BAR (slide up and hide) ---
-            topBar.animate()
-                .translationY(-topBar.height.toFloat())
-                .setDuration(250)
-                .setInterpolator(DecelerateInterpolator())
-                .withEndAction { topBar.isVisible = false }
-                .start()
+            topBar.animate().translationY(-topBar.height.toFloat()).setDuration(250)
+                .setInterpolator(DecelerateInterpolator()).withEndAction { topBar.isVisible = false }.start()
 
             // --- BOTTOM BAR (slide down and hide, reversed) ---
-            bottomBar.animate()
-                .translationY(bottomBar.height.toFloat())
-                .setDuration(250)
-                .setInterpolator(DecelerateInterpolator())
-                .withEndAction { bottomBar.isVisible = false }
-                .start()
+            bottomBar.animate().translationY(bottomBar.height.toFloat()).setDuration(250)
+                .setInterpolator(DecelerateInterpolator()).withEndAction { bottomBar.isVisible = false }.start()
         }
     }
     //endregion

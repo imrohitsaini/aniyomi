@@ -7,6 +7,7 @@ import com.justappz.aniyomitv.base.BaseUiState.Idle
 import com.justappz.aniyomitv.episodes.domain.usecase.GetAnimeDetailsUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetEpisodesUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetVideosUseCase
+import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
@@ -37,8 +38,8 @@ class EpisodesViewModel(
     //endregion
 
     //region episodes
-    private val _episodesList = MutableStateFlow<BaseUiState<List<SEpisode>>>(Idle)
-    val episodesList: StateFlow<BaseUiState<List<SEpisode>>> = _episodesList.asStateFlow()
+    private val _episodesList = MutableStateFlow<BaseUiState<List<EpisodeDomain>>>(Idle)
+    val episodesList: StateFlow<BaseUiState<List<EpisodeDomain>>> = _episodesList.asStateFlow()
 
     fun getEpisodesList(source: AnimeHttpSource, anime: SAnime) {
         viewModelScope.launch {

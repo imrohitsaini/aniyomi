@@ -27,6 +27,8 @@ import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
+import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
+import com.justappz.aniyomitv.playback.domain.model.toSEpisode
 import com.justappz.aniyomitv.playback.presentation.activity.ExoPlayerActivity
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
@@ -44,6 +46,7 @@ class EpisodesActivity : BaseActivity() {
     private val tag = "EpisodesActivity"
     private var anime: SAnime? = null
     private var selectedEpisode: SEpisode? = null
+    private var selectedEpisodeDomain: EpisodeDomain? = null
     private lateinit var className: String
     private lateinit var packageName: String
     private var animeHttpSource: AnimeHttpSource? = null
@@ -91,7 +94,6 @@ class EpisodesActivity : BaseActivity() {
         animeHttpSource?.let { source ->
             anime?.let {
                 viewModel.getAnimeDetails(source, it)
-                viewModel.getEpisodesList(source, it)
             }
         }
         initLoader()
@@ -251,10 +253,11 @@ class EpisodesActivity : BaseActivity() {
     private fun setEpisodeProperties() {
         episodeAdapter = EpisodesAdapter(emptyList())
         episodeAdapter.onItemClick = { episode, position ->
-            animeHttpSource?.let {
+            animeHttpSource?.let { source ->
                 nowPlayingPosition = position
-                selectedEpisode = episode
-                viewModel.getVideosList(it, episode)
+                selectedEpisodeDomain = episode
+                selectedEpisode = episode.toSEpisode()
+                selectedEpisode?.let { viewModel.getVideosList(source, it) }
             }
         }
         binding.rvEpisodes.layoutManager = GridLayoutManager(ctx, 4)
@@ -288,9 +291,20 @@ class EpisodesActivity : BaseActivity() {
                 putExtra(IntentKeys.ANIME, anime)
                 putExtra(IntentKeys.ANIME_CLASS, className)
                 putExtra(IntentKeys.ANIME_PKG, packageName)
-                putExtra(IntentKeys.ANIME_EPISODE, selectedEpisode)
+                putExtra(IntentKeys.ANIME_EPISODE, selectedEpisodeDomain)
             },
         )
+    }
+    //endregion
+
+    //region onResume
+    override fun onResume() {
+        super.onResume()
+        animeHttpSource?.let { source ->
+            anime?.let {
+                viewModel.getEpisodesList(source, it)
+            }
+        }
     }
     //endregion
 }

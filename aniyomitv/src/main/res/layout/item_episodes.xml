@@ -8,19 +8,33 @@
     android:background="@drawable/bg_item_episode"
     android:padding="@dimen/_8dp">
 
+    <ImageView
+        android:id="@+id/ivEpisodeBadge"
+        android:layout_width="@dimen/_12dp"
+        android:layout_height="@dimen/_12dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/extension_bg"
+        android:scaleType="fitXY"
+        android:visibility="gone"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/svg_tick" />
+
     <TextView
         android:id="@+id/tvEpisodeNumber"
         style="@style/AnimeTV_Text_Caption"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:autoSizeMaxTextSize="@dimen/_12sp"
+        android:autoSizeMinTextSize="@dimen/_8sp"
+        android:autoSizeStepGranularity="@dimen/_1sp"
+        android:autoSizeTextType="uniform"
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="1"
         android:padding="@dimen/_4dp"
-        android:autoSizeMinTextSize="@dimen/_8sp"
-        android:autoSizeMaxTextSize="@dimen/_12sp"
-        android:autoSizeStepGranularity="@dimen/_1sp"
-        android:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

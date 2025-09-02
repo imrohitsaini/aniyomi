@@ -12,7 +12,7 @@ import uy.kohesive.injekt.api.get
 
 class EpisodesModule : InjektModule {
     override fun InjektRegistrar.registerInjectables() {
-        addSingletonFactory<EpisodesRepository> { EpisodesRepoImpl() }
+        addSingletonFactory<EpisodesRepository> { EpisodesRepoImpl(get()) }
 
         // Use case binding
         addSingletonFactory { GetAnimeDetailsUseCase(get()) }

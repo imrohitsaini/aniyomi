@@ -4,14 +4,20 @@ import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.episodes.domain.repo.EpisodesRepository
+import com.justappz.aniyomitv.playback.data.local.dao.AnimeEpisodeDao
+import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
-class EpisodesRepoImpl : EpisodesRepository {
+class EpisodesRepoImpl(
+    private val dao: AnimeEpisodeDao,
+) : EpisodesRepository {
 
     override suspend fun getAnimeDetails(
         source: AnimeHttpSource,
@@ -24,8 +30,8 @@ class EpisodesRepoImpl : EpisodesRepository {
             } catch (e: Exception) {
                 // You can branch specific errors here if needed
                 val appError = when (e) {
-                    is java.net.UnknownHostException -> AppError.NetworkError("No Internet Connection")
-                    is java.net.SocketTimeoutException -> AppError.NetworkError("Request Timeout")
+                    is UnknownHostException -> AppError.NetworkError("No Internet Connection")
+                    is SocketTimeoutException -> AppError.NetworkError("Request Timeout")
                     else -> AppError.UnknownError(e.message ?: "Something went wrong")
                 }
                 BaseUiState.Error(appError)
@@ -36,21 +42,43 @@ class EpisodesRepoImpl : EpisodesRepository {
     override suspend fun getEpisodes(
         source: AnimeHttpSource,
         anime: SAnime,
-    ): BaseUiState<List<SEpisode>> {
+    ): BaseUiState<List<EpisodeDomain>> {
         return withContext(Dispatchers.IO) {
             try {
-                val details = source.getEpisodeList(anime)
-                if (details.isEmpty()) {
+                val remoteEpisodes = source.getEpisodeList(anime)
+
+                if (remoteEpisodes.isEmpty()) {
+                    return@withContext BaseUiState.Empty
+                }
+
+                // Get existing episodes from DB
+                val localEpisodes = dao.getEpisodesForAnime(anime.url) // List<EpisodeEntity>
+
+                // Merge remote + local
+                val episodeDomains = remoteEpisodes.map { remote ->
+                    val local = localEpisodes.find { it.url == remote.url }
+                    EpisodeDomain(
+                        url = remote.url,
+                        name = remote.name,
+                        dateUpload = remote.date_upload,
+                        episodeNumber = remote.episode_number,
+                        animeUrl = anime.url,
+                        lastWatchTime = local?.lastWatchTime ?: 0L,
+                        watchState = local?.watchState ?: 0,
+                    )
+                }
+
+                if (episodeDomains.isEmpty()) {
                     BaseUiState.Empty
                 } else {
-                    BaseUiState.Success(details)
+                    BaseUiState.Success(episodeDomains)
                 }
-                BaseUiState.Success(details)
+                BaseUiState.Success(episodeDomains)
             } catch (e: Exception) {
                 // You can branch specific errors here if needed
                 val appError = when (e) {
-                    is java.net.UnknownHostException -> AppError.NetworkError("No Internet Connection")
-                    is java.net.SocketTimeoutException -> AppError.NetworkError("Request Timeout")
+                    is UnknownHostException -> AppError.NetworkError("No Internet Connection")
+                    is SocketTimeoutException -> AppError.NetworkError("Request Timeout")
                     else -> AppError.UnknownError(e.message ?: "Something went wrong")
                 }
                 BaseUiState.Error(appError)
@@ -73,12 +101,12 @@ class EpisodesRepoImpl : EpisodesRepository {
             } catch (e: Exception) {
                 // You can branch specific errors here if needed
                 val appError = when (e) {
-                    is java.net.UnknownHostException -> AppError.NetworkError(
+                    is UnknownHostException -> AppError.NetworkError(
                         "No Internet Connection",
                         displayType = ErrorDisplayType.TOAST,
                     )
 
-                    is java.net.SocketTimeoutException -> AppError.NetworkError(
+                    is SocketTimeoutException -> AppError.NetworkError(
                         "Request Timeout",
                         displayType = ErrorDisplayType.TOAST,
                     )

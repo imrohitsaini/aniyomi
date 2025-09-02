@@ -1,6 +1,7 @@
 package com.justappz.aniyomitv.core.di
 
 import android.app.Application
+import androidx.room.Room
 import com.justappz.aniyomitv.constants.RoomDBConstants
 import com.justappz.aniyomitv.core.data.local.database.AppDatabase
 import eu.kanade.tachiyomi.network.NetworkHelper
@@ -23,11 +24,11 @@ class AppModule(val app: Application) : InjektModule {
         }
 
         addSingletonFactory {
-            androidx.room.Room.databaseBuilder(
+            Room.databaseBuilder(
                 app,
                 AppDatabase::class.java,
                 RoomDBConstants.DATABASE
-            ).build()
+            ).fallbackToDestructiveMigration(true).build()
         }
     }
 }

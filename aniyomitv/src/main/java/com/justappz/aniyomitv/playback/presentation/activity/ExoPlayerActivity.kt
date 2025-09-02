@@ -11,11 +11,14 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -24,13 +27,17 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
+import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.IntentKeys
+import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
 import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
+import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
+import com.justappz.aniyomitv.playback.presentation.viewmodel.PlayerViewModel
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
@@ -40,6 +47,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.Headers
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import java.util.Locale
 
 class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
@@ -59,7 +68,9 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     private var selectedEpisode: SEpisode? = null
     private var nowPlayingEpisode = -1
+
     private var doubleBackToExitPressedOnce = false
+
     private var exoPlayer: ExoPlayer? = null
     private val backHandler = Handler(Looper.getMainLooper())
     private val controlsHandler = Handler(Looper.getMainLooper())
@@ -68,6 +79,14 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private var isUserSeeking = false
     private var seekJob: Job? = null
     private var resumePosition = 0L
+
+    private val viewModel: PlayerViewModel by viewModels {
+        ViewModelFactory {
+            PlayerViewModel(
+                Injekt.get<UpdateAnimeWithDbUseCase>(),
+            )
+        }
+    }
     //endregion
 
     //region onCreate
@@ -199,6 +218,9 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 },
             ),
         )
+
+        observeAnimeUpdate()
+        anime?.let { updateAnimeWithDb(packageName, className, it) }
     }
     //endregion
 
@@ -463,7 +485,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     }
     //endregion
 
-
     //region changeSourceDialog
     private fun changeSourceDialog() {
         val options: MutableList<Options> = arrayListOf()
@@ -516,7 +537,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     private fun startControlsAutoHideTimer() {
         controlsHandler.removeCallbacks(hideRunnable)
-        controlsHandler.postDelayed(hideRunnable, 5000) // 3 sec
+        controlsHandler.postDelayed(hideRunnable, 5000) // 5 sec
     }
 
 
@@ -559,6 +580,38 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 .withEndAction { bottomBar.isVisible = false }
                 .start()
         }
+    }
+    //endregion
+
+    // region DB Operations
+    private fun observeAnimeUpdate() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.animeDomain.collect { state ->
+                    when(state) {
+                        BaseUiState.Empty -> {
+                            Log.d(tag, "Anime Domain Empty")
+                        }
+                        is BaseUiState.Error -> {
+                            Log.d(tag, "Anime Domain Error")
+                        }
+                        BaseUiState.Idle -> {
+                            Log.d(tag, "Anime Domain Error")
+                        }
+                        BaseUiState.Loading -> {
+                            Log.d(tag, "Anime Domain Loading")
+                        }
+                        is BaseUiState.Success<*> -> {
+                            Log.d(tag, "Anime Domain Success")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateAnimeWithDb(packageName: String, className: String, anime: SAnime) {
+        viewModel.updateAnimeWithDb(packageName, className, anime)
     }
     //endregion
 }

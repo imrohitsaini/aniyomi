@@ -6,6 +6,7 @@ object IntentKeys {
 
 
     const val ANIME = "anime"
+    const val ANIME_ID_DB = "anime_id_db"
     const val ANIME_CLASS = "anime_class"
     const val ANIME_PKG = "anime_pkg"
     const val ANIME_EPISODE = "anime_episode"

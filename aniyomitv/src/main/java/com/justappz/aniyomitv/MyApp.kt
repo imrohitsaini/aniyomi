@@ -20,6 +20,7 @@ import com.justappz.aniyomitv.core.util.PrefsManager
 import com.justappz.aniyomitv.episodes.di.EpisodesModule
 import com.justappz.aniyomitv.extensions.di.ExtensionModule
 import com.justappz.aniyomitv.main.di.MainModule
+import com.justappz.aniyomitv.playback.di.PlaybackModule
 import dev.mihon.injekt.patchInjekt
 import uy.kohesive.injekt.Injekt
 
@@ -38,6 +39,7 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks, SingletonIm
         Injekt.importModule(ExtensionModule())
         Injekt.importModule(SearchModule())
         Injekt.importModule(EpisodesModule())
+        Injekt.importModule(PlaybackModule())
 
         Log.d("MyApp", "Injekt modules initialized in ${System.currentTimeMillis() - start} ms")
 

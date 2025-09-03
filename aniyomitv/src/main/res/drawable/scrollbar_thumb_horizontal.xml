@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- When ScrollView (or its child) is focused -->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <size android:height="@dimen/scrollbar_height" />
+            <corners android:radius="@dimen/scrollbar_radius" />
+            <solid android:color="@color/anime_tv_primary" />
+        </shape>
+    </item>
+
+    <!-- Default (no focus) -->
+    <item>
+        <shape android:shape="rectangle">
+            <size android:height="@dimen/scrollbar_height" />
+            <corners android:radius="@dimen/scrollbar_radius" />
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+
+</selector>

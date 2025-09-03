@@ -68,6 +68,8 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:fadeScrollbars="false"
+            android:overScrollMode="ifContentScrolls"
+            android:scrollIndicators="top|bottom"
             android:scrollbarThumbVertical="@drawable/scrollbar_thumb_vertical"
             android:scrollbars="vertical"
             app:layout_constraintBottom_toBottomOf="@id/seventyFivePercentHorizontalGuideline"
@@ -116,20 +118,43 @@
 
         </ScrollView>
 
-        <TextView
-            android:id="@+id/tvGenre"
-            style="@style/AnimeTV_Text_Caption"
+        <HorizontalScrollView
+            android:id="@+id/scrollViewGenre"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_4dp"
-            android:ellipsize="end"
-            android:justificationMode="inter_word"
-            android:maxLines="1"
-            android:text="@string/genre"
+            android:fadeScrollbars="false"
+            android:overScrollMode="ifContentScrolls"
+            android:scrollIndicators="start|end"
+            android:scrollbarThumbHorizontal="@drawable/scrollbar_thumb_vertical"
+            android:scrollbars="horizontal"
             app:layout_constraintEnd_toEndOf="@id/centerVerticalGuideline"
             app:layout_constraintStart_toStartOf="@id/ivAnimeThumbnail"
-            app:layout_constraintTop_toBottomOf="@id/ivAnimeThumbnail"
-            tools:text="Genre: Action, Adventure, Comedy, Super Power, Drama, Fantasy, Shounen, Samurai, Isekai" />
+            app:layout_constraintTop_toBottomOf="@id/ivAnimeThumbnail">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/_4dp">
+
+                <TextView
+                    android:id="@+id/tvGenre"
+                    style="@style/AnimeTV_Text_Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/_4dp"
+                    android:ellipsize="end"
+                    android:justificationMode="inter_word"
+                    android:maxLines="1"
+                    android:text="@string/genre"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Genre: Action, Adventure, Comedy, Super Power, Drama, Fantasy, Shounen, Samurai, Isekai" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </HorizontalScrollView>
+
         <!--        endregion-->
 
         <View
@@ -174,6 +199,98 @@
             app:layout_constraintStart_toEndOf="@id/centerVerticalGuideline"
             app:layout_constraintTop_toTopOf="@id/topGuideline" />
 
+        <!--        endregion-->
+
+        <!--        region Action Buttons-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAddRemoveToLibrary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/centerVerticalGuideline"
+            app:layout_constraintStart_toStartOf="@id/startGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scrollViewGenre">
+
+            <ImageView
+                android:id="@+id/ivLibrary"
+                android:layout_width="@dimen/_24dp"
+                android:layout_height="@dimen/_24dp"
+                android:layout_marginStart="@dimen/_8dp"
+                android:background="@drawable/icon_focus_selector"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:src="@drawable/favorite_selector"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tvLibrary"
+                style="@style/AnimeTV_Text_Very_Small_Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLines="2"
+                android:minLines="1"
+                android:text="@string/add_to_library"
+                app:layout_constraintEnd_toEndOf="@id/ivLibrary"
+                app:layout_constraintStart_toStartOf="@id/ivLibrary"
+                app:layout_constraintTop_toBottomOf="@id/ivLibrary" />
+
+            <ImageView
+                android:id="@+id/ivResume"
+                android:layout_width="@dimen/_24dp"
+                android:layout_height="@dimen/_24dp"
+                android:layout_marginStart="@dimen/_16dp"
+                android:background="@drawable/icon_focus_selector"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:focusedByDefault="true"
+                android:src="@drawable/svg_play"
+                app:layout_constraintStart_toEndOf="@id/ivLibrary"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tvResume"
+                style="@style/AnimeTV_Text_Very_Small_Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLines="2"
+                android:minLines="1"
+                android:text="@string/resume"
+                app:layout_constraintEnd_toEndOf="@id/ivResume"
+                app:layout_constraintStart_toStartOf="@id/ivResume"
+                app:layout_constraintTop_toBottomOf="@id/ivResume" />
+
+            <ImageView
+                android:id="@+id/ivSort"
+                android:layout_width="@dimen/_24dp"
+                android:layout_height="@dimen/_24dp"
+                android:layout_marginStart="@dimen/_16dp"
+                android:background="@drawable/icon_focus_selector"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:src="@drawable/sorting_selector"
+                app:layout_constraintStart_toEndOf="@id/ivResume"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tvSort"
+                style="@style/AnimeTV_Text_Very_Small_Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLines="2"
+                android:minLines="1"
+                android:text="@string/sort"
+                app:layout_constraintEnd_toEndOf="@id/ivSort"
+                app:layout_constraintStart_toStartOf="@id/ivSort"
+                app:layout_constraintTop_toBottomOf="@id/ivSort" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
         <!--        endregion-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>

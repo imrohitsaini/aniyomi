@@ -54,6 +54,18 @@
         <item name="android:textColor">@color/anime_tv_onSurfaceVariant</item>
     </style>
 
+    <style name="AnimeTV_Text_Small_Caption" parent="AnimeTV_Text_Base">
+        <item name="android:textSize">@dimen/_10sp</item>
+        <item name="android:fontFamily">@font/nunito_medium</item>
+        <item name="android:textColor">@color/anime_tv_onSurfaceVariant</item>
+    </style>
+
+    <style name="AnimeTV_Text_Very_Small_Caption" parent="AnimeTV_Text_Base">
+        <item name="android:textSize">@dimen/_8sp</item>
+        <item name="android:fontFamily">@font/nunito_medium</item>
+        <item name="android:textColor">@color/anime_tv_onSurfaceVariant</item>
+    </style>
+
     <style name="AppDialog.Fullscreen" parent="Theme.MaterialComponents.DayNight.Dialog">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>

@@ -1,13 +1,14 @@
 package com.justappz.aniyomitv.episodes.presentation.adapters
 
-import androidx.core.view.isVisible
+import androidx.core.view.isInvisible
+import androidx.recyclerview.widget.DiffUtil
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseRecyclerViewAdapter
 import com.justappz.aniyomitv.constants.EpisodeWatchState
 import com.justappz.aniyomitv.databinding.ItemEpisodesBinding
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 
-class EpisodesAdapter(items: List<EpisodeDomain>) : BaseRecyclerViewAdapter<EpisodeDomain, ItemEpisodesBinding>(
+class EpisodesAdapter(var items: List<EpisodeDomain>) : BaseRecyclerViewAdapter<EpisodeDomain, ItemEpisodesBinding>(
     items = items,
     bindingInflater = { inflater, parent, attach ->
         ItemEpisodesBinding.inflate(inflater, parent, attach)
@@ -20,15 +21,22 @@ class EpisodesAdapter(items: List<EpisodeDomain>) : BaseRecyclerViewAdapter<Epis
         } else {
             formattedNumber.toString()
         }
-        ivEpisodeBadge.isVisible = false
+        ivEpisodeBadge.isInvisible = true
         if (episode.watchState == EpisodeWatchState.WATCHED) {
-            ivEpisodeBadge.isVisible = true
+            ivEpisodeBadge.isInvisible = false
             ivEpisodeBadge.setImageResource(R.drawable.svg_tick)
         } else if (episode.watchState == EpisodeWatchState.IN_PROGRESS) {
-            ivEpisodeBadge.isVisible = true
+            ivEpisodeBadge.isInvisible = false
             ivEpisodeBadge.setImageResource(R.drawable.svg_play)
         }
 
         tvEpisodeNumber.text = displayNumber
     },
-)
+) {
+    fun updateSortedList(newList: List<EpisodeDomain>) {
+        val diffCallback = EpisodeDiffCallback(items, newList)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        items = newList
+        diffResult.dispatchUpdatesTo(this)
+    }
+}

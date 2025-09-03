@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-class EpisodesActivity : BaseActivity() {
+class EpisodesActivity : BaseActivity(), View.OnClickListener {
 
     //region variables
     private lateinit var binding: ActivityEpisodesBinding
@@ -72,6 +72,9 @@ class EpisodesActivity : BaseActivity() {
     //region init
     private fun init() {
         Log.d(tag, "init")
+
+        binding.ivLibrary.setOnClickListener(this)
+        binding.ivSort.setOnClickListener(this)
 
         anime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(IntentKeys.ANIME, SAnime::class.java)
@@ -303,6 +306,30 @@ class EpisodesActivity : BaseActivity() {
         animeHttpSource?.let { source ->
             anime?.let {
                 viewModel.getEpisodesList(source, it)
+            }
+        }
+    }
+    //endregion
+
+    //region onClick
+    override fun onClick(view: View?) {
+        view?.let { v ->
+            when (v) {
+                binding.ivLibrary -> {
+                    binding.ivLibrary.isSelected = !binding.ivLibrary.isSelected
+                }
+
+                binding.ivSort -> {
+                    binding.ivSort.isSelected = !binding.ivSort.isSelected
+
+                    val currentList = episodeAdapter.getCurrentList()
+                    val sortedList = if (binding.ivSort.isSelected) {
+                        currentList.sortedBy { it.episodeNumber } // Ascending
+                    } else {
+                        currentList.sortedByDescending { it.episodeNumber } // Descending
+                    }
+                    episodeAdapter.updateList(sortedList)
+                }
             }
         }
     }

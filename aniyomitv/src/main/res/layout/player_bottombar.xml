@@ -76,28 +76,15 @@
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_4dp"
+        android:layout_height="@dimen/_2dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:padding="0dp"
         android:progressDrawable="@drawable/custom_seek_progress"
         android:thumb="@null"
         app:layout_constraintBottom_toTopOf="@id/bottomBarTopGuideline"
         app:layout_constraintEnd_toEndOf="@id/endGuideline"
         app:layout_constraintStart_toStartOf="@id/startGuideline" />
-
-    <ImageView
-        android:id="@+id/ivPlayPrevious"
-        android:layout_width="@dimen/_36dp"
-        android:layout_height="@dimen/_36dp"
-        android:layout_marginEnd="@dimen/_8dp"
-        android:background="@drawable/icon_focus_selector"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:src="@drawable/svg_play_previous"
-        app:layout_constraintBottom_toBottomOf="@id/ivPlayPauseBottombar"
-        app:layout_constraintEnd_toStartOf="@id/ivPlayPauseBottombar"
-        app:layout_constraintTop_toTopOf="@id/ivPlayPauseBottombar"
-        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/ivPlayPauseBottombar"
@@ -154,5 +141,33 @@
         app:layout_constraintStart_toEndOf="@id/ivBackward"
         app:layout_constraintTop_toTopOf="@id/ivPlayPauseBottombar"
         tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tvBackward"
+        style="@style/AnimeTV_Text_Caption"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/_10"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_10sp"
+        app:layout_constraintBottom_toBottomOf="@id/ivBackward"
+        app:layout_constraintEnd_toEndOf="@id/ivBackward"
+        app:layout_constraintStart_toStartOf="@id/ivBackward"
+        app:layout_constraintTop_toTopOf="@id/ivBackward" />
+
+    <TextView
+        android:id="@+id/tvForward"
+        style="@style/AnimeTV_Text_Caption"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/_10"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_10sp"
+        app:layout_constraintBottom_toBottomOf="@id/ivForward"
+        app:layout_constraintEnd_toEndOf="@id/ivForward"
+        app:layout_constraintStart_toStartOf="@id/ivForward"
+        app:layout_constraintTop_toTopOf="@id/ivForward" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -26,7 +26,7 @@ class EpisodesAdapter(items: List<EpisodeDomain>) : BaseRecyclerViewAdapter<Epis
             ivEpisodeBadge.setImageResource(R.drawable.svg_tick)
         } else if (episode.watchState == EpisodeWatchState.IN_PROGRESS) {
             ivEpisodeBadge.isVisible = true
-            ivEpisodeBadge.setImageResource(R.drawable.svg_pause)
+            ivEpisodeBadge.setImageResource(R.drawable.svg_play)
         }
 
         tvEpisodeNumber.text = displayNumber

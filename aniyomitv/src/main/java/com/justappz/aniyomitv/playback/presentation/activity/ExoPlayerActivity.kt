@@ -23,6 +23,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.justappz.aniyomitv.R
@@ -42,6 +44,7 @@ import com.justappz.aniyomitv.playback.domain.model.toSEpisode
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateEpisodeWithDbUseCase
 import com.justappz.aniyomitv.playback.presentation.viewmodel.PlayerViewModel
+import com.justappz.aniyomitv.playback.utils.ExoCache
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
@@ -161,7 +164,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         binding.ivPlayPause.setOnClickListener(this)
         binding.playerView.setOnClickListener(this)
 
-        binding.bottomBar.ivPlayPrevious.setOnClickListener(this)
         binding.bottomBar.ivPlayNext.setOnClickListener(this)
         binding.bottomBar.ivPlayPauseBottombar.setOnClickListener(this)
         binding.bottomBar.ivBackward.setOnClickListener(this)
@@ -175,7 +177,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         ImageViewCompat.setImageTintList(binding.ivPlayPause, tintList)
 
         ImageViewCompat.setImageTintList(binding.bottomBar.ivPlayPauseBottombar, tintList)
-        ImageViewCompat.setImageTintList(binding.bottomBar.ivPlayPrevious, tintList)
         ImageViewCompat.setImageTintList(binding.bottomBar.ivPlayNext, tintList)
         ImageViewCompat.setImageTintList(binding.bottomBar.ivBackward, tintList)
         ImageViewCompat.setImageTintList(binding.bottomBar.ivForward, tintList)
@@ -223,6 +224,10 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                     }
                     return@FocusKeyHandler true
                 },
+                onDown = {
+                    binding.bottomBar.ivForward.requestFocus()
+                    return@FocusKeyHandler true
+                },
             ),
         )
 
@@ -248,8 +253,11 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             object : Player.Listener {
                 override fun onPlaybackStateChanged(state: Int) {
                     if (state == Player.STATE_READY) {
+                        binding.loading.isVisible = false
                         tvTotal.text = formatTime(exoPlayer?.duration ?: 0L)
                         seekBar.max = (exoPlayer?.duration ?: 0L).toInt()
+                    } else if (state == Player.STATE_BUFFERING) {
+                        binding.loading.isVisible = true
                     }
                 }
             },
@@ -333,6 +341,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             delay(500) // wait 1s of inactivity
             seekToPosition(position)
             isUserSeeking = false
+            setControlsVisible(true)
             startControlsAutoHideTimer()
         }
     }
@@ -368,41 +377,60 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private fun startPlayer(nowPlayingPosition: Int, selectedSourcePosition: Int, resumePosition: Long) {
         val video = sourceList[selectedSourcePosition]
 
-        val dataSourceFactory =
-            DefaultHttpDataSource.Factory().setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
-
         val mediaItem = MediaItem.fromUri(video.videoUrl)
 
         if (exoPlayer == null) {
+            val dataSourceFactory =
+                DefaultHttpDataSource.Factory()
+                    .setAllowCrossProtocolRedirects(true)
+                    .setConnectTimeoutMs(15_000)
+                    .setReadTimeoutMs(30_000)
+                    .setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
+
+            val cache = ExoCache.get(ctx)
+
+            val cacheDataSourceFactory = CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(dataSourceFactory)
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+
+            val loadControl = DefaultLoadControl.Builder().setBufferDurationsMs(
+                10_000, // minBufferMs: 10s
+                50_000, // maxBufferMs: 50s
+                1_000,  // bufferForPlaybackMs: start playback after 1s buffered
+                2_000,   // bufferForPlaybackAfterRebufferMs
+            ).build()
+
             // First-time init
-            exoPlayer =
-                ExoPlayer.Builder(this).setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory)).build()
-                    .apply {
-                        binding.playerView.player = this
+            exoPlayer = ExoPlayer.Builder(this).setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
+                .setLoadControl(loadControl).build().apply {
+                    binding.playerView.player = this
 
-                        addListener(
-                            object : Player.Listener {
-                                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                                    if (playbackState == Player.STATE_READY) {
-                                        updateDurationUi()
-                                        binding.errorRoot.tvError.text = ""
-                                        binding.errorRoot.root.isVisible = false
-                                    }
+                    addListener(
+                        object : Player.Listener {
+                            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                                if (playbackState == Player.STATE_READY) {
+                                    updateDurationUi()
+                                    setControlsVisible(true)
+                                    startControlsAutoHideTimer()
+                                    binding.errorRoot.tvError.text = ""
+                                    binding.errorRoot.root.isVisible = false
                                 }
+                            }
 
-                                override fun onPlayerError(error: PlaybackException) {
-                                    Log.e(tag, "ExoPlayer error: ${error.message}", error)
-                                    Toast.makeText(
-                                        this@ExoPlayerActivity,
-                                        "Error: ${error.errorCodeName}",
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-                                    binding.errorRoot.tvError.text = getString(R.string.please_select_different_source)
-                                    binding.errorRoot.root.isVisible = true
-                                }
-                            },
-                        )
-                    }
+                            override fun onPlayerError(error: PlaybackException) {
+                                Log.e(tag, "ExoPlayer error: ${error.message}", error)
+                                Toast.makeText(
+                                    this@ExoPlayerActivity,
+                                    "Error: ${error.errorCodeName}",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                                binding.errorRoot.tvError.text = getString(R.string.please_select_different_source)
+                                binding.errorRoot.root.isVisible = true
+                            }
+                        },
+                    )
+                }
             initSeekBar()
         }
 
@@ -475,6 +503,8 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
     //region onClick
     override fun onClick(view: View?) {
+        setControlsVisible(true)
+        startControlsAutoHideTimer()
         view?.let {
             when (it) {
                 binding.topBar.ivBack -> onBackButtonClicked()

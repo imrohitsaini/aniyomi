@@ -16,7 +16,10 @@ import com.justappz.aniyomitv.constants.RoomDBConstants
             onDelete = ForeignKey.CASCADE,   // delete episodes if anime is deleted
         ),
     ],
-    indices = [Index(value = ["animeUrl"])],
+    indices = [
+        Index(value = ["animeUrl"]),                      // for fast lookups
+        Index(value = ["animeUrl", "url"], unique = true) // composite uniqueness
+    ],
 )
 data class EpisodeEntity(
     // SEpisode

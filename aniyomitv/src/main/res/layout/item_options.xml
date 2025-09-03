@@ -18,6 +18,7 @@
         android:autoSizeMinTextSize="@dimen/_8sp"
         android:autoSizeStepGranularity="@dimen/_1sp"
         android:autoSizeTextType="uniform"
+        android:buttonTint="@color/anime_tv_primary"
         android:ellipsize="end"
         android:focusable="true"
         android:focusableInTouchMode="true"

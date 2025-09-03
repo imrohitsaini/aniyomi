@@ -8,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.databinding.DialogLoaderBinding
@@ -29,7 +27,7 @@ class LoaderDialog(
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         Log.i(tagName, "onCreateDialog")
         val dialog = super.onCreateDialog(savedInstanceState)
-        setStyle(STYLE_NORMAL, R.style.AppDialog_Fullscreen)
+        setStyle(STYLE_NORMAL, R.style.AppDialog_Normal)
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
@@ -59,11 +57,6 @@ class LoaderDialog(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
             )
-            val params = attributes
-            val margin = resources.getDimensionPixelSize(R.dimen._60dp)
-            params.width = resources.displayMetrics.widthPixels - (margin * 2)
-            params.gravity = Gravity.CENTER
-            attributes = params
         }
         isRunning = true
 

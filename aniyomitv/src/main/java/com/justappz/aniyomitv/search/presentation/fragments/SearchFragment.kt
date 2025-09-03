@@ -146,7 +146,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             val isEmpty = animeAdapter.itemCount == 0
                             binding.errorRoot.root.isVisible = isEmpty
                             if (isEmpty) {
-                                binding.errorRoot.tvError.text = "No anime found"
+                                binding.errorRoot.tvError.text = getString(R.string.no_data_found)
                             }
                         }
 
@@ -154,7 +154,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             showLoading(false)
                             binding.errorRoot.root.isVisible = true
                             binding.rvAnime.isVisible = false
-                            binding.errorRoot.tvError.text = "No anime found"
+                            binding.errorRoot.tvError.text = getString(R.string.no_data_found)
                         }
                     }
                 }
@@ -213,6 +213,14 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             var selectionIndex = 0
                             if (preferredExtensionName != null) {
                                 selectionIndex = extensions.indexOfFirst { it.appName == preferredExtensionName }
+                            }
+
+                            if (selectionIndex == -1) {
+                                selectionIndex = 0
+                                PrefsManager.putString(
+                                    PrefsKeys.PREFERRED_EXTENSION,
+                                    extensions[selectionIndex].appName,
+                                )
                             }
 
                             // take first installed extension
@@ -338,7 +346,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         val radioButtonDialogModel = RadioButtonDialogModel(
             title = getString(R.string.select_extensions),
             description = "Select your preferred extension!",
-            options = options
+            options = options,
         )
         val dialog = RadioButtonDialog(
             radioButtonDialogModel,

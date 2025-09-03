@@ -120,17 +120,21 @@ class RadioButtonDialog(
         ) { option, position ->
             rbOption.text = option.buttonTitle
 
-            // Always bind the current state correctly
+            // Reset listener before setting checked state
+            rbOption.setOnCheckedChangeListener(null)
             rbOption.isChecked = option.isSelected == true
 
-            rbOption.setOnCheckedChangeListener(null) // avoid unwanted triggers while recycling
             rbOption.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    // Update model
-                    if (lastSelectedPosition != -1 && lastSelectedPosition != position) {
-                        model.options[lastSelectedPosition].isSelected = false
-                        binding.rvOptions.post {
-                            optionsAdapter?.notifyItemChanged(lastSelectedPosition)
+                    /// Unselect ALL first
+                    model.options.forEachIndexed { index, item ->
+                        if (item.isSelected == true) {
+                            item.isSelected = false
+                            if (index != position) {
+                                binding.rvOptions.post {
+                                    optionsAdapter?.notifyItemChanged(index)
+                                }
+                            }
                         }
                     }
 

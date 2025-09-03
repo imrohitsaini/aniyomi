@@ -24,5 +24,5 @@ data class AnimeEntity(
     val className: String,
 
     // Library
-    val inLibrary: Boolean? = false,
+    val inLibrary: Boolean = false,
 )

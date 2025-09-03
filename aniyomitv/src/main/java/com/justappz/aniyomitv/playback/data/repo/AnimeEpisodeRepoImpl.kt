@@ -5,6 +5,7 @@ import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.playback.data.local.dao.AnimeEpisodeDao
+import com.justappz.aniyomitv.playback.data.mapper.toDomain
 import com.justappz.aniyomitv.playback.data.mapper.toEntity
 import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
@@ -53,4 +54,19 @@ class AnimeEpisodeRepoImpl(
             )
         }
     }
+
+    override suspend fun getAnimeWithKey(animeKey: String): BaseUiState<AnimeDomain?> {
+        return try {
+            val entity = dao.getAnimeWithKey(animeKey) // could be null
+            BaseUiState.Success(entity?.toDomain())
+        } catch (e: Exception) {
+            BaseUiState.Error(
+                AppError.RoomDbError(
+                    message = "Fetch failed",
+                    displayType = ErrorDisplayType.TOAST,
+                ),
+            )
+        }
+    }
+
 }

@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -27,6 +29,7 @@ import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
+import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import com.justappz.aniyomitv.playback.domain.model.toSEpisode
 import com.justappz.aniyomitv.playback.presentation.activity.ExoPlayerActivity
@@ -59,6 +62,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                 Injekt.get(),
                 Injekt.get(),
                 Injekt.get(),
+                Injekt.get(),
             )
         }
     }
@@ -80,6 +84,12 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     //region init
     private fun init() {
         Log.d(tag, "init")
+
+        val tintList = ContextCompat.getColorStateList(ctx, R.color.player_icon_selector)
+
+        ImageViewCompat.setImageTintList(binding.ivLibrary, tintList)
+        ImageViewCompat.setImageTintList(binding.ivResume, tintList)
+        ImageViewCompat.setImageTintList(binding.ivSort, tintList)
 
         binding.ivLibrary.setOnClickListener(this)
         binding.ivSort.setOnClickListener(this)
@@ -105,6 +115,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         animeHttpSource?.let { source ->
             anime?.let {
                 viewModel.getAnimeDetails(source, it)
+                viewModel.getAnimeWithAnimeUrl(it.url)
             }
         }
         initLoader()
@@ -368,7 +379,22 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                             showUpdatingLibraryLoader(true)
                         }
 
-                        is BaseUiState.Success<*> -> {
+                        is BaseUiState.Success<AnimeDomain?> -> {
+                            val animeDomain = state.data
+
+                            animeDomain?.let {
+                                // Anime exists in db, check it is in library
+                                binding.ivLibrary.isSelected = it.inLibrary == true
+                            } ?: run {
+                                // Not in library as domain is null
+                                binding.ivLibrary.isSelected = false
+                            }
+                            if (binding.ivLibrary.isSelected) {
+                                binding.tvLibrary.setText(R.string.in_library)
+                            } else {
+                                binding.tvLibrary.setText(R.string.add_to_library)
+                            }
+
                             showUpdatingLibraryLoader(false)
                         }
                     }
@@ -388,14 +414,13 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                 // Not in the library -> add the anime and episodes in the library
                 viewModel.updateAnimeWithDb(packageName, className, it, inLibrary = true)
             }
-            binding.ivLibrary.isSelected = !binding.ivLibrary.isSelected
         }
     }
 
     private fun showUpdatingLibraryLoader(toShow: Boolean) {
         if (toShow && !uploadingLibraryDialog.isRunning) {
             uploadingLibraryDialog.show(supportFragmentManager, "uploading_library")
-        } else if (uploadingLibraryDialog.isRunning) {
+        } else if (!toShow && uploadingLibraryDialog.isRunning) {
             uploadingLibraryDialog.dismiss()
         }
     }

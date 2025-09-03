@@ -7,6 +7,6 @@ import eu.kanade.tachiyomi.animesource.model.SEpisode
 
 interface AnimeEpisodeRepo {
     suspend fun updateAnimeWithDb(animeDomain: AnimeDomain): BaseUiState<AnimeDomain>
+    suspend fun getAnimeWithKey(animeKey: String): BaseUiState<AnimeDomain?>
     suspend fun updateEpisodeWithDb(episode: EpisodeDomain): BaseUiState<EpisodeDomain>
-
 }

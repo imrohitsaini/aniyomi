@@ -19,6 +19,7 @@
     <string name="_10">10</string>
     <string name="no_data_found">No data found</string>
     <string name="add_to_library">Add to\nlibrary</string>
+    <string name="in_library">In\nlibrary</string>
     <string name="resume">Resume</string>
     <string name="sort">Sort</string>
 </resources>

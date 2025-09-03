@@ -24,6 +24,15 @@ interface AnimeEpisodeDao {
     suspend fun insertAnime(anime: AnimeEntity)
 
     /**
+     * @param animeKey Find the anime in the db if exits
+     * */
+    @Query(
+        "SELECT * FROM ${RoomDBConstants.ENTITY_ANIME} " +
+            "WHERE animeKey = :animeKey ",
+    )
+    suspend fun getAnimeWithKey(animeKey: String): AnimeEntity?
+
+    /**
      * Inserts or updates an Episode in the database.
      *
      * - If an Episode with the same primary key exists, it will be replaced.

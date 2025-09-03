@@ -5,6 +5,7 @@ import com.justappz.aniyomitv.episodes.domain.repo.EpisodesRepository
 import com.justappz.aniyomitv.episodes.domain.usecase.GetAnimeDetailsUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetEpisodesUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetVideosUseCase
+import com.justappz.aniyomitv.playback.domain.usecase.GetAnimeWithKeyUseCase
 import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
 import uy.kohesive.injekt.api.addSingletonFactory
@@ -18,5 +19,6 @@ class EpisodesModule : InjektModule {
         addSingletonFactory { GetAnimeDetailsUseCase(get()) }
         addSingletonFactory { GetEpisodesUseCase(get()) }
         addSingletonFactory { GetVideosUseCase(get()) }
+        addSingletonFactory { GetAnimeWithKeyUseCase(get()) }
     }
 }

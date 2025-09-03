@@ -9,6 +9,7 @@ import com.justappz.aniyomitv.episodes.domain.usecase.GetEpisodesUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetVideosUseCase
 import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
+import com.justappz.aniyomitv.playback.domain.usecase.GetAnimeWithKeyUseCase
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
@@ -24,6 +25,7 @@ class EpisodesViewModel(
     private val getEpisodesUseCase: GetEpisodesUseCase,
     private val getVideosUseCase: GetVideosUseCase,
     private val updateAnimeWithDbUseCase: UpdateAnimeWithDbUseCase,
+    private val getAnimeWithKeyUseCase: GetAnimeWithKeyUseCase,
 ) : ViewModel() {
 
     //region Anime Details
@@ -65,13 +67,20 @@ class EpisodesViewModel(
     //endregion
 
     //region add remove to library
-    private val _animeDomain = MutableStateFlow<BaseUiState<AnimeDomain>>(Idle)
-    val animeDomain: StateFlow<BaseUiState<AnimeDomain>> = _animeDomain.asStateFlow()
+    private val _animeDomain = MutableStateFlow<BaseUiState<AnimeDomain?>>(Idle)
+    val animeDomain: StateFlow<BaseUiState<AnimeDomain?>> = _animeDomain.asStateFlow()
 
     fun updateAnimeWithDb(packageName: String, className: String, anime: SAnime, inLibrary: Boolean) {
         viewModelScope.launch {
             _animeDomain.value = BaseUiState.Loading
             _animeDomain.value = updateAnimeWithDbUseCase(packageName, className, anime, inLibrary)
+        }
+    }
+
+    fun getAnimeWithAnimeUrl(url: String) {
+        viewModelScope.launch {
+            _animeDomain.value = BaseUiState.Loading
+            _animeDomain.value = getAnimeWithKeyUseCase(url)
         }
     }
     //endregion

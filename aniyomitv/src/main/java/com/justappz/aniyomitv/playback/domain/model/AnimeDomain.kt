@@ -1,5 +1,6 @@
 package com.justappz.aniyomitv.playback.domain.model
 
+import eu.kanade.tachiyomi.animesource.model.AnimeUpdateStrategy
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 
@@ -36,4 +37,19 @@ fun getAnimeDomain(packageName: String, className: String, anime: SAnime, inLibr
         className = className,
         inLibrary = inLibrary == true,
     )
+}
+
+fun AnimeDomain.toSAnime(): SAnime {
+    return SAnime.create().apply {
+        url = this@toSAnime.url
+        title = this@toSAnime.title
+        artist = this@toSAnime.artist
+        author = this@toSAnime.author
+        description = this@toSAnime.description
+        genre = this@toSAnime.genre
+        status = this@toSAnime.status
+        thumbnail_url = this@toSAnime.thumbnailUrl
+        update_strategy = AnimeUpdateStrategy.ALWAYS_UPDATE // default, or load from AnimeDomain if you add it later
+        initialized = true // assume domain objects are fully initialized
+    }
 }

@@ -1,6 +1,7 @@
 package com.justappz.aniyomitv.playback.di
 
 import com.justappz.aniyomitv.core.data.local.database.AppDatabase
+import com.justappz.aniyomitv.library.domain.usecase.GetAnimeInLibraryUseCase
 import com.justappz.aniyomitv.playback.data.repo.AnimeEpisodeRepoImpl
 import com.justappz.aniyomitv.playback.domain.repo.AnimeEpisodeRepo
 import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
@@ -21,5 +22,7 @@ class PlaybackModule : InjektModule {
         // USE CASES
         addSingletonFactory { UpdateAnimeWithDbUseCase(get()) }
         addSingletonFactory { UpdateEpisodeWithDbUseCase(get()) }
+        addSingletonFactory { GetAnimeInLibraryUseCase(get()) }
+
     }
 }

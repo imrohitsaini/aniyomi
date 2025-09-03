@@ -69,4 +69,21 @@ class AnimeEpisodeRepoImpl(
         }
     }
 
+    override suspend fun getAnimeInLibrary(): BaseUiState<List<AnimeDomain>> {
+        return try {
+            val entities = dao.getAnimeInLibrary()
+            if (entities.isEmpty()) {
+                BaseUiState.Empty
+            } else {
+                BaseUiState.Success(entities.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            BaseUiState.Error(
+                AppError.RoomDbError(
+                    message = "Fetch failed",
+                    displayType = ErrorDisplayType.TOAST,
+                ),
+            )
+        }
+    }
 }

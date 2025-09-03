@@ -5,18 +5,17 @@ import com.justappz.aniyomitv.main.data.mapper.toDomain
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 import com.justappz.aniyomitv.main.domain.repo.TabRepository
 import com.justappz.aniyomitv.extensions.presentation.fragments.ExtensionFragment
-import com.justappz.aniyomitv.main.ui.fragments.HomeFragment
+import com.justappz.aniyomitv.library.presentation.fragment.LibraryFragment
 import com.justappz.aniyomitv.search.presentation.fragments.SearchFragment
-import com.justappz.aniyomitv.main.ui.fragments.WatchListFragment
 
 class TabRepositoryImpl : TabRepository {
 
     var tabDataList = listOf(
         MainScreenTabData(
             index = 0,
-            title = "Home",
+            title = "Library",
             isSelected = true,
-            fragmentProvider = { HomeFragment() },
+            fragmentProvider = { LibraryFragment() },
             fragmentTag = "home_fragment"
         ),
         MainScreenTabData(
@@ -24,12 +23,6 @@ class TabRepositoryImpl : TabRepository {
             title = "Search",
             fragmentProvider = { SearchFragment() },
             fragmentTag = "search_fragment",
-        ),
-        MainScreenTabData(
-            index = 2,
-            title = "Watchlist",
-            fragmentProvider = { WatchListFragment() },
-            fragmentTag = "watchlist_fragment"
         ),
         MainScreenTabData(
             index = 3,

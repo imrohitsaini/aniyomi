@@ -6,9 +6,10 @@ import com.justappz.aniyomitv.constants.RoomDBConstants
 
 @Entity(tableName = RoomDBConstants.ENTITY_ANIME)
 data class AnimeEntity(
+    @PrimaryKey
+    val animeKey: String,
 
     // SANIME
-    @PrimaryKey
     val url: String,
     val title: String,
     val artist: String,

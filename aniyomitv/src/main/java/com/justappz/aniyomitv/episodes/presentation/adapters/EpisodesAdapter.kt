@@ -20,7 +20,7 @@ class EpisodesAdapter(items: List<EpisodeDomain>) : BaseRecyclerViewAdapter<Epis
         } else {
             formattedNumber.toString()
         }
-
+        ivEpisodeBadge.isVisible = false
         if (episode.watchState == EpisodeWatchState.WATCHED) {
             ivEpisodeBadge.isVisible = true
             ivEpisodeBadge.setImageResource(R.drawable.svg_tick)

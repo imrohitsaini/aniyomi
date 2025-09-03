@@ -10,8 +10,13 @@ import com.justappz.aniyomitv.playback.data.local.entity.AnimeEntity
 import com.justappz.aniyomitv.playback.data.local.entity.EpisodeEntity
 
 @Database(
-    entities = [ExtensionRepoDetailsEntity::class, ExtensionEntity::class, AnimeEntity::class, EpisodeEntity::class],
-    version = 4,
+    entities = [
+        ExtensionRepoDetailsEntity::class,
+        ExtensionEntity::class,
+        AnimeEntity::class,
+        EpisodeEntity::class,
+    ],
+    version = 6,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun animeRepositoryDao(): ExtensionRepoDetailsDao

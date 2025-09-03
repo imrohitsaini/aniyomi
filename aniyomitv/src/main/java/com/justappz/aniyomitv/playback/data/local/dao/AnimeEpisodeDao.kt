@@ -12,11 +12,11 @@ import com.justappz.aniyomitv.playback.data.local.entity.EpisodeEntity
 interface AnimeEpisodeDao {
 
     // Insert a new Anime (returns generated id)
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
     suspend fun insertAnime(anime: AnimeEntity)
 
-    // Insert or update a single episode
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // Insert/update a new Episode
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertEpisode(episode: EpisodeEntity)
 
     @Query(

@@ -96,6 +96,8 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             )
         }
     }
+
+    private var canUpdateEpisode = false
     //endregion
 
     //region onCreate
@@ -232,12 +234,12 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         )
 
         observeAnimeUpdate()
+        observeEpisodeUpdate()
         anime?.let { updateAnimeWithDb(packageName, className, it) }
     }
     //endregion
 
     //region previous or next episodes
-    private fun isFirstEpisode(): Boolean = nowPlayingEpisode == 0
     private fun isLastEpisode(): Boolean = nowPlayingEpisode == 0
     //endregion
 
@@ -311,12 +313,15 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
                     val now = System.currentTimeMillis()
 
-                    if (now - lastEpisodeUpdateTime >= 5000) {
+                    if (now - lastEpisodeUpdateTime >= 10000) {
                         selectedEpisode?.let { episode ->
                             val progressPercent = (position.toDouble() / duration.toDouble()) * 100
                             val watchState =
                                 if (progressPercent >= 80) EpisodeWatchState.WATCHED else EpisodeWatchState.IN_PROGRESS
-                            updateEpisodeWithDb(position, episode.toSEpisode(), watchState)
+                            if (canUpdateEpisode) {
+                                updateEpisodeWithDb(position, episode.toSEpisode(), watchState)
+                                canUpdateEpisode = false
+                            }
                         }
                     }
                 }
@@ -381,18 +386,14 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
         if (exoPlayer == null) {
             val dataSourceFactory =
-                DefaultHttpDataSource.Factory()
-                    .setAllowCrossProtocolRedirects(true)
-                    .setConnectTimeoutMs(15_000)
-                    .setReadTimeoutMs(30_000)
-                    .setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
+                DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true).setConnectTimeoutMs(15_000)
+                    .setReadTimeoutMs(30_000).setDefaultRequestProperties(video.headers?.toMap() ?: emptyMap())
 
             val cache = ExoCache.get(ctx)
 
-            val cacheDataSourceFactory = CacheDataSource.Factory()
-                .setCache(cache)
-                .setUpstreamDataSourceFactory(dataSourceFactory)
-                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+            val cacheDataSourceFactory =
+                CacheDataSource.Factory().setCache(cache).setUpstreamDataSourceFactory(dataSourceFactory)
+                    .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
 
             val loadControl = DefaultLoadControl.Builder().setBufferDurationsMs(
                 10_000, // minBufferMs: 10s
@@ -640,6 +641,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Success<*> -> {
                             Log.d(tag, "Anime Domain Success")
+                            canUpdateEpisode = true
                         }
                     }
                 }
@@ -670,6 +672,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Success<*> -> {
                             Log.d(tag, "Episode Domain Success")
+                            canUpdateEpisode = true
                         }
                     }
                 }

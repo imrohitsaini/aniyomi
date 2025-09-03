@@ -11,29 +11,24 @@ import com.justappz.aniyomitv.constants.RoomDBConstants
     foreignKeys = [
         ForeignKey(
             entity = AnimeEntity::class,
-            parentColumns = ["url"],        // PK in AnimeEntity
-            childColumns = ["animeUrl"],    // FK in EpisodeEntity
-            onDelete = ForeignKey.CASCADE,   // delete episodes if anime is deleted
+            parentColumns = ["animeKey"],   // PK in AnimeEntity
+            childColumns = ["animeKey"],    // FK in EpisodeEntity
+            onDelete = ForeignKey.NO_ACTION,  // delete episodes if anime is deleted
         ),
-    ],
-    indices = [
-        Index(value = ["animeUrl"]),                      // for fast lookups
-        Index(value = ["animeUrl", "url"], unique = true) // composite uniqueness
     ],
 )
 data class EpisodeEntity(
-    // SEpisode
     @PrimaryKey
-    val url: String,           // unique episode id (auto-increment)
+    val episodeKey: String,
+    val url: String,
     val name: String,
     val dateUpload: Long,
     val episodeNumber: Float,
     val scanlator: String?,
-
-    // SAnime
-    val animeUrl: String,      // foreign key → AnimeEntity.url
+    val animeUrl: String,
+    val animeKey: String, // FK
 
     // Playback tracking
-    val lastWatchTime: Long = 0L, // in ms
-    val watchState: Int = 0,       // 0 = not watched, 1 = in progress, 2 = completed
+    val lastWatchTime: Long = 0L,
+    val watchState: Int = 0,
 )

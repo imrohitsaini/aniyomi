@@ -19,6 +19,7 @@ fun AnimeDomain.toEntity(): AnimeEntity {
         thumbnailUrl = thumbnailUrl ?: "",
         packageName = packageName,
         className = className,
+        inLibrary = inLib
     )
 }
 

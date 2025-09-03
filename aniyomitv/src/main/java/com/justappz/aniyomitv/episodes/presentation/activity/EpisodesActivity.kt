@@ -53,9 +53,17 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     private lateinit var episodeAdapter: EpisodesAdapter
     private lateinit var loaderDialog: LoaderDialog
     private val viewModel: EpisodesViewModel by viewModels {
-        ViewModelFactory { EpisodesViewModel(Injekt.get(), Injekt.get(), Injekt.get()) }
+        ViewModelFactory {
+            EpisodesViewModel(
+                Injekt.get(),
+                Injekt.get(),
+                Injekt.get(),
+                Injekt.get(),
+            )
+        }
     }
     private var nowPlayingPosition = -1
+    val uploadingLibraryDialog = LoaderDialog("Updating library!")
     //endregion
 
     //region onCreate
@@ -100,6 +108,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
             }
         }
         initLoader()
+        observeAnimeLibraryUpdate()
     }
     //endregion
 
@@ -315,23 +324,81 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(view: View?) {
         view?.let { v ->
             when (v) {
-                binding.ivLibrary -> {
-                    binding.ivLibrary.isSelected = !binding.ivLibrary.isSelected
-                }
-
-                binding.ivSort -> {
-                    binding.ivSort.isSelected = !binding.ivSort.isSelected
-
-                    val currentList = episodeAdapter.getCurrentList()
-                    val sortedList = if (binding.ivSort.isSelected) {
-                        currentList.sortedBy { it.episodeNumber } // Ascending
-                    } else {
-                        currentList.sortedByDescending { it.episodeNumber } // Descending
-                    }
-                    episodeAdapter.updateList(sortedList)
-                }
+                binding.ivLibrary -> addRemoveLibrary()
+                binding.ivSort -> sortEpisodes()
             }
         }
     }
     //endregion
+
+    //region sortEpisodes
+    private fun sortEpisodes() {
+        binding.ivSort.isSelected = !binding.ivSort.isSelected
+
+        // Selected -> Ascending
+        // Not selected -> Descending
+        val currentList = episodeAdapter.getCurrentList()
+        val sortedList = if (binding.ivSort.isSelected) {
+            currentList.sortedBy { it.episodeNumber } // Ascending
+        } else {
+            currentList.sortedByDescending { it.episodeNumber } // Descending
+        }
+        episodeAdapter.updateList(sortedList)
+    }
+    //endregion
+
+    //region Manage Library
+    private fun observeAnimeLibraryUpdate() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.animeDomain.collect { state ->
+                    when (state) {
+                        BaseUiState.Empty -> {
+                            showUpdatingLibraryLoader(false)
+                        }
+
+                        is BaseUiState.Error -> {
+                            showUpdatingLibraryLoader(false)
+                        }
+
+                        BaseUiState.Idle -> {
+                        }
+
+                        BaseUiState.Loading -> {
+                            showUpdatingLibraryLoader(true)
+                        }
+
+                        is BaseUiState.Success<*> -> {
+                            showUpdatingLibraryLoader(false)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addRemoveLibrary() {
+        // Selected -> In the library
+        // Not selected -> Not in the library
+        anime?.let {
+            if (binding.ivLibrary.isSelected) {
+                // It is already in the library -> remove the anime and the episodes
+                viewModel.updateAnimeWithDb(packageName, className, it, inLibrary = false)
+            } else {
+                // Not in the library -> add the anime and episodes in the library
+                viewModel.updateAnimeWithDb(packageName, className, it, inLibrary = true)
+            }
+            binding.ivLibrary.isSelected = !binding.ivLibrary.isSelected
+        }
+    }
+
+    private fun showUpdatingLibraryLoader(toShow: Boolean) {
+        if (toShow && !uploadingLibraryDialog.isRunning) {
+            uploadingLibraryDialog.show(supportFragmentManager, "uploading_library")
+        } else if (uploadingLibraryDialog.isRunning) {
+            uploadingLibraryDialog.dismiss()
+        }
+    }
+    //endregion
 }
+

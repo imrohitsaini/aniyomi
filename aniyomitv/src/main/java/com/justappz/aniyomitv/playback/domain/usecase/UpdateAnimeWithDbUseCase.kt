@@ -13,8 +13,9 @@ class UpdateAnimeWithDbUseCase(
         packageName: String,
         className: String,
         anime: SAnime,
+        inLibrary: Boolean? = false,
     ): BaseUiState<AnimeDomain> {
-        val animeDomain = getAnimeDomain(packageName, className, anime)
+        val animeDomain = getAnimeDomain(packageName, className, anime, inLibrary)
         return animeEpisodeRepo.updateAnimeWithDb(animeDomain)
     }
 }

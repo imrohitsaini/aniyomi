@@ -22,4 +22,7 @@ data class AnimeEntity(
     // AnimeHttpSource using ctx.loadAnimeSource(packageName, className)
     val packageName: String,
     val className: String,
+
+    // Library
+    val inLibrary: Boolean? = false,
 )

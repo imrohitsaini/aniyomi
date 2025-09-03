@@ -18,9 +18,11 @@ data class AnimeDomain(
     val packageName: String,
     val className: String,
     val animeHttpSource: AnimeHttpSource? = null,
+
+    val inLib: Boolean? = false,
 )
 
-fun getAnimeDomain(packageName: String, className: String, anime: SAnime): AnimeDomain {
+fun getAnimeDomain(packageName: String, className: String, anime: SAnime, inLibrary: Boolean?): AnimeDomain {
     return AnimeDomain(
         url = anime.url,
         title = anime.title,
@@ -32,5 +34,6 @@ fun getAnimeDomain(packageName: String, className: String, anime: SAnime): Anime
         thumbnailUrl = anime.thumbnail_url,
         packageName = packageName,
         className = className,
+        inLib = inLibrary,
     )
 }

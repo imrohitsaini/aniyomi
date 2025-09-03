@@ -19,6 +19,7 @@ import coil3.request.crossfade
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.constants.EpisodeWatchState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.LoaderDialog
@@ -38,6 +39,7 @@ import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -68,6 +70,14 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     }
     private var nowPlayingPosition = -1
     val uploadingLibraryDialog = LoaderDialog("Updating library!")
+
+
+    private enum class Sorting() {
+        ASCENDING,
+        DESCENDING
+    }
+
+    private var currentSorting: Sorting? = null
     //endregion
 
     //region onCreate
@@ -92,6 +102,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         ImageViewCompat.setImageTintList(binding.ivSort, tintList)
 
         binding.ivLibrary.setOnClickListener(this)
+        binding.ivResume.setOnClickListener(this)
         binding.ivSort.setOnClickListener(this)
 
         anime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -198,7 +209,11 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Success -> {
                             Log.d(tag, "episodesList success")
-                            episodeAdapter.updateList(state.data)
+                            currentSorting?.let {
+                                episodeAdapter.updateList(sortEpisodes(state.data))
+                            } ?: run {
+                                episodeAdapter.updateList(state.data)
+                            }
                             showLoading(false, binding.episodesLoading)
                         }
                     }
@@ -336,25 +351,32 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         view?.let { v ->
             when (v) {
                 binding.ivLibrary -> addRemoveLibrary()
-                binding.ivSort -> sortEpisodes()
+                binding.ivSort -> {
+                    episodeAdapter.updateList(sortEpisodes(episodeAdapter.getCurrentList()))
+                }
+
+                binding.ivResume -> selectNextEpisode()
             }
         }
     }
     //endregion
 
     //region sortEpisodes
-    private fun sortEpisodes() {
+    private fun sortEpisodes(currentList: List<EpisodeDomain>): List<EpisodeDomain> {
         binding.ivSort.isSelected = !binding.ivSort.isSelected
+
+        if (currentSorting == null) currentSorting = Sorting.DESCENDING
 
         // Selected -> Ascending
         // Not selected -> Descending
-        val currentList = episodeAdapter.getCurrentList()
-        val sortedList = if (binding.ivSort.isSelected) {
+        val sortedList = if (currentSorting == Sorting.DESCENDING) {
+            currentSorting = Sorting.ASCENDING
             currentList.sortedBy { it.episodeNumber } // Ascending
         } else {
+            currentSorting = Sorting.DESCENDING
             currentList.sortedByDescending { it.episodeNumber } // Descending
         }
-        episodeAdapter.updateList(sortedList)
+        return sortedList
     }
     //endregion
 
@@ -422,6 +444,50 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
             uploadingLibraryDialog.show(supportFragmentManager, "uploading_library")
         } else if (!toShow && uploadingLibraryDialog.isRunning) {
             uploadingLibraryDialog.dismiss()
+        }
+    }
+    //endregion
+
+    //region Episode Scroll
+    fun selectNextEpisode() {
+        val list = episodeAdapter.getCurrentList()
+        var index = if (currentSorting == Sorting.ASCENDING) {
+            list.indexOfLast {
+                it.watchState == EpisodeWatchState.IN_PROGRESS || it.watchState == EpisodeWatchState.WATCHED
+            }.takeIf { it != -1 } ?: 0
+        } else {
+            list.indexOfFirst {
+                it.watchState == EpisodeWatchState.IN_PROGRESS || it.watchState == EpisodeWatchState.WATCHED
+            }.takeIf { it != -1 } ?: list.lastIndex
+        }
+
+        // Adjust if the found one is WATCHED (not IN_PROGRESS)
+        if (index in list.indices && list[index].watchState == EpisodeWatchState.WATCHED) {
+            index = if (currentSorting == Sorting.ASCENDING) {
+                (index + 1).coerceAtMost(list.lastIndex) // cap at last index
+            } else {
+                (index - 1).coerceAtLeast(0) // floor at 0
+            }
+        }
+        Log.d(tag, "scroll to $index")
+        showLoading(true, binding.episodesLoading)
+        binding.rvEpisodes.isVisible = false
+
+        binding.rvEpisodes.post {
+            binding.rvEpisodes.scrollToPosition(index)
+        }
+
+        showLoading(false, binding.episodesLoading)
+        binding.rvEpisodes.isVisible = true
+
+
+        lifecycleScope.launch(Dispatchers.Main) {
+            delay(500)
+            binding.rvEpisodes.post {
+                binding.rvEpisodes.scrollToPosition(index)
+                val vh = binding.rvEpisodes.findViewHolderForAdapterPosition(index)
+                vh?.itemView?.requestFocus()
+            }
         }
     }
     //endregion

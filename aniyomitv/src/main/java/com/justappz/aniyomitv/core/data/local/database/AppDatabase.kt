@@ -16,7 +16,7 @@ import com.justappz.aniyomitv.playback.data.local.entity.EpisodeEntity
         AnimeEntity::class,
         EpisodeEntity::class,
     ],
-    version = 6,
+    version = 7,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun animeRepositoryDao(): ExtensionRepoDetailsDao

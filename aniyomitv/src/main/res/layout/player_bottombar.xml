@@ -69,8 +69,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_8dp"
-        app:layout_constraintBottom_toTopOf="@id/seekBar"
         app:layout_constraintEnd_toEndOf="@id/endGuideline"
+        app:layout_constraintTop_toTopOf="@id/tvCurrentTime"
         tools:text="23:00" />
 
     <SeekBar
@@ -79,12 +79,28 @@
         android:layout_height="@dimen/_2dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:padding="0dp"
         android:progressDrawable="@drawable/custom_seek_progress"
         android:thumb="@null"
+        android:thumbOffset="0dp"
         app:layout_constraintBottom_toTopOf="@id/bottomBarTopGuideline"
         app:layout_constraintEnd_toEndOf="@id/endGuideline"
         app:layout_constraintStart_toStartOf="@id/startGuideline" />
+
+
+    <ImageView
+        android:id="@+id/seekThumb"
+        android:layout_width="@dimen/_8dp"
+        android:layout_height="@dimen/_8dp"
+        android:layout_marginStart="@dimen/_4dp"
+        android:background="@color/transparent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:src="@drawable/ic_seek_thumb"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/seekBar"
+        app:layout_constraintStart_toStartOf="@id/seekBar"
+        app:layout_constraintTop_toTopOf="@id/seekBar"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/ivPlayPauseBottombar"

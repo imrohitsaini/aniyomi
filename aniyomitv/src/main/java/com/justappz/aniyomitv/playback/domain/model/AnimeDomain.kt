@@ -3,6 +3,7 @@ package com.justappz.aniyomitv.playback.domain.model
 import eu.kanade.tachiyomi.animesource.model.AnimeUpdateStrategy
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
+import java.io.Serializable
 
 data class AnimeDomain(
     // SANIME
@@ -21,7 +22,7 @@ data class AnimeDomain(
     val animeHttpSource: AnimeHttpSource? = null,
 
     val inLibrary: Boolean = false,
-)
+) : Serializable
 
 fun getAnimeDomain(packageName: String, className: String, anime: SAnime, inLibrary: Boolean?): AnimeDomain {
     return AnimeDomain(

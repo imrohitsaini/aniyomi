@@ -78,6 +78,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     }
 
     private var currentSorting: Sorting? = null
+    private var animeDomain: AnimeDomain? = null
     //endregion
 
     //region onCreate
@@ -330,6 +331,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                 putExtra(IntentKeys.ANIME_CLASS, className)
                 putExtra(IntentKeys.ANIME_PKG, packageName)
                 putExtra(IntentKeys.ANIME_EPISODE, selectedEpisodeDomain)
+                putExtra(IntentKeys.ANIME_IN_LIBRARY, (animeDomain?.inLibrary == true))
             },
         )
     }
@@ -403,7 +405,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Success<AnimeDomain?> -> {
                             showUpdatingLibraryLoader(false)
-                            val animeDomain = state.data
+                            animeDomain = state.data
 
                             animeDomain?.let {
                                 // Anime exists in db, check it is in library

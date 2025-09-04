@@ -25,8 +25,6 @@
         android:layout_width="@dimen/_48dp"
         android:layout_height="@dimen/_48dp"
         android:layout_marginStart="@dimen/_8dp"
-        android:clickable="true"
-        android:focusable="true"
         android:indeterminateTint="@color/anime_tv_primary"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"

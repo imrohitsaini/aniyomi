@@ -2,6 +2,7 @@ package com.justappz.aniyomitv.episodes.presentation.adapters
 
 import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseRecyclerViewAdapter
 import com.justappz.aniyomitv.constants.EpisodeWatchState
@@ -33,10 +34,16 @@ class EpisodesAdapter(var items: List<EpisodeDomain>) : BaseRecyclerViewAdapter<
         tvEpisodeNumber.text = displayNumber
     },
 ) {
-    fun updateSortedList(newList: List<EpisodeDomain>) {
-        val diffCallback = EpisodeDiffCallback(items, newList)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-        items = newList
-        diffResult.dispatchUpdatesTo(this)
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<ItemEpisodesBinding>,
+        position: Int,
+    ) {
+        super.onBindViewHolder(holder, position)
+        holder.binding.root.setOnClickListener {
+            val pos = holder.bindingAdapterPosition
+            if (pos != RecyclerView.NO_POSITION) {
+                onItemClick?.invoke(getCurrentList()[pos], pos)
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.justappz.aniyomitv.playback.presentation.activity
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
@@ -68,6 +69,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private var selectedSourcePosition = 0
 
     private var anime: SAnime? = null
+    private var inLibrary: Boolean = false
 
     private lateinit var className: String
     private lateinit var packageName: String
@@ -113,6 +115,8 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         } else {
             @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
         }
+
+        inLibrary = intent.getBooleanExtra(IntentKeys.ANIME_IN_LIBRARY, false)
 
         selectedEpisode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(IntentKeys.ANIME_EPISODE, EpisodeDomain::class.java)
@@ -170,6 +174,18 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         binding.bottomBar.ivPlayPauseBottombar.setOnClickListener(this)
         binding.bottomBar.ivBackward.setOnClickListener(this)
         binding.bottomBar.ivForward.setOnClickListener(this)
+
+        binding.bottomBar.ivForward.setOnFocusChangeListener { _, hasFocus ->
+            binding.bottomBar.tvForward.setTextColor(
+                ContextCompat.getColor(this, if (hasFocus) R.color.anime_tv_primary else R.color.white),
+            )
+        }
+
+        binding.bottomBar.ivBackward.setOnFocusChangeListener { _, hasFocus ->
+            binding.bottomBar.tvBackward.setTextColor(
+                ContextCompat.getColor(this, if (hasFocus) R.color.anime_tv_primary else R.color.white),
+            )
+        }
 
         val tintList = ContextCompat.getColorStateList(ctx, R.color.player_icon_selector)
 
@@ -277,6 +293,11 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                         // restart idle commit timer
                         startSeekIdleJob(progress.toLong())
                     }
+                    val ratio = progress / sb!!.max.toFloat()
+                    val availableWidth = sb.width - sb.paddingLeft - sb.paddingRight
+                    val posX = sb.paddingLeft + ratio * availableWidth
+                    binding.bottomBar.seekThumb.translationX = posX - binding.bottomBar.seekThumb.width / 2f
+
                 }
 
                 override fun onStartTrackingTouch(sb: SeekBar?) {
@@ -294,12 +315,38 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         )
 
         // TV focus listener
-        seekBar.setOnFocusChangeListener { _, hasFocus ->
+        seekBar.setOnFocusChangeListener { v, hasFocus ->
             isUserSeeking = hasFocus
             if (!hasFocus) {
                 // Leaving focus → just let idle job finish
                 cancelSeekJob()
             }
+            val startHeight = v.height
+            val endHeight = if (hasFocus) {
+                resources.getDimensionPixelSize(R.dimen._4dp) // bigger
+            } else {
+                resources.getDimensionPixelSize(R.dimen._2dp) // smaller
+            }
+
+            ValueAnimator.ofInt(startHeight, endHeight).apply {
+                duration = 200 // ms
+                interpolator = DecelerateInterpolator()
+                addUpdateListener { animator ->
+                    v.layoutParams.height = animator.animatedValue as Int
+                    v.requestLayout()
+                }
+                start()
+            }
+
+            // Animate overlay thumb size
+            val scale = if (hasFocus) 1.25f else 1f
+
+            binding.bottomBar.seekThumb.animate()
+                .scaleX(scale)
+                .scaleY(scale)
+                .setDuration(200)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
         }
 
         // Progress updater
@@ -681,6 +728,10 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun updateAnimeWithDb(packageName: String, className: String, anime: SAnime) {
+        if (inLibrary) {
+            canUpdateEpisode = true
+            return
+        }
         viewModel.updateAnimeWithDb(packageName, className, anime)
     }
 

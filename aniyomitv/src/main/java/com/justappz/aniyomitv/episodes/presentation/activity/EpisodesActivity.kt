@@ -402,6 +402,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                         }
 
                         is BaseUiState.Success<AnimeDomain?> -> {
+                            showUpdatingLibraryLoader(false)
                             val animeDomain = state.data
 
                             animeDomain?.let {
@@ -417,7 +418,6 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                                 binding.tvLibrary.setText(R.string.add_to_library)
                             }
 
-                            showUpdatingLibraryLoader(false)
                         }
                     }
                 }

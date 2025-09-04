@@ -45,7 +45,6 @@ class LoaderDialog(
         Log.i(tagName, "onCreateView")
         _binding = DialogLoaderBinding.inflate(inflater, container, false)
         binding.tvTitle.text = title
-        isRunning = true
         return binding.root
     }
     //endregion

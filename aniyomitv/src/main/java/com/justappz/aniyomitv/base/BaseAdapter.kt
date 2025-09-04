@@ -15,12 +15,30 @@ open class BaseRecyclerViewAdapter<T, VB : ViewBinding>(
     var onItemClick: ((T, Int) -> Unit)? = null
 
     /**
-     * Updates the entire list and notifies the adapter from 0 to the end
+     * Updates the entire list using DiffUtil for efficient changes
      * @param newItems List of new items to be set
      */
     fun updateList(newItems: List<T>) {
+        val diffCallback = DiffCallback(items, newItems)
+        val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback)
         items = newItems
-        notifyItemRangeChanged(0, items.size)
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    private class DiffCallback<T>(
+        private val oldList: List<T>,
+        private val newList: List<T>
+    ) : androidx.recyclerview.widget.DiffUtil.Callback() {
+        override fun getOldListSize(): Int = oldList.size
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
     }
 
     /**

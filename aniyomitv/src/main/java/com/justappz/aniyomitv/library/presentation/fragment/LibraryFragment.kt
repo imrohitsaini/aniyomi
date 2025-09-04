@@ -27,7 +27,9 @@ import com.justappz.aniyomitv.library.presentation.adapter.AnimeLibraryAdapter
 import com.justappz.aniyomitv.library.presentation.viewmodel.LibraryViewModel
 import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
 import com.justappz.aniyomitv.playback.domain.model.toSAnime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
@@ -82,7 +84,6 @@ class LibraryFragment : BaseFragment() {
     private fun init() {
         setAdapterProperties()
         observeAnime()
-        viewModel.getAnimeInLibrary()
     }
     //endregion
 
@@ -131,13 +132,14 @@ class LibraryFragment : BaseFragment() {
 
                         is BaseUiState.Success -> {
                             val animeList = state.data
+                            withContext(Dispatchers.Main) {
+                                animeLibraryAdapter.updateList(animeList)
 
-                            animeLibraryAdapter.updateList(animeList)
-
-                            binding.errorRoot.root.isVisible = false
-                            binding.rvAnime.isVisible = true
-
-                            showLoading(false)
+                                binding.errorRoot.root.isVisible = false
+                                binding.rvAnime.isVisible = true
+                                showLoading(false)
+                            }
+                            viewModel.resetState()
                         }
                     }
                 }
@@ -161,6 +163,13 @@ class LibraryFragment : BaseFragment() {
                 putExtra(IntentKeys.ANIME_PKG, anime.packageName)
             },
         )
+    }
+    //endregion
+
+    //region onResume
+    override fun onResume() {
+        super.onResume()
+        viewModel.getAnimeInLibrary()
     }
     //endregion
 }

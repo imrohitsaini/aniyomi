@@ -24,5 +24,9 @@ class LibraryViewModel(
             _animeDomain.value = getAnimeInLibraryUseCase()
         }
     }
+
+    fun resetState() {
+        _animeDomain.value = BaseUiState.Idle
+    }
     //endregion
 }

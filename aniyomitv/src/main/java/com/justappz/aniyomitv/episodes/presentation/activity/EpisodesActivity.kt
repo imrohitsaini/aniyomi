@@ -398,7 +398,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                         }
 
                         BaseUiState.Loading -> {
-                            showUpdatingLibraryLoader(true)
+                            showUpdatingLibraryLoader(false)
                         }
 
                         is BaseUiState.Success<AnimeDomain?> -> {

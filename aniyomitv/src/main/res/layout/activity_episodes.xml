@@ -199,9 +199,10 @@
 
         <!--        region Action Buttons-->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clAddRemoveToLibrary"
+            android:id="@+id/clActions"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8dp"
             app:layout_constraintEnd_toEndOf="@id/centerVerticalGuideline"
             app:layout_constraintStart_toStartOf="@id/startGuideline"
             app:layout_constraintTop_toBottomOf="@id/scrollViewGenre">
@@ -284,6 +285,32 @@
                 app:layout_constraintEnd_toEndOf="@id/ivSort"
                 app:layout_constraintStart_toStartOf="@id/ivSort"
                 app:layout_constraintTop_toBottomOf="@id/ivSort" />
+
+            <ImageView
+                android:id="@+id/ivJump"
+                android:layout_width="@dimen/_24dp"
+                android:layout_height="@dimen/_24dp"
+                android:layout_marginStart="@dimen/_16dp"
+                android:background="@drawable/icon_focus_selector"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:src="@drawable/svg_jump"
+                app:layout_constraintStart_toEndOf="@id/ivSort"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tvJump"
+                style="@style/AnimeTV_Text_Very_Small_Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLines="2"
+                android:minLines="1"
+                android:text="@string/go_to_nepisode"
+                app:layout_constraintEnd_toEndOf="@id/ivJump"
+                app:layout_constraintStart_toStartOf="@id/ivJump"
+                app:layout_constraintTop_toBottomOf="@id/ivJump" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

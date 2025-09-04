@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -22,6 +23,7 @@ import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.EpisodeWatchState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
+import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
 import com.justappz.aniyomitv.core.components.dialog.LoaderDialog
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
@@ -101,10 +103,12 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         ImageViewCompat.setImageTintList(binding.ivLibrary, tintList)
         ImageViewCompat.setImageTintList(binding.ivResume, tintList)
         ImageViewCompat.setImageTintList(binding.ivSort, tintList)
+        ImageViewCompat.setImageTintList(binding.ivJump, tintList)
 
         binding.ivLibrary.setOnClickListener(this)
         binding.ivResume.setOnClickListener(this)
         binding.ivSort.setOnClickListener(this)
+        binding.ivJump.setOnClickListener(this)
 
         anime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(IntentKeys.ANIME, SAnime::class.java)
@@ -215,6 +219,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                             } ?: run {
                                 episodeAdapter.updateList(state.data)
                             }
+                            binding.clActions.isVisible = true
                             showLoading(false, binding.episodesLoading)
                         }
                     }
@@ -358,6 +363,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                 }
 
                 binding.ivResume -> selectNextEpisode()
+                binding.ivJump -> goToEpisode()
             }
         }
     }
@@ -486,11 +492,59 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         lifecycleScope.launch(Dispatchers.Main) {
             delay(500)
             binding.rvEpisodes.post {
-                binding.rvEpisodes.scrollToPosition(index)
                 val vh = binding.rvEpisodes.findViewHolderForAdapterPosition(index)
                 vh?.itemView?.requestFocus()
             }
         }
+    }
+    //endregion
+
+    //region goToEpisode()
+    private fun goToEpisode() {
+        val goToEpisodeDialog = InputDialogFragment(
+            title = "Go to episode",
+            description = "",
+            hint = "123, Episode 123, E123, etc",
+            positiveCtaTitle = "Done",
+            needCancelButton = false,
+            onInputSubmitted = { dlg, input ->
+                Log.i(tag, "episode input: $input")
+                dlg.dismiss()
+                val list = episodeAdapter.getCurrentList()
+                var index = -1
+
+                // Try parsing input as number first
+                val parsedNumber = input.toFloatOrNull()
+                if (parsedNumber != null) {
+                    index = list.indexOfFirst { it.episodeNumber == parsedNumber }
+                }
+
+                // If not found by number, try by name
+                if (index == -1) {
+                    index = list.indexOfFirst { it.name.contains(input, ignoreCase = true) }
+                }
+
+                if (index != -1) {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        delay(500)
+                        binding.rvEpisodes.post {
+                            binding.rvEpisodes.scrollToPosition(index)
+                        }
+                        delay(500)
+                        binding.rvEpisodes.post {
+                            val vh = binding.rvEpisodes.findViewHolderForAdapterPosition(index)
+                            vh?.itemView?.requestFocus()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "Episode not found", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDismissListener = {
+
+            },
+        )
+        goToEpisodeDialog.show(supportFragmentManager, "input_dialog")
     }
     //endregion
 }

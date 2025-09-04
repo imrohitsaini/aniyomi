@@ -18,6 +18,7 @@ class InputDialogFragment(
     private val title: String,
     private val description: String,
     private val hint: String,
+    private val positiveCtaTitle: String = "Add",
     private val onInputSubmitted: (InputDialogFragment, String) -> Unit,
     private val onDismissListener: (() -> Unit)? = null,
     private val needCancelButton: Boolean = false,
@@ -33,6 +34,7 @@ class InputDialogFragment(
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         Log.i(tag, "onCreateDialog")
         val dialog = super.onCreateDialog(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.AppDialog_Fullscreen)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE) // remove default title
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg)
         return dialog
@@ -49,9 +51,11 @@ class InputDialogFragment(
         _binding = InputDialogBinding.inflate(inflater, container, false)
 
         binding.dialogTitle.text = title
+        binding.dialogDescription.isVisible = !description.isBlank()
         binding.dialogDescription.text = description
         binding.etInput.hint = hint
 
+        binding.btnOk.setText(positiveCtaTitle)
         binding.btnOk.setOnClickListener {
             val input = binding.etInput.text.toString().trim()
             onInputSubmitted(this, input)
@@ -94,6 +98,18 @@ class InputDialogFragment(
     //region showLoaderOnButton
     fun showLoaderOnButton(show: Boolean) {
         binding.btnOk.showLoader(show)
+    }
+    //endregion
+
+    //region onStart
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.apply {
+            setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+        }
     }
     //endregion
 }

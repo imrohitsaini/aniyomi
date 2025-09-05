@@ -99,7 +99,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    private var canUpdateEpisode = false
+    private var canUpdateEpisode = true
     //endregion
 
     //region onCreate
@@ -248,10 +248,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 },
             ),
         )
-
-        observeAnimeUpdate()
         observeEpisodeUpdate()
-        anime?.let { updateAnimeWithDb(packageName, className, it) }
     }
     //endregion
 
@@ -665,37 +662,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     //endregion
 
     // region DB Operations
-    private fun observeAnimeUpdate() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.animeDomain.collect { state ->
-                    when (state) {
-                        BaseUiState.Empty -> {
-                            Log.d(tag, "Anime Domain Empty")
-                        }
-
-                        is BaseUiState.Error -> {
-                            Log.d(tag, "Anime Domain Error")
-                        }
-
-                        BaseUiState.Idle -> {
-                            Log.d(tag, "Anime Domain Error")
-                        }
-
-                        BaseUiState.Loading -> {
-                            Log.d(tag, "Anime Domain Loading")
-                        }
-
-                        is BaseUiState.Success<*> -> {
-                            Log.d(tag, "Anime Domain Success")
-                            canUpdateEpisode = true
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun observeEpisodeUpdate() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -725,14 +691,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 }
             }
         }
-    }
-
-    private fun updateAnimeWithDb(packageName: String, className: String, anime: SAnime) {
-        if (inLibrary) {
-            canUpdateEpisode = true
-            return
-        }
-        viewModel.updateAnimeWithDb(packageName, className, anime)
     }
 
     private fun updateEpisodeWithDb(position: Long, episode: SEpisode, watchState: Int) {

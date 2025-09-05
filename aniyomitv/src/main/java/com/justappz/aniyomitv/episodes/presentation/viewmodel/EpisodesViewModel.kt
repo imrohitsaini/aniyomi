@@ -62,7 +62,7 @@ class EpisodesViewModel(
     }
 
     fun resetVideoState() {
-        _videosList.value = BaseUiState.Idle
+        _videosList.value = Idle
     }
     //endregion
 

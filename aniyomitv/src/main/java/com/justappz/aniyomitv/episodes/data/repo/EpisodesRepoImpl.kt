@@ -5,6 +5,7 @@ import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.episodes.domain.repo.EpisodesRepository
 import com.justappz.aniyomitv.playback.data.local.dao.AnimeEpisodeDao
+import com.justappz.aniyomitv.playback.data.mapper.toEntity
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
@@ -67,6 +68,8 @@ class EpisodesRepoImpl(
                         watchState = local?.watchState ?: 0,
                     )
                 }
+
+                dao.insertEpisodes(episodeDomains.map { it.toEntity() })
 
                 if (episodeDomains.isEmpty()) {
                     BaseUiState.Empty

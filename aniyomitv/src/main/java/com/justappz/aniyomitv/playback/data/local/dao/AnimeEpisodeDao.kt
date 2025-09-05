@@ -53,6 +53,18 @@ interface AnimeEpisodeDao {
     suspend fun insertEpisode(episode: EpisodeEntity)
 
     /**
+     * Inserts or updates multiple Episodes in the database.
+     *
+     * - If an Episode with the same primary key exists, it will be replaced.
+     * - Otherwise, the new Episode will be inserted.
+     *
+     * @param episode The [EpisodeEntity] to insert or update.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertEpisodes(episodes: List<EpisodeEntity>)
+
+
+    /**
      * Retrieves all episodes for a given Anime, ordered by episode number in ascending order.
      *
      * @param animeUrl The unique identifier (URL) of the Anime.

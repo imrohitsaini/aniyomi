@@ -21,6 +21,7 @@ import com.justappz.aniyomitv.core.components.decoration.GridSpacingItemDecorati
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.core.error.ErrorHandler
+import com.justappz.aniyomitv.core.util.UserDefinedErrors.SOMETHING_WENT_WRONG
 import com.justappz.aniyomitv.databinding.FragmentHomeBinding
 import com.justappz.aniyomitv.episodes.presentation.activity.EpisodesActivity
 import com.justappz.aniyomitv.library.presentation.adapter.AnimeLibraryAdapter
@@ -121,6 +122,7 @@ class LibraryFragment : BaseFragment() {
 
                         is BaseUiState.Error -> {
                             showLoading(false)
+                            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
                         }
 
                         BaseUiState.Idle -> {

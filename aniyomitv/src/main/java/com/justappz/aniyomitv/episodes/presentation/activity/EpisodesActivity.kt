@@ -415,8 +415,9 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                                 // Anime exists in db, check it is in library
                                 binding.ivLibrary.isSelected = it.inLibrary == true
                             } ?: run {
-                                // Not in library as domain is null
+                                // Not in db, so insert it
                                 binding.ivLibrary.isSelected = false
+                                viewModel.updateAnimeWithDb(packageName, className, anime, false)
                             }
                             if (binding.ivLibrary.isSelected) {
                                 binding.tvLibrary.setText(R.string.in_library)

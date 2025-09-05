@@ -1,7 +1,6 @@
 package com.justappz.aniyomitv.extensions.presentation.adapters
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
@@ -83,11 +82,25 @@ class ExtensionPagingAdapter : BasePagingAdapter<ExtensionDomain, ItemExtensionB
                 },
                 onUp = {
                     if (position < spanCount) {
-                        // first row → let system handle (don’t consume)
-                        return@FocusKeyHandler false
+                        val repoRv = recyclerView?.rootView?.findViewById<RecyclerView>(R.id.rvRepos)
+
+                        val repoAdapter = repoRv?.adapter as? RepoChipsAdapter
+                        val lastPos = repoAdapter?.getSelectedRepoPosition() ?: 0
+
+                        val holder = repoRv?.findViewHolderForAdapterPosition(lastPos)
+                        if (holder != null) {
+                            holder.itemView.requestFocus()
+                        } else {
+                            // If offscreen, scroll and then request focus
+                            repoRv?.scrollToPosition(lastPos)
+                            repoRv?.post {
+                                repoRv.findViewHolderForAdapterPosition(lastPos)?.itemView?.requestFocus()
+                            }
+                        }
+                        true
                     } else {
                         holder.itemView.focusSearch(View.FOCUS_UP)?.requestFocus()
-                        return@FocusKeyHandler true
+                        true
                     }
                 },
                 onDown = {

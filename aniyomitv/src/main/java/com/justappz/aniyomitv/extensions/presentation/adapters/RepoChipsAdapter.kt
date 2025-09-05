@@ -33,6 +33,8 @@ class RepoChipsAdapter(
         updateItemAt(position, chip)
     }
 
+    fun getSelectedRepoPosition() = getCurrentList().indexOfFirst { it.isSelected }
+
     override fun onBindViewHolder(
         holder: BaseViewHolder<ItemRepoChipBinding>,
         position: Int,

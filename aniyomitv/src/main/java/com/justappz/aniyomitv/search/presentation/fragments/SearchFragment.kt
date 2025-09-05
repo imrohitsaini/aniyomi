@@ -27,6 +27,7 @@ import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.PrefsManager
+import com.justappz.aniyomitv.core.util.UserDefinedErrors.MISSING_EXTENSION
 import com.justappz.aniyomitv.databinding.FragmentSearchBinding
 import com.justappz.aniyomitv.episodes.presentation.activity.EpisodesActivity
 import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
@@ -182,13 +183,17 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
     //region startEpisodesActivity
     private fun startEpisodesActivity(anime: SAnime) {
         val extensionInfo = installedExtensions.firstOrNull { it.isSelected == true }
-        startActivity(
-            Intent(act, EpisodesActivity::class.java).apply {
-                putExtra(IntentKeys.ANIME, anime)
-                putExtra(IntentKeys.ANIME_CLASS, extensionInfo?.className)
-                putExtra(IntentKeys.ANIME_PKG, extensionInfo?.packageName)
-            },
-        )
+        if (extensionInfo == null) {
+            ErrorHandler.show(ctx, MISSING_EXTENSION)
+        } else {
+            startActivity(
+                Intent(act, EpisodesActivity::class.java).apply {
+                    putExtra(IntentKeys.ANIME, anime)
+                    putExtra(IntentKeys.ANIME_CLASS, extensionInfo.className)
+                    putExtra(IntentKeys.ANIME_PKG, extensionInfo.packageName)
+                },
+            )
+        }
     }
     //endregion
 

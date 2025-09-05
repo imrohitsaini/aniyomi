@@ -28,6 +28,8 @@ import com.justappz.aniyomitv.core.components.dialog.LoaderDialog
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.core.error.ErrorHandler
+import com.justappz.aniyomitv.core.util.UserDefinedErrors
+import com.justappz.aniyomitv.core.util.UserDefinedErrors.SOMETHING_WENT_WRONG
 import com.justappz.aniyomitv.databinding.ActivityEpisodesBinding
 import com.justappz.aniyomitv.episodes.presentation.adapters.EpisodesAdapter
 import com.justappz.aniyomitv.episodes.presentation.viewmodel.EpisodesViewModel
@@ -51,12 +53,12 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     //region variables
     private lateinit var binding: ActivityEpisodesBinding
     private val tag = "EpisodesActivity"
-    private var anime: SAnime? = null
+    private lateinit var anime: SAnime
     private var selectedEpisode: SEpisode? = null
     private var selectedEpisodeDomain: EpisodeDomain? = null
     private lateinit var className: String
     private lateinit var packageName: String
-    private var animeHttpSource: AnimeHttpSource? = null
+    private lateinit var animeHttpSource: AnimeHttpSource
     private lateinit var episodeAdapter: EpisodesAdapter
     private lateinit var loaderDialog: LoaderDialog
     private val viewModel: EpisodesViewModel by viewModels {
@@ -71,12 +73,10 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         }
     }
     private var nowPlayingPosition = -1
-    val uploadingLibraryDialog = LoaderDialog("Updating library!")
 
 
     private enum class Sorting() {
-        ASCENDING,
-        DESCENDING
+        ASCENDING, DESCENDING
     }
 
     private var currentSorting: Sorting? = null
@@ -110,17 +110,25 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         binding.ivSort.setOnClickListener(this)
         binding.ivJump.setOnClickListener(this)
 
-        anime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        anime = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(IntentKeys.ANIME, SAnime::class.java)
         } else {
-            @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
-        }
+            @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as SAnime
+        })!!
 
         packageName = intent.getStringExtra(IntentKeys.ANIME_PKG).toString()
         className = intent.getStringExtra(IntentKeys.ANIME_CLASS).toString()
-        animeHttpSource = ctx.loadAnimeSource(packageName, className)
 
-        binding.ivAnimeThumbnail.load(anime?.thumbnail_url) {
+        val source = ctx.loadAnimeSource(packageName, className)
+
+        if (source == null) {
+            ErrorHandler.show(ctx, UserDefinedErrors.UNABLE_TO_LOAD_EXTENSION)
+            finish()
+        } else {
+            animeHttpSource = source
+        }
+
+        binding.ivAnimeThumbnail.load(anime.thumbnail_url) {
             crossfade(true)
         }
 
@@ -128,12 +136,8 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
         observeEpisodes()
         observeVideos()
         setEpisodeProperties()
-        animeHttpSource?.let { source ->
-            anime?.let {
-                viewModel.getAnimeDetails(source, it)
-                viewModel.getAnimeWithAnimeUrl(it.url)
-            }
-        }
+        viewModel.getAnimeDetails(animeHttpSource, anime)
+        viewModel.getAnimeWithAnimeUrl(anime.url)
         initLoader()
         observeAnimeLibraryUpdate()
     }
@@ -152,7 +156,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Error -> {
                             showLoading(false, binding.detailsLoading)
-
+                            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
                             Log.d(tag, "anime details error")
                         }
 
@@ -168,7 +172,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Success -> {
                             Log.d(tag, "anime details success")
-                            anime?.let {
+                            anime.let {
                                 it.description = state.data.description
                                 it.author = state.data.author
                                 it.genre = state.data.genre
@@ -176,7 +180,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                                 it.status = state.data.status
                                 it.update_strategy = state.data.update_strategy
                             }
-                            anime?.let { updateAnimeDetails(it) }
+                            updateAnimeDetails(anime)
                             showLoading(false, binding.detailsLoading)
                         }
                     }
@@ -199,6 +203,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Error -> {
                             showLoading(false, binding.episodesLoading)
+                            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
                             Log.d(tag, "episodesList error")
                         }
 
@@ -214,11 +219,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
 
                         is BaseUiState.Success -> {
                             Log.d(tag, "episodesList success")
-                            currentSorting?.let {
-                                episodeAdapter.updateList(sortEpisodes(state.data))
-                            } ?: run {
-                                episodeAdapter.updateList(state.data)
-                            }
+                            episodeAdapter.updateList(state.data)
                             binding.clActions.isVisible = true
                             showLoading(false, binding.episodesLoading)
                         }
@@ -277,7 +278,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
             }
         }
     }
-    //endregion
+//endregion
 
     //region initLoader
     private fun initLoader() {
@@ -291,13 +292,13 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
             loaderDialog.dismiss()
         }
     }
-    //endregion
+//endregion
 
     //region setEpisodeProperties
     private fun setEpisodeProperties() {
         episodeAdapter = EpisodesAdapter(emptyList())
         episodeAdapter.onItemClick = { episode, position ->
-            animeHttpSource?.let { source ->
+            animeHttpSource.let { source ->
                 nowPlayingPosition = position
                 selectedEpisodeDomain = episode
                 selectedEpisode = episode.toSEpisode()
@@ -345,8 +346,8 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     //region onResume
     override fun onResume() {
         super.onResume()
-        animeHttpSource?.let { source ->
-            anime?.let {
+        animeHttpSource.let { source ->
+            anime.let {
                 viewModel.getEpisodesList(source, it)
             }
         }
@@ -395,22 +396,19 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                 viewModel.animeDomain.collect { state ->
                     when (state) {
                         BaseUiState.Empty -> {
-                            showUpdatingLibraryLoader(false)
                         }
 
                         is BaseUiState.Error -> {
-                            showUpdatingLibraryLoader(false)
+                            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
                         }
 
                         BaseUiState.Idle -> {
                         }
 
                         BaseUiState.Loading -> {
-                            showUpdatingLibraryLoader(false)
                         }
 
                         is BaseUiState.Success<AnimeDomain?> -> {
-                            showUpdatingLibraryLoader(false)
                             animeDomain = state.data
 
                             animeDomain?.let {
@@ -422,8 +420,10 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                             }
                             if (binding.ivLibrary.isSelected) {
                                 binding.tvLibrary.setText(R.string.in_library)
+                                Toast.makeText(ctx, "Added to library", Toast.LENGTH_SHORT).show()
                             } else {
                                 binding.tvLibrary.setText(R.string.add_to_library)
+                                Toast.makeText(ctx, "Removed from library", Toast.LENGTH_SHORT).show()
                             }
 
                         }
@@ -436,7 +436,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     private fun addRemoveLibrary() {
         // Selected -> In the library
         // Not selected -> Not in the library
-        anime?.let {
+        anime.let {
             if (binding.ivLibrary.isSelected) {
                 // It is already in the library -> remove the anime and the episodes
                 viewModel.updateAnimeWithDb(packageName, className, it, inLibrary = false)
@@ -444,14 +444,6 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                 // Not in the library -> add the anime and episodes in the library
                 viewModel.updateAnimeWithDb(packageName, className, it, inLibrary = true)
             }
-        }
-    }
-
-    private fun showUpdatingLibraryLoader(toShow: Boolean) {
-        if (toShow && !uploadingLibraryDialog.isRunning) {
-            uploadingLibraryDialog.show(supportFragmentManager, "uploading_library")
-        } else if (!toShow && uploadingLibraryDialog.isRunning) {
-            uploadingLibraryDialog.dismiss()
         }
     }
     //endregion
@@ -537,7 +529,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                         }
                     }
                 } else {
-                    Toast.makeText(this, "Episode not found", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, "Episode not found", Toast.LENGTH_SHORT).show()
                 }
             },
             onDismissListener = {

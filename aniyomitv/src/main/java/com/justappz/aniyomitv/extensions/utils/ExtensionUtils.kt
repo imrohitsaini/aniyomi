@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import com.justappz.aniyomitv.core.error.ErrorHandler
+import com.justappz.aniyomitv.core.util.UserDefinedErrors
 import com.justappz.aniyomitv.extensions.domain.model.InstalledExtensionInfo
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource

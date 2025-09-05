@@ -34,6 +34,7 @@ import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.EpisodeWatchState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
+import com.justappz.aniyomitv.core.components.dialog.ExitDialogFragment
 import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
@@ -97,6 +98,10 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private var seekJob: Job? = null
     private var resumePosition = 0L
 
+    private var canUpdateEpisode = true
+
+    private var exitDialog: ExitDialogFragment? = null
+
     private val viewModel: PlayerViewModel by viewModels {
         ViewModelFactory {
             PlayerViewModel(
@@ -107,7 +112,6 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    private var canUpdateEpisode = true
     //endregion
 
     //region onCreate
@@ -169,13 +173,11 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (doubleBackToExitPressedOnce) {
-                        releasePlayer()
-                        finish()
+                        showExitDialog(true)
                     } else {
                         binding.bottomBar.seekBar.requestFocus()
                         toggleControls()
                         doubleBackToExitPressedOnce = true
-                        Toast.makeText(this@ExoPlayerActivity, "Press back again to exit", Toast.LENGTH_SHORT).show()
 
                         backHandler.postDelayed({ doubleBackToExitPressedOnce = false }, 2000) // 2s window
                     }
@@ -835,6 +837,22 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             watchState = watchState,
             episode = episode,
         )
+    }
+    //endregion
+
+    //region Exit Dialog
+    private fun showExitDialog(toShow: Boolean) {
+        if (exitDialog == null) {
+            exitDialog = ExitDialogFragment(
+                title = getString(R.string.do_you_want_to_stop_playing),
+                onYes = { finish() },
+                onDismissListener = { },
+            )
+        } else if (toShow) {
+            exitDialog?.show(supportFragmentManager, "exit_dialog")
+        } else {
+            exitDialog?.dismiss()
+        }
     }
     //endregion
 }

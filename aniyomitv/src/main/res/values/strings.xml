@@ -23,4 +23,7 @@
     <string name="resume">Resume</string>
     <string name="sort">Sort</string>
     <string name="go_to_nepisode">Go to\nepisode</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="do_you_want_to_stop_playing">Do you want to exit the video?</string>
 </resources>

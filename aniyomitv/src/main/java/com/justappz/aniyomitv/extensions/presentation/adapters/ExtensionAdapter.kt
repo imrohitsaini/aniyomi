@@ -1,6 +1,7 @@
 package com.justappz.aniyomitv.extensions.presentation.adapters
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
@@ -90,12 +91,17 @@ class ExtensionPagingAdapter : BasePagingAdapter<ExtensionDomain, ItemExtensionB
                     }
                 },
                 onDown = {
-                    if (position + spanCount >= itemCount) {
-                        // last row → block
+                    val nextPos = position + spanCount
+
+                    val nextHolder = recyclerView?.findViewHolderForAdapterPosition(nextPos)
+
+                    return@FocusKeyHandler if (nextHolder != null) {
+                        nextHolder.itemView.requestFocus()
+                        true
                     } else {
-                        holder.itemView.focusSearch(View.FOCUS_DOWN)?.requestFocus()
+                        recyclerView?.scrollToPosition(nextPos)
+                        true // consume → prevent jump to top
                     }
-                    return@FocusKeyHandler true
                 },
             ),
         )

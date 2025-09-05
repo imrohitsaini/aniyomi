@@ -141,12 +141,21 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
                         is androidx.paging.LoadState.NotLoading -> {
                             showLoading(false)
-
-                            // Check if adapter is empty after load completes
                             val isEmpty = animeAdapter.itemCount == 0
                             binding.errorRoot.root.isVisible = isEmpty
                             if (isEmpty) {
                                 binding.errorRoot.tvError.text = getString(R.string.no_data_found)
+                            } else {
+                                if (binding.rvAnime.scrollState == 0 &&
+                                    (binding.rvAnime.layoutManager as GridLayoutManager).findFirstCompletelyVisibleItemPosition() > 0
+                                    || !binding.rvAnime.hasFocus()
+                                ) {
+                                    binding.rvAnime.scrollToPosition(0)
+                                    binding.rvAnime.post {
+                                        val vh = binding.rvAnime.findViewHolderForAdapterPosition(0)
+                                        vh?.itemView?.requestFocus()
+                                    }
+                                }
                             }
                         }
 
@@ -313,6 +322,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                 }
             }
         }
+
     }
     //endregion
 

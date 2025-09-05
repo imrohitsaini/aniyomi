@@ -63,6 +63,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
     private val popularChip = 0
     private val latestChip = 1
+    private var firstLoadHandled = false
     //endregion
 
     //region onCreateView
@@ -127,6 +128,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
             startEpisodesActivity(anime)
         }
 
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 animeAdapter.loadStateFlow.collect { loadStates ->
@@ -146,10 +148,9 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                             if (isEmpty) {
                                 binding.errorRoot.tvError.text = getString(R.string.no_data_found)
                             } else {
-                                if (binding.rvAnime.scrollState == 0 &&
-                                    (binding.rvAnime.layoutManager as GridLayoutManager).findFirstCompletelyVisibleItemPosition() > 0
-                                    || !binding.rvAnime.hasFocus()
-                                ) {
+                                // ✅ Only reset to top on very first load
+                                if (!firstLoadHandled) {
+                                    firstLoadHandled = true
                                     binding.rvAnime.scrollToPosition(0)
                                     binding.rvAnime.post {
                                         val vh = binding.rvAnime.findViewHolderForAdapterPosition(0)
@@ -244,6 +245,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
                             // After changing the extension, always load popular anime
                             selectChip(popularChip)
+                            viewModel.resetExtensionState()
                         }
 
                         BaseUiState.Empty -> {
@@ -298,6 +300,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         val chip = availableChips[position]
         availableChips.forEach { it.setSelectedState(false) }
         chip.setSelectedState(true)
+        firstLoadHandled = false
         if (chip.getText().contains("popular", true)) {
             // load popular anime
             Log.d(tag, "loadPopularAnime from chip")

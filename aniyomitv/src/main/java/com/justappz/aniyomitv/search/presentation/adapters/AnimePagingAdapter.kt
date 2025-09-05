@@ -1,14 +1,17 @@
 package com.justappz.aniyomitv.search.presentation.adapters
 
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import coil3.request.crossfade
-import com.justappz.aniyomitv.search.domain.model.SAnimeDiffCallback
+import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BasePagingAdapter
+import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ItemAnimeBinding
+import com.justappz.aniyomitv.search.domain.model.SAnimeDiffCallback
 import eu.kanade.tachiyomi.animesource.model.SAnime
 
 class AnimePagingAdapter(
@@ -30,6 +33,7 @@ class AnimePagingAdapter(
 ) {
 
     private var recyclerView: RecyclerView? = null
+    val tag = "AnimePagingAdapter"
 
     fun attachRecyclerView(rv: RecyclerView) {
         recyclerView = rv
@@ -82,20 +86,31 @@ class AnimePagingAdapter(
                 },
                 onUp = {
                     if (position < spanCount) {
-                        // first row → let system handle (don’t consume)
-                        return@FocusKeyHandler false
+                        val popularChip = recyclerView?.rootView?.findViewById<ChipView>(R.id.chipPopular)
+                        val latestChip = recyclerView?.rootView?.findViewById<ChipView>(R.id.chipLatest)
+                        if (popularChip?.getSelectedState() == true) {
+                            popularChip.requestFocus()
+                        } else {
+                            latestChip?.requestFocus()
+                        }
+                        true
                     } else {
                         holder.itemView.focusSearch(View.FOCUS_UP)?.requestFocus()
-                        return@FocusKeyHandler true
+                        true
                     }
                 },
                 onDown = {
-                    if (position + spanCount >= itemCount) {
-                        // last row → block
+                    val nextPos = position + spanCount
+
+                    val nextHolder = recyclerView?.findViewHolderForAdapterPosition(nextPos)
+
+                    return@FocusKeyHandler if (nextHolder != null) {
+                        nextHolder.itemView.requestFocus()
+                        true
                     } else {
-                        holder.itemView.focusSearch(View.FOCUS_DOWN)?.requestFocus()
+                        recyclerView?.scrollToPosition(nextPos)
+                        true // consume → prevent jump to top
                     }
-                    return@FocusKeyHandler true
                 },
             ),
         )

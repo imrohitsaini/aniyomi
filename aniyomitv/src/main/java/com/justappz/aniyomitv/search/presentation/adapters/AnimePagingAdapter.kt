@@ -51,17 +51,9 @@ class AnimePagingAdapter(
         // Add focus zoom effect
         holder.itemView.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
-                view.animate()
-                    .scaleX(1.15f)
-                    .scaleY(1.15f)
-                    .setDuration(200)
-                    .start()
+                view.animate().scaleX(1.15f).scaleY(1.15f).setDuration(200).start()
             } else {
-                view.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(200)
-                    .start()
+                view.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
             }
         }
 
@@ -109,15 +101,28 @@ class AnimePagingAdapter(
                             // ✅ Already bound → focus directly
                             nextHolder.itemView.requestFocus()
                         } else {
-                            // ✅ Scroll and wait for binding
+                            // ✅ Scroll (ensures Paging prefetch kicks in)
                             recyclerView?.scrollToPosition(nextPos)
+
+                            // ✅ Watch for either new items or child attachment
+                            val adapter = recyclerView?.adapter
+                            val dataObserver = object : RecyclerView.AdapterDataObserver() {
+                                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                                    if (nextPos in positionStart until (positionStart + itemCount)) {
+                                        recyclerView?.post {
+                                            recyclerView?.findViewHolderForAdapterPosition(nextPos)?.itemView?.requestFocus()
+                                        }
+                                        adapter?.unregisterAdapterDataObserver(this)
+                                    }
+                                }
+                            }
+                            adapter?.registerAdapterDataObserver(dataObserver)
 
                             recyclerView?.addOnChildAttachStateChangeListener(
                                 object : RecyclerView.OnChildAttachStateChangeListener {
                                     override fun onChildViewAttachedToWindow(view: View) {
                                         val vh = recyclerView?.getChildViewHolder(view)
                                         if (vh?.bindingAdapterPosition == nextPos) {
-                                            // ✅ As soon as it's bound → request focus
                                             view.requestFocus()
                                             recyclerView?.removeOnChildAttachStateChangeListener(this)
                                         }
@@ -127,7 +132,7 @@ class AnimePagingAdapter(
                                 },
                             )
                         }
-                        true // consume event
+                        true
                     } else {
                         true // already last row → block
                     }

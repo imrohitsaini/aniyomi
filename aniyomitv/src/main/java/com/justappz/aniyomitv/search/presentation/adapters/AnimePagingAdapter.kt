@@ -1,6 +1,5 @@
 package com.justappz.aniyomitv.search.presentation.adapters
 
-import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -101,15 +100,36 @@ class AnimePagingAdapter(
                 },
                 onDown = {
                     val nextPos = position + spanCount
+                    val totalCount = itemCount
 
-                    val nextHolder = recyclerView?.findViewHolderForAdapterPosition(nextPos)
+                    if (nextPos < totalCount) {
+                        val nextHolder = recyclerView?.findViewHolderForAdapterPosition(nextPos)
 
-                    return@FocusKeyHandler if (nextHolder != null) {
-                        nextHolder.itemView.requestFocus()
-                        true
+                        if (nextHolder != null) {
+                            // ✅ Already bound → focus directly
+                            nextHolder.itemView.requestFocus()
+                        } else {
+                            // ✅ Scroll and wait for binding
+                            recyclerView?.scrollToPosition(nextPos)
+
+                            recyclerView?.addOnChildAttachStateChangeListener(
+                                object : RecyclerView.OnChildAttachStateChangeListener {
+                                    override fun onChildViewAttachedToWindow(view: View) {
+                                        val vh = recyclerView?.getChildViewHolder(view)
+                                        if (vh?.bindingAdapterPosition == nextPos) {
+                                            // ✅ As soon as it's bound → request focus
+                                            view.requestFocus()
+                                            recyclerView?.removeOnChildAttachStateChangeListener(this)
+                                        }
+                                    }
+
+                                    override fun onChildViewDetachedFromWindow(view: View) = Unit
+                                },
+                            )
+                        }
+                        true // consume event
                     } else {
-                        recyclerView?.scrollToPosition(nextPos)
-                        true // consume → prevent jump to top
+                        true // already last row → block
                     }
                 },
             ),

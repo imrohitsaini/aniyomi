@@ -554,6 +554,15 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                                     startControlsAutoHideTimer()
                                     binding.errorRoot.tvError.text = ""
                                     binding.errorRoot.root.isVisible = false
+                                } else if (playbackState == Player.STATE_ENDED) {
+                                    // ✅ Handle video finished
+                                    if (!isLastEpisode() && nextSourcesList.isNotEmpty()) {
+                                        // play next
+                                        playNextVideo()
+                                    } else {
+                                        // no next episode, finish activity
+                                        finish()
+                                    }
                                 }
                             }
 
@@ -666,7 +675,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         if (!nextSourcesList.isEmpty()) {
             sourceList = nextSourcesList
             selectedEpisode = nextEpisode
-            resumePosition = 0L
+            resumePosition = nextEpisode.lastWatchTime
             startPlayer(selectedEpisode, preferredSource, resumePosition)
         } else {
             ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)

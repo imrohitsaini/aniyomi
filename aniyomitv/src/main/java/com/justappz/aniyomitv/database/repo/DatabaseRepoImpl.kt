@@ -1,17 +1,19 @@
-package com.justappz.aniyomitv.playback.data.repo
+package com.justappz.aniyomitv.database.repo
 
+import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
-import com.justappz.aniyomitv.playback.data.local.dao.AnimeEpisodeDao
-import com.justappz.aniyomitv.playback.data.mapper.toDomain
-import com.justappz.aniyomitv.playback.data.mapper.toEntity
+import com.justappz.aniyomitv.core.util.StringUtils.getAnimeKeyFromUrl
+import com.justappz.aniyomitv.database.dao.AnimeEpisodeDao
+import com.justappz.aniyomitv.database.mapper.toDomain
+import com.justappz.aniyomitv.database.mapper.toEntity
 import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import com.justappz.aniyomitv.playback.domain.repo.AnimeEpisodeRepo
 
-class AnimeEpisodeRepoImpl(
+class DatabaseRepoImpl(
     private val dao: AnimeEpisodeDao,
 ) : AnimeEpisodeRepo {
 
@@ -21,7 +23,7 @@ class AnimeEpisodeRepoImpl(
         return try {
             dao.insertAnime(animeDomain.toEntity())
             BaseUiState.Success(animeDomain)
-        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+        } catch (e: SQLiteConstraintException) {
             // Anime already exists → treat as success
             BaseUiState.Success(animeDomain)
         } catch (e: Exception) {
@@ -36,12 +38,9 @@ class AnimeEpisodeRepoImpl(
 
     override suspend fun updateEpisodeWithDb(episode: EpisodeDomain): BaseUiState<EpisodeDomain> {
         return try {
-            val entities = dao.getEpisodesForAnime(episode.animeUrl)
+            val entities = dao.getEpisodesForAnime(episode.animeUrl.getAnimeKeyFromUrl())
 
             if (entities.isEmpty()) Log.d(tag, "No episodes for url ${episode.animeUrl}")
-            entities.forEachIndexed { index, item ->
-                Log.d(tag, "$index  -> ${item.episodeKey}")
-            }
 
             dao.insertEpisode(episode.toEntity())
             BaseUiState.Success(episode)
@@ -80,7 +79,25 @@ class AnimeEpisodeRepoImpl(
         } catch (e: Exception) {
             BaseUiState.Error(
                 AppError.RoomDbError(
-                    message = "Fetch failed",
+                    message = "Fetch failed ${e.message}",
+                    displayType = ErrorDisplayType.TOAST,
+                ),
+            )
+        }
+    }
+
+    override suspend fun getAllEpisodesForAnime(animeKey: String): BaseUiState<List<EpisodeDomain>> {
+        return try {
+            val episodes = dao.getEpisodesForAnime(animeKey)
+            if (episodes.isEmpty()) {
+                BaseUiState.Empty
+            } else {
+                BaseUiState.Success(episodes.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            BaseUiState.Error(
+                AppError.RoomDbError(
+                    message = "Fetch failed ${e.message}",
                     displayType = ErrorDisplayType.TOAST,
                 ),
             )

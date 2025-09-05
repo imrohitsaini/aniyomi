@@ -1,13 +1,13 @@
-package com.justappz.aniyomitv.core.data.local.database
+package com.justappz.aniyomitv.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.justappz.aniyomitv.extensions.data.local.dao.ExtensionRepoDetailsDao
 import com.justappz.aniyomitv.extensions.data.local.entity.ExtensionEntity
 import com.justappz.aniyomitv.extensions.data.local.entity.ExtensionRepoDetailsEntity
-import com.justappz.aniyomitv.playback.data.local.dao.AnimeEpisodeDao
-import com.justappz.aniyomitv.playback.data.local.entity.AnimeEntity
-import com.justappz.aniyomitv.playback.data.local.entity.EpisodeEntity
+import com.justappz.aniyomitv.database.dao.AnimeEpisodeDao
+import com.justappz.aniyomitv.database.entity.AnimeEntity
+import com.justappz.aniyomitv.database.entity.EpisodeEntity
 
 @Database(
     entities = [

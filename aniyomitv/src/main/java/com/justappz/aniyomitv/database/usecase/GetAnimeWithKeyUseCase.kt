@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.playback.domain.usecase
+package com.justappz.aniyomitv.database.usecase
 
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.util.StringUtils.getAnimeKeyFromUrl

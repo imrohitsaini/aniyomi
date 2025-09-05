@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.playback.data.local.dao
+package com.justappz.aniyomitv.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -6,8 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.justappz.aniyomitv.constants.RoomDBConstants
-import com.justappz.aniyomitv.playback.data.local.entity.AnimeEntity
-import com.justappz.aniyomitv.playback.data.local.entity.EpisodeEntity
+import com.justappz.aniyomitv.database.entity.AnimeEntity
+import com.justappz.aniyomitv.database.entity.EpisodeEntity
 
 @Dao
 interface AnimeEpisodeDao {
@@ -18,7 +18,7 @@ interface AnimeEpisodeDao {
      * - If the Anime does not already exist, it will be inserted.
      * - If the Anime already exists (based on the primary key), it will be updated.
      *
-     * @param anime The [AnimeEntity] to insert or update.
+     * @param anime The [com.justappz.aniyomitv.database.entity.AnimeEntity] to insert or update.
      */
     @Upsert
     suspend fun insertAnime(anime: AnimeEntity)
@@ -47,9 +47,9 @@ interface AnimeEpisodeDao {
      * - If an Episode with the same primary key exists, it will be replaced.
      * - Otherwise, the new Episode will be inserted.
      *
-     * @param episode The [EpisodeEntity] to insert or update.
+     * @param episode The [com.justappz.aniyomitv.database.entity.EpisodeEntity] to insert or update.
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertEpisode(episode: EpisodeEntity)
 
     /**
@@ -58,9 +58,9 @@ interface AnimeEpisodeDao {
      * - If an Episode with the same primary key exists, it will be replaced.
      * - Otherwise, the new Episode will be inserted.
      *
-     * @param episode The [EpisodeEntity] to insert or update.
+     * @param episodes The EpisodeEntities to insert or update.
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertEpisodes(episodes: List<EpisodeEntity>)
 
 
@@ -72,8 +72,8 @@ interface AnimeEpisodeDao {
      */
     @Query(
         "SELECT * FROM ${RoomDBConstants.ENTITY_EPISODES} " +
-            "WHERE animeUrl = :animeUrl " +
+            "WHERE animeKey = :animeKey " +
             "ORDER BY episodeNumber ASC",
     )
-    suspend fun getEpisodesForAnime(animeUrl: String): List<EpisodeEntity>
+    suspend fun getEpisodesForAnime(animeKey: String): List<EpisodeEntity>
 }

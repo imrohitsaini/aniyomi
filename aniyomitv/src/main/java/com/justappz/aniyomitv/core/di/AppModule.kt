@@ -3,7 +3,7 @@ package com.justappz.aniyomitv.core.di
 import android.app.Application
 import androidx.room.Room
 import com.justappz.aniyomitv.constants.RoomDBConstants
-import com.justappz.aniyomitv.core.data.local.database.AppDatabase
+import com.justappz.aniyomitv.database.AppDatabase
 import eu.kanade.tachiyomi.network.NetworkHelper
 import kotlinx.serialization.json.Json
 import uy.kohesive.injekt.api.InjektModule

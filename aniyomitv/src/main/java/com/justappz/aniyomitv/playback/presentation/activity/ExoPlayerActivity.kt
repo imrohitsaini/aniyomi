@@ -35,15 +35,18 @@ import com.justappz.aniyomitv.constants.EpisodeWatchState
 import com.justappz.aniyomitv.constants.IntentKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
+import com.justappz.aniyomitv.core.error.AppError
+import com.justappz.aniyomitv.core.error.ErrorDisplayType
+import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
+import com.justappz.aniyomitv.core.util.UserDefinedErrors
+import com.justappz.aniyomitv.core.util.UserDefinedErrors.SOMETHING_WENT_WRONG
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
 import com.justappz.aniyomitv.extensions.utils.ExtensionUtils.loadAnimeSource
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import com.justappz.aniyomitv.playback.domain.model.toSEpisode
-import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
-import com.justappz.aniyomitv.playback.domain.usecase.UpdateEpisodeWithDbUseCase
 import com.justappz.aniyomitv.playback.presentation.viewmodel.PlayerViewModel
 import com.justappz.aniyomitv.playback.utils.ExoCache
 import eu.kanade.tachiyomi.animesource.model.SAnime
@@ -66,17 +69,21 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private val tag = "ExoPlayerActivity"
 
     private lateinit var sourceList: List<Video>
-    private var selectedSourcePosition = 0
+    private var preferredSource = 0
 
-    private var anime: SAnime? = null
-    private var inLibrary: Boolean = false
+    private lateinit var anime: SAnime
 
     private lateinit var className: String
     private lateinit var packageName: String
-    private var animeHttpSource: AnimeHttpSource? = null
+    private lateinit var animeHttpSource: AnimeHttpSource
 
-    private var selectedEpisode: EpisodeDomain? = null
-    private var nowPlayingEpisode = -1
+    private lateinit var selectedEpisode: EpisodeDomain
+
+    private lateinit var nextEpisode: EpisodeDomain
+    private var nextSourcesList: List<Video> = arrayListOf()
+
+
+    private var allEpisodeList: List<EpisodeDomain> = arrayListOf()
     private var lastEpisodeUpdateTime = 0L
 
     private var doubleBackToExitPressedOnce = false
@@ -93,8 +100,9 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     private val viewModel: PlayerViewModel by viewModels {
         ViewModelFactory {
             PlayerViewModel(
-                Injekt.get<UpdateAnimeWithDbUseCase>(),
-                Injekt.get<UpdateEpisodeWithDbUseCase>(),
+                Injekt.get(),
+                Injekt.get(),
+                Injekt.get(),
             )
         }
     }
@@ -110,30 +118,51 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_exo_player)
 
-        anime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val sanime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(IntentKeys.ANIME, SAnime::class.java)
         } else {
             @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME) as? SAnime
         }
 
-        inLibrary = intent.getBooleanExtra(IntentKeys.ANIME_IN_LIBRARY, false)
+        if (sanime == null) {
+            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
+            finish()
+        } else {
+            anime = sanime
+        }
 
-        selectedEpisode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        observeEpisodeUpdate()
+        getAllEpisodeObserver()
+        nextVideoListObserver()
+        viewModel.getAllEpisodes(anime.url)
+
+
+        val sepisode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(IntentKeys.ANIME_EPISODE, EpisodeDomain::class.java)
         } else {
             @Suppress("DEPRECATION") intent.getSerializableExtra(IntentKeys.ANIME_EPISODE) as? EpisodeDomain
         }
+        if (sepisode == null) {
+            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
+            finish()
+        } else {
+            selectedEpisode = sepisode
+        }
 
         packageName = intent.getStringExtra(IntentKeys.ANIME_PKG).toString()
         className = intent.getStringExtra(IntentKeys.ANIME_CLASS).toString()
-        animeHttpSource = ctx.loadAnimeSource(packageName, className)
+        val source = ctx.loadAnimeSource(packageName, className)
+
+        if (source == null) {
+            ErrorHandler.show(ctx, UserDefinedErrors.UNABLE_TO_LOAD_EXTENSION)
+            finish()
+        } else {
+            animeHttpSource = source
+        }
 
         // handle intent data
         sourceList = intent.getStringExtra(IntentKeys.SOURCE_LIST)?.toVideoList() ?: emptyList()
         Log.d(tag, "videos ${sourceList.size}")
-
-        // playing position
-        nowPlayingEpisode = intent.getIntExtra(IntentKeys.NOW_PLAYING, -1)
 
         onBackPressedDispatcher.addCallback(
             this,
@@ -154,16 +183,20 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             },
         )
 
-        resumePosition = selectedEpisode?.lastWatchTime ?: 0L
+        resumePosition = if (selectedEpisode.watchState == EpisodeWatchState.WATCHED) {
+            0L
+        } else {
+            selectedEpisode.lastWatchTime
+        }
         init()
-        startPlayer(nowPlayingEpisode, selectedSourcePosition, resumePosition)
+        startPlayer(selectedEpisode, preferredSource, resumePosition)
 
     }
     //endregion
 
     //region init
     private fun init() {
-        binding.topBar.tvAnimeTitle.text = anime?.title
+        binding.topBar.tvAnimeTitle.text = anime.title
         binding.topBar.ivBack.setOnClickListener(this)
         binding.topBar.ivSource.setOnClickListener(this)
 
@@ -248,12 +281,68 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 },
             ),
         )
-        observeEpisodeUpdate()
     }
     //endregion
 
     //region previous or next episodes
-    private fun isLastEpisode(): Boolean = nowPlayingEpisode == 0
+    private fun isLastEpisode(): Boolean {
+        val index = allEpisodeList.indexOfFirst { it.episodeNumber > selectedEpisode.episodeNumber }
+        return index == -1
+    }
+
+    private fun readyNextEpisode() {
+        try {
+            val index = allEpisodeList.indexOfFirst { it.episodeNumber > selectedEpisode.episodeNumber }
+            nextEpisode = allEpisodeList[index]
+
+            viewModel.getVideosList(animeHttpSource, nextEpisode.toSEpisode())
+        } catch (e: Exception) {
+            Log.d(tag, "Next episode error ${e.message}")
+            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
+        }
+    }
+
+    //region observeVideos
+    private fun nextVideoListObserver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.videosList.collect { state ->
+                    when (state) {
+                        BaseUiState.Empty -> {
+                            Log.d(tag, "videosList empty")
+                            ErrorHandler.show(
+                                ctx,
+                                AppError.UnknownError(
+                                    message = "No videos found",
+                                    displayType = ErrorDisplayType.TOAST,
+                                ),
+                            )
+                        }
+
+                        is BaseUiState.Error -> {
+                            Log.d(tag, "videosList error")
+                            ErrorHandler.show(ctx, state.error)
+                        }
+
+                        BaseUiState.Idle -> {
+                            Log.d(tag, "videosList idle")
+                        }
+
+                        BaseUiState.Loading -> {
+                            Log.d(tag, "videosList loading")
+                        }
+
+                        is BaseUiState.Success -> {
+                            Log.d(tag, "next video list success ${state.data.size}")
+                            nextSourcesList = state.data
+                            viewModel.resetVideoState()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //endregion
     //endregion
 
     //region seekbar
@@ -338,12 +427,8 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             // Animate overlay thumb size
             val scale = if (hasFocus) 1.25f else 1f
 
-            binding.bottomBar.seekThumb.animate()
-                .scaleX(scale)
-                .scaleY(scale)
-                .setDuration(200)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
+            binding.bottomBar.seekThumb.animate().scaleX(scale).scaleY(scale).setDuration(200)
+                .setInterpolator(DecelerateInterpolator()).start()
         }
 
         // Progress updater
@@ -358,14 +443,12 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                     val now = System.currentTimeMillis()
 
                     if (now - lastEpisodeUpdateTime >= 10000) {
-                        selectedEpisode?.let { episode ->
-                            val progressPercent = (position.toDouble() / duration.toDouble()) * 100
-                            val watchState =
-                                if (progressPercent >= 80) EpisodeWatchState.WATCHED else EpisodeWatchState.IN_PROGRESS
-                            if (canUpdateEpisode) {
-                                updateEpisodeWithDb(position, episode.toSEpisode(), watchState)
-                                canUpdateEpisode = false
-                            }
+                        val progressPercent = (position.toDouble() / duration.toDouble()) * 100
+                        val watchState =
+                            if (progressPercent >= 80) EpisodeWatchState.WATCHED else EpisodeWatchState.IN_PROGRESS
+                        if (canUpdateEpisode) {
+                            updateEpisodeWithDb(position, selectedEpisode.toSEpisode(), watchState)
+                            canUpdateEpisode = false
                         }
                     }
                 }
@@ -423,7 +506,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    private fun startPlayer(nowPlayingPosition: Int, selectedSourcePosition: Int, resumePosition: Long) {
+    private fun startPlayer(selectedEpisode: EpisodeDomain, selectedSourcePosition: Int, resumePosition: Long) {
         val video = sourceList[selectedSourcePosition]
 
         val mediaItem = MediaItem.fromUri(video.videoUrl)
@@ -498,7 +581,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
 
             binding.playerView.isVisible = true
             toggleControls()
-            updateUi()
+            updateUi(selectedEpisode)
         }
     }
 
@@ -526,9 +609,13 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     //endregion
 
     //region UI Updates
-    private fun updateUi() {
-        binding.bottomBar.ivPlayNext.isVisible = !isLastEpisode()
-        binding.topBar.tvEpisodeDetail.text = selectedEpisode?.name
+    private fun updateUi(episode: EpisodeDomain) {
+        val isLast = isLastEpisode()
+        binding.bottomBar.ivPlayNext.isVisible = !isLast
+        if (!isLast) {
+            readyNextEpisode()
+        }
+        binding.topBar.tvEpisodeDetail.text = episode.name
     }
     //endregion
 
@@ -557,7 +644,21 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 binding.ivPlayPause, binding.bottomBar.ivPlayPauseBottombar -> togglePlayPause()
                 binding.bottomBar.ivBackward -> back10Seconds()
                 binding.bottomBar.ivForward -> forward10Seconds()
+                binding.bottomBar.ivPlayNext -> playNextVideo()
             }
+        }
+    }
+    //endregion
+
+    //region playNextVideo
+    private fun playNextVideo() {
+        if (!nextSourcesList.isEmpty()) {
+            sourceList = nextSourcesList
+            selectedEpisode = nextEpisode
+            resumePosition = 0L
+            startPlayer(selectedEpisode, preferredSource, resumePosition)
+        } else {
+            ErrorHandler.show(ctx, SOMETHING_WENT_WRONG)
         }
     }
     //endregion
@@ -590,7 +691,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
                 ),
             )
         }
-        options[selectedSourcePosition].isSelected = true
+        options[preferredSource].isSelected = true
         val radioButtonDialogModel = RadioButtonDialogModel(
             title = "Change source",
             description = "Set your preferred video source",
@@ -599,10 +700,10 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         val dialog = RadioButtonDialog(
             radioButtonDialogModel = radioButtonDialogModel,
             { position ->
-                selectedSourcePosition = position
+                preferredSource = position
                 resumePosition = exoPlayer?.currentPosition ?: 0L
                 releasePlayer()
-                startPlayer(nowPlayingEpisode, selectedSourcePosition, resumePosition)
+                startPlayer(selectedEpisode, preferredSource, resumePosition)
             },
             {
 
@@ -693,9 +794,43 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    private fun getAllEpisodeObserver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.episodesDomain.collect { state ->
+                    when (state) {
+                        BaseUiState.Empty -> {
+                            Log.d(tag, "Episodes Domain Empty")
+                        }
+
+                        is BaseUiState.Error -> {
+                            Log.d(tag, "Episodes Domain Error")
+                        }
+
+                        BaseUiState.Idle -> {
+                            Log.d(tag, "Episodes Domain Error")
+                        }
+
+                        BaseUiState.Loading -> {
+                            Log.d(tag, "Episodes Domain Loading")
+                        }
+
+                        is BaseUiState.Success -> {
+                            Log.d(tag, "Episodes Domain Success")
+
+                            allEpisodeList = state.data
+                            updateUi(selectedEpisode)
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun updateEpisodeWithDb(position: Long, episode: SEpisode, watchState: Int) {
         viewModel.updateEpisodeWithDb(
-            animeUrl = anime?.url ?: return,
+            animeUrl = anime.url,
             lastWatchTime = position,
             watchState = watchState,
             episode = episode,

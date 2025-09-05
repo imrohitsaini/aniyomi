@@ -1,8 +1,7 @@
-package com.justappz.aniyomitv.playback.data.local.entity
+package com.justappz.aniyomitv.database.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.justappz.aniyomitv.constants.RoomDBConstants
 

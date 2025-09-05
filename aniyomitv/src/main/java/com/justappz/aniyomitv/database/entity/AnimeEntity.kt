@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.playback.data.local.entity
+package com.justappz.aniyomitv.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

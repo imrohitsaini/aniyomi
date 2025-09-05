@@ -278,7 +278,7 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
             }
         }
     }
-//endregion
+    //endregion
 
     //region initLoader
     private fun initLoader() {
@@ -331,13 +331,11 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
     private fun openPlayer(serialized: String) {
         startActivity(
             Intent(ctx, ExoPlayerActivity::class.java).apply {
-                putExtra(IntentKeys.SOURCE_LIST, serialized)
-                putExtra(IntentKeys.NOW_PLAYING, nowPlayingPosition)
-                putExtra(IntentKeys.ANIME, anime)
-                putExtra(IntentKeys.ANIME_CLASS, className)
-                putExtra(IntentKeys.ANIME_PKG, packageName)
-                putExtra(IntentKeys.ANIME_EPISODE, selectedEpisodeDomain)
-                putExtra(IntentKeys.ANIME_IN_LIBRARY, (animeDomain?.inLibrary == true))
+                putExtra(IntentKeys.SOURCE_LIST, serialized) // videos list
+                putExtra(IntentKeys.ANIME, anime) // anime
+                putExtra(IntentKeys.ANIME_CLASS, className) // className for animeHttpSource
+                putExtra(IntentKeys.ANIME_PKG, packageName) // packageName for animeHttpSource
+                putExtra(IntentKeys.ANIME_EPISODE, selectedEpisodeDomain) // selected anime
             },
         )
     }

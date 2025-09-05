@@ -5,7 +5,7 @@ import com.justappz.aniyomitv.episodes.domain.repo.EpisodesRepository
 import com.justappz.aniyomitv.episodes.domain.usecase.GetAnimeDetailsUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetEpisodesUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetVideosUseCase
-import com.justappz.aniyomitv.playback.domain.usecase.GetAnimeWithKeyUseCase
+import com.justappz.aniyomitv.database.usecase.GetAnimeWithKeyUseCase
 import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
 import uy.kohesive.injekt.api.addSingletonFactory

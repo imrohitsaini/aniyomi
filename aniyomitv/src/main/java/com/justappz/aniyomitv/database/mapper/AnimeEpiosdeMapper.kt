@@ -1,8 +1,8 @@
-package com.justappz.aniyomitv.playback.data.mapper
+package com.justappz.aniyomitv.database.mapper
 
 import com.justappz.aniyomitv.core.util.StringUtils.getAnimeKeyFromUrl
-import com.justappz.aniyomitv.playback.data.local.entity.AnimeEntity
-import com.justappz.aniyomitv.playback.data.local.entity.EpisodeEntity
+import com.justappz.aniyomitv.database.entity.AnimeEntity
+import com.justappz.aniyomitv.database.entity.EpisodeEntity
 import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 
@@ -48,6 +48,18 @@ fun EpisodeDomain.toEntity(): EpisodeEntity {
         episodeNumber = episodeNumber,
         scanlator = null,
         animeKey = animeUrl.getAnimeKeyFromUrl(),
+        animeUrl = animeUrl,
+        lastWatchTime = lastWatchTime,
+        watchState = watchState,
+    )
+}
+
+fun EpisodeEntity.toDomain(): EpisodeDomain {
+    return EpisodeDomain(
+        url = url,
+        name = name,
+        dateUpload = dateUpload,
+        episodeNumber = episodeNumber,
         animeUrl = animeUrl,
         lastWatchTime = lastWatchTime,
         watchState = watchState,

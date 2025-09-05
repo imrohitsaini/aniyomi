@@ -12,6 +12,7 @@ interface AnimeEpisodeRepo {
     // fetch
     suspend fun getAnimeWithKey(animeKey: String): BaseUiState<AnimeDomain?>
     suspend fun getAnimeInLibrary(): BaseUiState<List<AnimeDomain>>
+    suspend fun getAllEpisodesForAnime(animeKey: String): BaseUiState<List<EpisodeDomain>>
 
 
 }

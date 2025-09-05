@@ -9,8 +9,8 @@ import com.justappz.aniyomitv.episodes.domain.usecase.GetEpisodesUseCase
 import com.justappz.aniyomitv.episodes.domain.usecase.GetVideosUseCase
 import com.justappz.aniyomitv.playback.domain.model.AnimeDomain
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
-import com.justappz.aniyomitv.playback.domain.usecase.GetAnimeWithKeyUseCase
-import com.justappz.aniyomitv.playback.domain.usecase.UpdateAnimeWithDbUseCase
+import com.justappz.aniyomitv.database.usecase.GetAnimeWithKeyUseCase
+import com.justappz.aniyomitv.database.usecase.UpdateAnimeWithDbUseCase
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video

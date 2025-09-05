@@ -3,9 +3,10 @@ package com.justappz.aniyomitv.episodes.data.repo
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
+import com.justappz.aniyomitv.core.util.StringUtils.getAnimeKeyFromUrl
 import com.justappz.aniyomitv.episodes.domain.repo.EpisodesRepository
-import com.justappz.aniyomitv.playback.data.local.dao.AnimeEpisodeDao
-import com.justappz.aniyomitv.playback.data.mapper.toEntity
+import com.justappz.aniyomitv.database.dao.AnimeEpisodeDao
+import com.justappz.aniyomitv.database.mapper.toEntity
 import com.justappz.aniyomitv.playback.domain.model.EpisodeDomain
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
@@ -53,7 +54,7 @@ class EpisodesRepoImpl(
                 }
 
                 // Get existing episodes from DB
-                val localEpisodes = dao.getEpisodesForAnime(anime.url) // List<EpisodeEntity>
+                val localEpisodes = dao.getEpisodesForAnime(anime.url.getAnimeKeyFromUrl()) // List<EpisodeEntity>
 
                 // Merge remote + local
                 val episodeDomains = remoteEpisodes.map { remote ->

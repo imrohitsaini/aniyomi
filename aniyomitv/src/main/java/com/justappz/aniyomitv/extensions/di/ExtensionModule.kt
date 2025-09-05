@@ -1,6 +1,6 @@
 package com.justappz.aniyomitv.extensions.di
 
-import com.justappz.aniyomitv.core.data.local.database.AppDatabase
+import com.justappz.aniyomitv.database.AppDatabase
 import com.justappz.aniyomitv.extensions.data.repo.ExtensionRepoDetailsImpl
 import com.justappz.aniyomitv.extensions.domain.repo.ExtensionRepoDetailsRepository
 import com.justappz.aniyomitv.extensions.domain.usecase.ObserveExtensionsUseCase

@@ -33,6 +33,7 @@ import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.constants.EpisodeWatchState
 import com.justappz.aniyomitv.constants.IntentKeys
+import com.justappz.aniyomitv.constants.PrefsKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.ExitDialogFragment
 import com.justappz.aniyomitv.core.components.dialog.RadioButtonDialog
@@ -42,6 +43,7 @@ import com.justappz.aniyomitv.core.error.ErrorHandler
 import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
+import com.justappz.aniyomitv.core.util.PrefsManager
 import com.justappz.aniyomitv.core.util.UserDefinedErrors
 import com.justappz.aniyomitv.core.util.UserDefinedErrors.SOMETHING_WENT_WRONG
 import com.justappz.aniyomitv.databinding.ActivityExoPlayerBinding
@@ -191,6 +193,13 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             selectedEpisode.lastWatchTime
         }
         init()
+
+        val preferredSourceTitle = PrefsManager.getString(PrefsKeys.PREFERRED_VIDEO_SOURCE, sourceList[0].videoTitle)
+
+        preferredSource = sourceList.indexOfFirst {
+            it.videoTitle == preferredSourceTitle
+        }.coerceAtLeast(0)
+
         startPlayer(selectedEpisode, preferredSource, resumePosition)
 
     }
@@ -704,6 +713,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             { position ->
                 preferredSource = position
                 resumePosition = exoPlayer?.currentPosition ?: 0L
+                PrefsManager.putString(PrefsKeys.PREFERRED_VIDEO_SOURCE, sourceList[position].videoTitle)
                 releasePlayer()
                 startPlayer(selectedEpisode, preferredSource, resumePosition)
             },

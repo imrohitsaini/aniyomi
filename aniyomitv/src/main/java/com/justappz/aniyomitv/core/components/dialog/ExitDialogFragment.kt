@@ -82,6 +82,10 @@ class ExitDialogFragment(
             params.gravity = Gravity.CENTER // keep it centered
             attributes = params
         }
+
+        binding.root.post {
+            binding.btnPositive.requestFocus()
+        }
     }
     //endregion
 

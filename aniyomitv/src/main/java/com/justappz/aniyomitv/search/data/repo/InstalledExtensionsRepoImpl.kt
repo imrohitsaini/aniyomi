@@ -2,10 +2,12 @@ package com.justappz.aniyomitv.search.data.repo
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.core.error.AppError
+import com.justappz.aniyomitv.core.error.ErrorDisplayType
+import com.justappz.aniyomitv.core.error.ErrorMapper
 import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
 import com.justappz.aniyomitv.search.domain.repo.InstalledExtensionsRepo
-import com.justappz.aniyomitv.base.BaseUiState
-import com.justappz.aniyomitv.core.error.ErrorMapper
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 
@@ -42,7 +44,12 @@ class InstalledExtensionsRepoImpl : InstalledExtensionsRepo {
                         val newInstance = clazz.getDeclaredConstructor().newInstance()
                         newInstance as? AnimeHttpSource
                     } catch (e: Exception) {
-                        null // here you might want to log/report but not fail the entire list
+                        return BaseUiState.Error(
+                            AppError.UnknownError(
+                                message = e.message ?: "Something went wrong!",
+                                displayType = ErrorDisplayType.INLINE,
+                            ),
+                        )
                     }
 
                     InstalledExtensions(
@@ -50,10 +57,15 @@ class InstalledExtensionsRepoImpl : InstalledExtensionsRepo {
                         className = fullClassName,
                         nsfwFlag = nsfwFlag,
                         instance = instance,
-                        appName = appName,
+                        appName = appName.replace("Aniyomi: ", ""),
                     )
                 } catch (e: Exception) {
-                    null // skip this package if it fails
+                    return BaseUiState.Error(
+                        AppError.UnknownError(
+                            message = e.message ?: "Something went wrong!",
+                            displayType = ErrorDisplayType.INLINE,
+                        ),
+                    )
                 }
             }
 

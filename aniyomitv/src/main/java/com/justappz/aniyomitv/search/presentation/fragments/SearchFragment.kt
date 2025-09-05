@@ -2,6 +2,7 @@ package com.justappz.aniyomitv.search.presentation.fragments
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -111,6 +112,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         binding.chipPopular.setOnClickListener(this)
         binding.chipLatest.setOnClickListener(this)
         binding.tvChangeSource.setOnClickListener(this)
+        binding.tvChangeSource.paintFlags = binding.tvChangeSource.paintFlags or Paint.UNDERLINE_TEXT_FLAG
     }
     //endregion
 
@@ -243,6 +245,11 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
                             binding.tvChangeSource.isVisible = installedExtensions.size >= 2
 
+                            binding.tvChangeSource.text = getString(
+                                R.string.change_source,
+                                installedExtensions[selectionIndex].appName,
+                            )
+
                             // After changing the extension, always load popular anime
                             selectChip(popularChip)
                             viewModel.resetExtensionState()
@@ -250,6 +257,8 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
                         BaseUiState.Empty -> {
                             showLoading(false)
+
+                            // Show error in line
                             binding.errorRoot.tvError.text = "No extensions detected"
                             binding.errorRoot.root.isVisible = true
                             binding.chipPopular.isVisible = false
@@ -371,6 +380,13 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                 val selected = installedExtensions.firstOrNull { it.isSelected == true }
                 selectedAnimeSource = selected?.instance
                 binding.chipLatest.isVisible = selectedAnimeSource?.supportsLatest == true
+
+                binding.tvChangeSource.text = getString(
+                    R.string.change_source,
+                    selected?.appName ?: "",
+                )
+
+
                 selectChip(popularChip)
 
                 // Save this as preference for next time

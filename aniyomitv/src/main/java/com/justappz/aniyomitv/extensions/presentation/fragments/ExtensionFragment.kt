@@ -190,6 +190,8 @@ class ExtensionFragment : BaseFragment() {
                         BaseUiState.Empty -> {
                             showLoading(false)
                             Log.d(tag, "Empty repo urls")
+
+                            // Show the error
                             ErrorHandler.show(
                                 ctx,
                                 AppError.UnknownError(
@@ -200,6 +202,8 @@ class ExtensionFragment : BaseFragment() {
                             )
                             binding.errorRoot.root.isVisible = true
                             binding.rvExtensions.isVisible = false
+
+                            // Update the chip to add the new item
                             updateRepoChips(emptyList())
                         }
                     }
@@ -349,12 +353,15 @@ class ExtensionFragment : BaseFragment() {
                             Log.d(tag, "No valid extensions detected")
                             // If is new repo error will be toast
                             val message = "No valid extensions detected"
+
+                            // While adding a repo show error on toast
                             val error = if (isNewRepo) {
                                 AppError.UnknownError(
                                     message = message,
                                     displayType = ErrorDisplayType.TOAST,
                                 )
                             } else {
+                                // For existing repo, show error inline
                                 binding.errorRoot.root.isVisible = true
                                 binding.rvExtensions.isVisible = false
                                 AppError.UnknownError(

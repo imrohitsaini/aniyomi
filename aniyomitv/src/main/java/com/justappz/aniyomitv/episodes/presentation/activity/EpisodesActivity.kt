@@ -420,10 +420,8 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
                             }
                             if (binding.ivLibrary.isSelected) {
                                 binding.tvLibrary.setText(R.string.in_library)
-                                Toast.makeText(ctx, "Added to library", Toast.LENGTH_SHORT).show()
                             } else {
                                 binding.tvLibrary.setText(R.string.add_to_library)
-                                Toast.makeText(ctx, "Removed from library", Toast.LENGTH_SHORT).show()
                             }
 
                         }
@@ -440,9 +438,11 @@ class EpisodesActivity : BaseActivity(), View.OnClickListener {
             if (binding.ivLibrary.isSelected) {
                 // It is already in the library -> remove the anime and the episodes
                 viewModel.updateAnimeWithDb(packageName, className, it, inLibrary = false)
+                Toast.makeText(ctx, "Removed from library", Toast.LENGTH_SHORT).show()
             } else {
                 // Not in the library -> add the anime and episodes in the library
                 viewModel.updateAnimeWithDb(packageName, className, it, inLibrary = true)
+                Toast.makeText(ctx, "Added to library", Toast.LENGTH_SHORT).show()
             }
         }
     }

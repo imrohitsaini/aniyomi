@@ -18,29 +18,44 @@ open class BaseRecyclerViewAdapter<T, VB : ViewBinding>(
      * Updates the entire list using DiffUtil for efficient changes
      * @param newItems List of new items to be set
      */
-    fun updateList(newItems: List<T>) {
-        val diffCallback = DiffCallback(items, newItems)
+    fun updateList(newItems: List<T>, identityProvider: ((T) -> Any)? = null) {
+        val diffCallback = DiffCallback(items, newItems, identityProvider)
         val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback)
         items = newItems
         diffResult.dispatchUpdatesTo(this)
     }
 
+    /**
+     * Replaces the entire list and refreshes everything
+     * (use only if you don’t care about animations/efficiency)
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    fun forceUpdateList(newItems: List<T>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
+
     private class DiffCallback<T>(
         private val oldList: List<T>,
-        private val newList: List<T>
+        private val newList: List<T>,
+        private val identityProvider: ((T) -> Any)?
     ) : androidx.recyclerview.widget.DiffUtil.Callback() {
+
         override fun getOldListSize(): Int = oldList.size
         override fun getNewListSize(): Int = newList.size
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition]
+            return if (identityProvider != null) {
+                identityProvider(oldList[oldItemPosition]) == identityProvider(newList[newItemPosition])
+            } else {
+                oldList[oldItemPosition] == newList[newItemPosition]
+            }
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldList[oldItemPosition] == newList[newItemPosition]
         }
     }
-
     /**
      * This method adds new items to the existing list and notifies the adapter
      * Useful for infinite scrolling or pagination scenarios

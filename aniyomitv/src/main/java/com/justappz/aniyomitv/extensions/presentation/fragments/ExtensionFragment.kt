@@ -29,10 +29,9 @@ import com.justappz.aniyomitv.extensions.dialog.ExtensionDialogFragment
 import com.justappz.aniyomitv.extensions.domain.model.Chip
 import com.justappz.aniyomitv.extensions.domain.model.ExtensionDomain
 import com.justappz.aniyomitv.extensions.domain.model.ExtensionRepositoriesDetailsDomain
-import com.justappz.aniyomitv.extensions.domain.usecase.ObserveExtensionsUseCase
 import com.justappz.aniyomitv.extensions.domain.usecase.GetExtensionRepoDetailsUseCase
-
 import com.justappz.aniyomitv.extensions.domain.usecase.InsertExtensionRepoUrlUseCase
+import com.justappz.aniyomitv.extensions.domain.usecase.ObserveExtensionsUseCase
 import com.justappz.aniyomitv.extensions.domain.usecase.RefreshExtensionsUseCase
 import com.justappz.aniyomitv.extensions.presentation.adapters.ExtensionPagingAdapter
 import com.justappz.aniyomitv.extensions.presentation.adapters.RepoChipsAdapter
@@ -243,7 +242,7 @@ class ExtensionFragment : BaseFragment() {
         }
 
         Log.i(tag, "updateList()")
-        repoUrlChipsAdapter.updateList(chips)
+        repoUrlChipsAdapter.forceUpdateList(chips)
 
 
         selectedChip?.let {
@@ -302,6 +301,16 @@ class ExtensionFragment : BaseFragment() {
                                 extensionAdapter.submitData(
                                     pagingData = PagingData.from(sortedList),
                                 )
+
+                                binding.rvExtensions.post {
+                                    binding.rvExtensions.scrollToPosition(0)
+
+                                    binding.rvExtensions.post {
+                                        val firstHolder =
+                                            binding.rvExtensions.findViewHolderForAdapterPosition(0)
+                                        firstHolder?.itemView?.requestFocus()
+                                    }
+                                }
                             }
 
                             binding.errorRoot.root.isVisible = false

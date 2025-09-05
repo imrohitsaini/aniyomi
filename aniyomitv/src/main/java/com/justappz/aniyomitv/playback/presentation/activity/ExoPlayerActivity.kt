@@ -173,7 +173,7 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (doubleBackToExitPressedOnce) {
-                        showExitDialog(true)
+                        showExitDialog()
                     } else {
                         binding.bottomBar.seekBar.requestFocus()
                         toggleControls()
@@ -841,17 +841,15 @@ class ExoPlayerActivity : BaseActivity(), View.OnClickListener {
     //endregion
 
     //region Exit Dialog
-    private fun showExitDialog(toShow: Boolean) {
+    private fun showExitDialog() {
         if (exitDialog == null) {
             exitDialog = ExitDialogFragment(
                 title = getString(R.string.do_you_want_to_stop_playing),
                 onYes = { finish() },
                 onDismissListener = { },
             )
-        } else if (toShow) {
-            exitDialog?.show(supportFragmentManager, "exit_dialog")
         } else {
-            exitDialog?.dismiss()
+            exitDialog?.show(supportFragmentManager, "exit_dialog")
         }
     }
     //endregion

@@ -1,10 +1,14 @@
 package com.justappz.aniyomitv.main.ui.activities
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -14,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseActivity
 import com.justappz.aniyomitv.core.ViewModelFactory
+import com.justappz.aniyomitv.core.components.dialog.ExitDialogFragment
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ActivityMainBinding
 import com.justappz.aniyomitv.main.domain.model.MainScreenTab
@@ -31,6 +36,9 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
     private lateinit var tabs: List<MainScreenTab>
     private val tag = "MainActivity"
     private var lastSelectedPosition: Int = RecyclerView.NO_POSITION
+    private var doubleBackToExitPressedOnce = false
+    private val backHandler = Handler(Looper.getMainLooper())
+    private var exitDialog: ExitDialogFragment? = null
     private val mainViewModel: MainViewModel by viewModels {
         ViewModelFactory { MainViewModel(Injekt.get()) }
     }
@@ -43,6 +51,26 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
 
         binding.viewModel = mainViewModel
         binding.lifecycleOwner = this
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (doubleBackToExitPressedOnce) {
+                        showExitDialog()
+                    } else {
+                        val homeTab = binding.tabs[0]
+                        if (!homeTab.isFocused){
+                            homeTab.requestFocus()
+                            binding.ivSettings.isSelected = false
+                        }
+                        doubleBackToExitPressedOnce = true
+
+                        backHandler.postDelayed({ doubleBackToExitPressedOnce = false }, 2000) // 2s window
+                    }
+                }
+            },
+        )
 
         init()
     }
@@ -206,4 +234,18 @@ class MainActivity : BaseActivity(), View.OnFocusChangeListener {
         }
     }
     //ending
+
+    //region Exit Dialog
+    private fun showExitDialog() {
+        if (exitDialog == null) {
+            exitDialog = ExitDialogFragment(
+                title = getString(R.string.do_you_want_to_exit),
+                onYes = { finish() },
+                onDismissListener = { },
+            )
+        } else {
+            exitDialog?.show(supportFragmentManager, "exit_dialog")
+        }
+    }
+    //endregion
 }

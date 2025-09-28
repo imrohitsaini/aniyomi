@@ -59,7 +59,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8dp"
-        app:layout_constraintBottom_toTopOf="@id/seekBar"
+        android:layout_marginBottom="@dimen/_8dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomBarTopGuideline"
         app:layout_constraintStart_toStartOf="@id/startGuideline"
         tools:text="00:00" />
 

@@ -8,6 +8,7 @@ import coil3.request.crossfade
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BasePagingAdapter
 import com.justappz.aniyomitv.core.components.chips.ChipView
+import com.justappz.aniyomitv.core.components.editext.CustomEditText
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ItemAnimeBinding
 import com.justappz.aniyomitv.discover.domain.model.SAnimeDiffCallback
@@ -79,10 +80,13 @@ class AnimePagingAdapter(
                     if (position < spanCount) {
                         val popularChip = recyclerView?.rootView?.findViewById<ChipView>(R.id.chipPopular)
                         val latestChip = recyclerView?.rootView?.findViewById<ChipView>(R.id.chipLatest)
+                        val etInput = recyclerView?.rootView?.findViewById<CustomEditText>(R.id.etInput)
                         if (popularChip?.getSelectedState() == true) {
                             popularChip.requestFocus()
+                        } else if (latestChip?.getSelectedState() == true){
+                            latestChip.requestFocus()
                         } else {
-                            latestChip?.requestFocus()
+                            etInput?.requestFocus()
                         }
                         true
                     } else {

@@ -152,16 +152,6 @@ class DiscoverFragment : BaseFragment(), View.OnClickListener {
                             binding.errorRoot.root.isVisible = isEmpty
                             if (isEmpty) {
                                 binding.errorRoot.tvError.text = getString(R.string.no_data_found)
-                            } else {
-                                // ✅ Only reset to top on very first load
-                                if (!firstLoadHandled) {
-                                    firstLoadHandled = true
-                                    binding.rvAnime.scrollToPosition(0)
-                                    binding.rvAnime.post {
-                                        val vh = binding.rvAnime.findViewHolderForAdapterPosition(0)
-                                        vh?.itemView?.requestFocus()
-                                    }
-                                }
                             }
                         }
 

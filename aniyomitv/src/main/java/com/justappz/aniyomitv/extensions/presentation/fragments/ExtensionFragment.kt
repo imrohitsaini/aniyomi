@@ -17,11 +17,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.justappz.aniyomitv.R
 import com.justappz.aniyomitv.base.BaseFragment
 import com.justappz.aniyomitv.base.BaseUiState
+import com.justappz.aniyomitv.constants.PrefsKeys
 import com.justappz.aniyomitv.core.ViewModelFactory
 import com.justappz.aniyomitv.core.components.dialog.InputDialogFragment
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.core.error.ErrorHandler
+import com.justappz.aniyomitv.core.util.PrefsManager
 import com.justappz.aniyomitv.core.util.UrlUtils
 import com.justappz.aniyomitv.core.util.toJsonArray
 import com.justappz.aniyomitv.databinding.FragmentExtensionBinding
@@ -47,6 +49,7 @@ class ExtensionFragment : BaseFragment() {
     private var _binding: FragmentExtensionBinding? = null
     private val binding get() = _binding!!
     private val tag = "ExtensionFragment"
+    private var isNsfwEnabled = false
     private val viewModel: ExtensionViewModel by viewModels {
         ViewModelFactory {
             ExtensionViewModel(
@@ -101,6 +104,9 @@ class ExtensionFragment : BaseFragment() {
 
     //region init()
     private fun init() {
+
+        isNsfwEnabled = PrefsManager.getBoolean(PrefsKeys.PREFERRED_NSFW_SOURCE, false)
+
         Log.d(tag, "init")
         reposAdapterProperties()
         extensionAdapterProperties()
@@ -298,23 +304,18 @@ class ExtensionFragment : BaseFragment() {
                                 }
 
                                 // Sort: installed first, then not installed
-                                val sortedList =
+                                var sortedList =
                                     updatedList.sortedByDescending { it.installedExtensionInfo?.installed == true }
+
+                                // Filter nsfw if not enabled
+                                if (!isNsfwEnabled) {
+                                    sortedList = sortedList.filter { it.nsfw == 0 }
+                                }
 
                                 // Submit updated + sorted list
                                 extensionAdapter.submitData(
                                     pagingData = PagingData.from(sortedList),
                                 )
-
-                                binding.rvExtensions.post {
-                                    binding.rvExtensions.scrollToPosition(0)
-
-                                    binding.rvExtensions.post {
-                                        val firstHolder =
-                                            binding.rvExtensions.findViewHolderForAdapterPosition(0)
-                                        firstHolder?.itemView?.requestFocus()
-                                    }
-                                }
                             }
 
                             binding.errorRoot.root.isVisible = false

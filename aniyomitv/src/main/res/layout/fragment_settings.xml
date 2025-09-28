@@ -1,21 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/anime_tv_background"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/anime_tv_background">
+
+    <!--    region Guidelines-->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/topGuideline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.01" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/leftGuideline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="@dimen/_20dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rightGuideline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+    <!--    endregion-->
+
 
     <TextView
-        android:id="@+id/tvTabTitle"
+        android:id="@+id/tvNSFWSources"
+        style="@style/AnimeTV_Text_Base"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_8dp"
+        android:text="@string/nsfw_extensions"
+        app:layout_constraintStart_toStartOf="@id/leftGuideline"
+        app:layout_constraintTop_toTopOf="@id/topGuideline" />
+
+    <TextView
+        android:id="@+id/tvNSFWSourcesDesc"
+        style="@style/AnimeTV_Text_Caption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/tvNSFWSources"
+        app:layout_constraintTop_toBottomOf="@id/tvNSFWSources"
+        tools:text="@string/nsfw_sources_are_disabled" />
+
+    <Switch
+        android:id="@+id/switchNsfwSources"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="@dimen/_8dp"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text="Settings" />
+        android:thumb="@drawable/switch_thumb"
+        android:track="@drawable/switch_track"
+        app:layout_constraintBottom_toBottomOf="@id/tvNSFWSourcesDesc"
+        app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+        app:layout_constraintTop_toTopOf="@id/tvNSFWSources"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

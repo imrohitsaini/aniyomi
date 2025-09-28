@@ -102,9 +102,9 @@
         android:focusableInTouchMode="true"
         android:text="@string/change_source"
         android:textColor="@color/text_focus_selector"
-        app:layout_constraintBottom_toBottomOf="@id/chipLatest"
+        app:layout_constraintBottom_toBottomOf="@id/chipPopular"
         app:layout_constraintEnd_toEndOf="@id/rightGuideline"
-        app:layout_constraintTop_toTopOf="@id/chipLatest" />
+        app:layout_constraintTop_toTopOf="@id/topGuideline" />
 
     <ProgressBar
         android:id="@+id/loading"

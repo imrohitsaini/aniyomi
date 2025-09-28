@@ -28,4 +28,7 @@
     <string name="do_you_want_to_stop_playing">Do you want to exit the video?</string>
     <string name="do_you_want_to_exit">Do you want to exit?</string>
     <string name="one_piece_naruto_etc">One Piece, Naruto, etc.</string>
+    <string name="nsfw_extensions">NSFW Extensions</string>
+    <string name="nsfw_sources_are_disabled">NSFW sources are disabled</string>
+    <string name="nsfw_sources_are_enabled">NSFW sources are enabled</string>
 </resources>

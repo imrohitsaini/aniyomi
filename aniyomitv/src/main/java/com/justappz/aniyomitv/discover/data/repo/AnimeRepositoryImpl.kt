@@ -1,8 +1,8 @@
-package com.justappz.aniyomitv.search.data.repo
+package com.justappz.aniyomitv.discover.data.repo
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import com.justappz.aniyomitv.search.domain.repo.AnimeRepository
+import com.justappz.aniyomitv.discover.domain.repo.AnimeRepository
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import tachiyomi.data.source.anime.AnimeSourceLatestPagingSource

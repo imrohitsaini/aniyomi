@@ -1,8 +1,8 @@
-package com.justappz.aniyomitv.search.domain.usecase
+package com.justappz.aniyomitv.discover.domain.usecase
 
 import android.content.Context
-import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
-import com.justappz.aniyomitv.search.domain.repo.InstalledExtensionsRepo
+import com.justappz.aniyomitv.discover.domain.model.InstalledExtensions
+import com.justappz.aniyomitv.discover.domain.repo.InstalledExtensionsRepo
 import com.justappz.aniyomitv.base.BaseUiState
 
 class GetInstalledExtensionsUseCase(

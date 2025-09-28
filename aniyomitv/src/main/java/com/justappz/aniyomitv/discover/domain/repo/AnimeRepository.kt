@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.search.domain.repo
+package com.justappz.aniyomitv.discover.domain.repo
 
 import androidx.paging.Pager
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource

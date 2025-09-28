@@ -37,7 +37,7 @@ import uy.kohesive.injekt.api.get
 class LibraryFragment : BaseFragment() {
 
     //region variables
-    private val tag = "SearchFragment"
+    private val tag = "LibraryFragment"
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 

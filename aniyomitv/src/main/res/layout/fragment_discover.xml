@@ -65,6 +65,21 @@
         app:layout_constraintStart_toEndOf="@id/chipPopular"
         app:layout_constraintTop_toTopOf="@id/topGuideline" />
 
+    <com.justappz.aniyomitv.core.components.chips.ChipView
+        android:id="@+id/chipSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_8dp"
+        android:duplicateParentState="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        app:chipIcon="@drawable/svg_search"
+        app:chipSelected="false"
+        app:chipText="Search"
+        app:chipType="filter"
+        app:layout_constraintStart_toEndOf="@id/chipLatest"
+        app:layout_constraintTop_toTopOf="@id/topGuideline" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAnime"
         android:layout_width="0dp"

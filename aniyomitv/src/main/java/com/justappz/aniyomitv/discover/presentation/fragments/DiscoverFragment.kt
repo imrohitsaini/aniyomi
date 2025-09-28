@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.search.presentation.fragments
+package com.justappz.aniyomitv.discover.presentation.fragments
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -28,14 +28,15 @@ import com.justappz.aniyomitv.core.model.Options
 import com.justappz.aniyomitv.core.model.RadioButtonDialogModel
 import com.justappz.aniyomitv.core.util.PrefsManager
 import com.justappz.aniyomitv.core.util.UserDefinedErrors.MISSING_EXTENSION
-import com.justappz.aniyomitv.databinding.FragmentSearchBinding
+import com.justappz.aniyomitv.databinding.FragmentDiscoverBinding
+import com.justappz.aniyomitv.discover.domain.model.InstalledExtensions
+import com.justappz.aniyomitv.discover.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.discover.domain.usecase.GetLatestAnimePagingUseCase
+import com.justappz.aniyomitv.discover.domain.usecase.GetPopularAnimePagingUseCase
+import com.justappz.aniyomitv.discover.presentation.adapters.AnimePagingAdapter
+import com.justappz.aniyomitv.discover.presentation.viewmodel.DiscoverViewModel
 import com.justappz.aniyomitv.episodes.presentation.activity.EpisodesActivity
-import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
-import com.justappz.aniyomitv.search.domain.usecase.GetInstalledExtensionsUseCase
-import com.justappz.aniyomitv.search.domain.usecase.GetLatestAnimePagingUseCase
-import com.justappz.aniyomitv.search.domain.usecase.GetPopularAnimePagingUseCase
-import com.justappz.aniyomitv.search.presentation.adapters.AnimePagingAdapter
-import com.justappz.aniyomitv.search.presentation.viewmodel.SearchViewModel
+import com.justappz.aniyomitv.search.presentation.activities.AnimeSearchActivity
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import kotlinx.coroutines.Dispatchers
@@ -43,15 +44,15 @@ import kotlinx.coroutines.launch
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-class SearchFragment : BaseFragment(), View.OnClickListener {
+class DiscoverFragment : BaseFragment(), View.OnClickListener {
 
     //region variables
-    private val tag = "SearchFragment"
-    private var _binding: FragmentSearchBinding? = null
+    private val tag = "DiscoverFragment"
+    private var _binding: FragmentDiscoverBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: SearchViewModel by viewModels {
+    private val viewModel: DiscoverViewModel by viewModels {
         ViewModelFactory {
-            SearchViewModel(
+            DiscoverViewModel(
                 Injekt.get<GetInstalledExtensionsUseCase>(),
                 Injekt.get<GetPopularAnimePagingUseCase>(),
                 Injekt.get<GetLatestAnimePagingUseCase>(),
@@ -75,7 +76,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
         savedInstanceState: Bundle?,
     ): View {
         Log.d(tag, "onCreateView")
-        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        _binding = FragmentDiscoverBinding.inflate(inflater, container, false)
         return binding.root
     }
     //endregion
@@ -112,6 +113,7 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
 
         binding.chipPopular.setOnClickListener(this)
         binding.chipLatest.setOnClickListener(this)
+        binding.chipSearch.setOnClickListener(this)
         binding.tvChangeSource.setOnClickListener(this)
         binding.tvChangeSource.paintFlags = binding.tvChangeSource.paintFlags or Paint.UNDERLINE_TEXT_FLAG
     }
@@ -300,6 +302,10 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
                     selectChip(latestChip)
                 }
 
+                binding.chipSearch -> {
+                    openSearchActivity()
+                }
+
                 binding.tvChangeSource -> {
                     changeSourceDialog()
                 }
@@ -402,6 +408,12 @@ class SearchFragment : BaseFragment(), View.OnClickListener {
             onDismissListener = {},
         )
         dialog.show(parentFragmentManager, "options_dialog")
+    }
+    //endregion
+
+    //region openSearchActivity
+    private fun openSearchActivity() {
+        startActivity(Intent(ctx, AnimeSearchActivity::class.java))
     }
     //endregion
 }

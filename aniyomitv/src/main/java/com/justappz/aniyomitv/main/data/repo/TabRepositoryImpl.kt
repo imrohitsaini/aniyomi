@@ -6,7 +6,7 @@ import com.justappz.aniyomitv.main.domain.model.MainScreenTab
 import com.justappz.aniyomitv.main.domain.repo.TabRepository
 import com.justappz.aniyomitv.extensions.presentation.fragments.ExtensionFragment
 import com.justappz.aniyomitv.library.presentation.fragment.LibraryFragment
-import com.justappz.aniyomitv.search.presentation.fragments.SearchFragment
+import com.justappz.aniyomitv.discover.presentation.fragments.DiscoverFragment
 
 class TabRepositoryImpl : TabRepository {
 
@@ -20,9 +20,9 @@ class TabRepositoryImpl : TabRepository {
         ),
         MainScreenTabData(
             index = 1,
-            title = "Search",
-            fragmentProvider = { SearchFragment() },
-            fragmentTag = "search_fragment",
+            title = "Discover",
+            fragmentProvider = { DiscoverFragment() },
+            fragmentTag = "discover_fragment",
         ),
         MainScreenTabData(
             index = 3,

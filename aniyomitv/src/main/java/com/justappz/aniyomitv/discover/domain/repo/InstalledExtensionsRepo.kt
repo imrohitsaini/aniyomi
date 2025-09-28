@@ -1,7 +1,7 @@
-package com.justappz.aniyomitv.search.domain.repo
+package com.justappz.aniyomitv.discover.domain.repo
 
 import android.content.Context
-import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
+import com.justappz.aniyomitv.discover.domain.model.InstalledExtensions
 import com.justappz.aniyomitv.base.BaseUiState
 
 interface InstalledExtensionsRepo {

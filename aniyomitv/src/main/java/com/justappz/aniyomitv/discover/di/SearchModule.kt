@@ -1,12 +1,12 @@
-package com.justappz.aniyomitv.search.di
+package com.justappz.aniyomitv.discover.di
 
-import com.justappz.aniyomitv.search.data.repo.AnimeRepositoryImpl
-import com.justappz.aniyomitv.search.data.repo.InstalledExtensionsRepoImpl
-import com.justappz.aniyomitv.search.domain.repo.AnimeRepository
-import com.justappz.aniyomitv.search.domain.repo.InstalledExtensionsRepo
-import com.justappz.aniyomitv.search.domain.usecase.GetInstalledExtensionsUseCase
-import com.justappz.aniyomitv.search.domain.usecase.GetLatestAnimePagingUseCase
-import com.justappz.aniyomitv.search.domain.usecase.GetPopularAnimePagingUseCase
+import com.justappz.aniyomitv.discover.data.repo.AnimeRepositoryImpl
+import com.justappz.aniyomitv.discover.data.repo.InstalledExtensionsRepoImpl
+import com.justappz.aniyomitv.discover.domain.repo.AnimeRepository
+import com.justappz.aniyomitv.discover.domain.repo.InstalledExtensionsRepo
+import com.justappz.aniyomitv.discover.domain.usecase.GetInstalledExtensionsUseCase
+import com.justappz.aniyomitv.discover.domain.usecase.GetLatestAnimePagingUseCase
+import com.justappz.aniyomitv.discover.domain.usecase.GetPopularAnimePagingUseCase
 import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
 import uy.kohesive.injekt.api.addSingletonFactory

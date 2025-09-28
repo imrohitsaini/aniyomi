@@ -12,7 +12,7 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.request.allowRgb565
 import coil3.request.crossfade
-import com.justappz.aniyomitv.search.di.SearchModule
+import com.justappz.aniyomitv.discover.di.SearchModule
 import com.justappz.aniyomitv.constants.LogKeys
 import com.justappz.aniyomitv.core.di.AppModule
 import com.justappz.aniyomitv.core.di.PreferenceModule

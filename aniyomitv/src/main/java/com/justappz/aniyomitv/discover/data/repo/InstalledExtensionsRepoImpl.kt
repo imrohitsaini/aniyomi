@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.search.data.repo
+package com.justappz.aniyomitv.discover.data.repo
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -6,8 +6,8 @@ import com.justappz.aniyomitv.base.BaseUiState
 import com.justappz.aniyomitv.core.error.AppError
 import com.justappz.aniyomitv.core.error.ErrorDisplayType
 import com.justappz.aniyomitv.core.error.ErrorMapper
-import com.justappz.aniyomitv.search.domain.model.InstalledExtensions
-import com.justappz.aniyomitv.search.domain.repo.InstalledExtensionsRepo
+import com.justappz.aniyomitv.discover.domain.model.InstalledExtensions
+import com.justappz.aniyomitv.discover.domain.repo.InstalledExtensionsRepo
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 

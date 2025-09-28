@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.search.domain.model
+package com.justappz.aniyomitv.discover.domain.model
 
 import androidx.recyclerview.widget.DiffUtil
 import eu.kanade.tachiyomi.animesource.model.SAnime

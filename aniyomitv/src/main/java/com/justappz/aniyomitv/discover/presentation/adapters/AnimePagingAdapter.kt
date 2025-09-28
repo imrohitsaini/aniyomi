@@ -1,4 +1,4 @@
-package com.justappz.aniyomitv.search.presentation.adapters
+package com.justappz.aniyomitv.discover.presentation.adapters
 
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
@@ -10,7 +10,7 @@ import com.justappz.aniyomitv.base.BasePagingAdapter
 import com.justappz.aniyomitv.core.components.chips.ChipView
 import com.justappz.aniyomitv.core.util.FocusKeyHandler
 import com.justappz.aniyomitv.databinding.ItemAnimeBinding
-import com.justappz.aniyomitv.search.domain.model.SAnimeDiffCallback
+import com.justappz.aniyomitv.discover.domain.model.SAnimeDiffCallback
 import eu.kanade.tachiyomi.animesource.model.SAnime
 
 class AnimePagingAdapter(
